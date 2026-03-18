@@ -54,7 +54,15 @@ app.use('/v1/monitor', authMiddleware, monitorRoutes);
 app.use('/v1/doubt', authMiddleware, doubtRoutes);
 app.use('/v1/sentiment', authMiddleware, sentimentRoutes);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`AI Service running at http://localhost:${PORT}`);
   console.log('Set GEMINI_API_KEY for AI features. Auth: X-API-Key or Authorization: Bearer <token>');
+});
+
+server.on('error', (err: NodeJS.ErrnoException) => {
+  console.error('Server failed to start:', err.message);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Set PORT env var or stop the other process.`);
+  }
+  process.exit(1);
 });
