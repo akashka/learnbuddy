@@ -8,9 +8,9 @@ import type { Request as ExpressRequest, Response as ExpressResponse } from 'exp
 import { Readable } from 'stream';
 import { AUTH_PAYLOAD_HEADER } from './lib/auth.js';
 
-type NextHandler = (request: Request, context?: { params?: Promise<Record<string, string>> }) => Promise<Response>;
-
-export function adaptNextRoute(handler: NextHandler) {
+/** Accepts Next.js-style route handlers. Context is always passed; handlers may type params more specifically. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function adaptNextRoute(handler: (request: Request, context?: any) => Promise<any>) {
   return async (expressReq: ExpressRequest, expressRes: ExpressResponse) => {
     try {
       const protocol = expressReq.protocol || 'http';
@@ -63,7 +63,7 @@ export function adaptNextRoute(handler: NextHandler) {
         }
       } else {
         // Forward response headers for downloads (e.g. CSV with Content-Disposition)
-        response.headers.forEach((value, key) => {
+        response.headers.forEach((value: string, key: string) => {
           if (key.toLowerCase() !== 'content-length') {
             expressRes.setHeader(key, value);
           }
