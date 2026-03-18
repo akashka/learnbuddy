@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { LocationSearch } from '@/components/LocationSearch';
 
 interface FormData {
@@ -54,44 +55,53 @@ export default function ParentRegisterForm() {
   if (!phone) return null;
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-      <h1 className="mb-6 text-2xl font-bold text-brand-800">Complete Registration</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
-            required
+    <AuthPageLayout title="Create your account" subtitle="A few details to help us connect you with the right tutors" wide card={false}>
+      <div className="rounded-3xl border-2 border-brand-200 bg-white p-6 shadow-2xl sm:p-8">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-xl space-y-4">
+          <div>
+            <label className="mb-2 block font-semibold text-brand-800">Full Name *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              required
+              placeholder="Enter your full name"
+              className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block font-semibold text-brand-800">Email *</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              required
+              placeholder="your@email.com"
+              className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block font-semibold text-brand-800">Phone</label>
+            <input
+              type="text"
+              value={phone}
+              readOnly
+              className="w-full rounded-xl border-2 border-brand-100 bg-brand-50 px-4 py-3 text-gray-600"
+            />
+          </div>
+          <LocationSearch
+            value={form.location}
+            onChange={(v) => setForm((f) => ({ ...f, location: v }))}
+            label="Location"
+            placeholder="Start typing to search (City, State or area)"
+            inputClassName="rounded-xl border-2 border-brand-200 px-4 py-3 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
           />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
-            required
-          />
-        </div>
-        <LocationSearch
-          value={form.location}
-          onChange={(v) => setForm((f) => ({ ...f, location: v }))}
-          label="Location (optional)"
-          placeholder="Search for an address..."
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-        >
-          {loading ? 'Saving...' : 'Complete Registration'}
-        </button>
-      </form>
-    </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button type="submit" disabled={loading} className="btn-primary w-full py-4 disabled:opacity-50">
+            <span className="btn-text">{loading ? 'Creating account...' : 'Create Account'}</span>
+          </button>
+        </form>
+      </div>
+    </AuthPageLayout>
   );
 }

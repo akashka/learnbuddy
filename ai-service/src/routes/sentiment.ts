@@ -1,13 +1,14 @@
 /**
  * Sentiment analysis route
  */
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { analyzeSentiment, analyzeSentimentBatch } from '../services/sentiment.js';
 
 const router = Router();
 
 /** POST /v1/sentiment/analyze - Single text */
-router.post('/analyze', async (req, res) => {
+router.post('/analyze', async (req: Request, res: Response) => {
   try {
     const { text } = req.body;
     if (!text || typeof text !== 'string') {
@@ -29,7 +30,7 @@ router.post('/analyze', async (req, res) => {
 });
 
 /** POST /v1/sentiment/batch - Multiple texts */
-router.post('/batch', async (req, res) => {
+router.post('/batch', async (req: Request, res: Response) => {
   try {
     const { texts } = req.body;
     if (!texts || !Array.isArray(texts)) {

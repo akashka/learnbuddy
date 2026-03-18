@@ -1,13 +1,14 @@
 /**
  * Doubt answering route
  */
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { answerDoubt } from '../services/doubt.js';
 
 const router = Router();
 
 /** POST /v1/doubt/ask */
-router.post('/ask', async (req, res) => {
+router.post('/ask', async (req: Request, res: Response) => {
   try {
     const { question, context } = req.body;
 

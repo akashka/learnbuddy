@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
+import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
 
 export default function ParentRegisterStart() {
@@ -88,57 +89,60 @@ export default function ParentRegisterStart() {
   if (step === 'otp') {
     const normalized = String(phone).replace(/\D/g, '').slice(-4);
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-2xl font-bold text-brand-800">Verify Phone</h1>
-        <p className="mb-4 text-sm text-gray-600">
-          OTP sent to ******{normalized}. Enter the 6-digit code.
-        </p>
-        <form onSubmit={handleVerifyOtp} className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">OTP</label>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
-              placeholder="000000"
-              maxLength={6}
-              required
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleResendOtp}
-              disabled={!canResend || loading}
-              className="text-sm text-brand-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
-            >
-              {canResend ? 'Resend OTP' : `Resend OTP in ${secondsLeft}s`}
+      <AuthPageLayout title="Verify Phone" subtitle="Enter the OTP sent to your number">
+        <div>
+          <p className="mb-4 text-sm text-brand-600">
+            OTP sent to ******{normalized}. Enter the 6-digit code.
+          </p>
+          <form onSubmit={handleVerifyOtp} className="space-y-4">
+            <div>
+              <label className="mb-2 block font-semibold text-brand-800">Enter OTP</label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="6-digit OTP"
+                inputMode="numeric"
+                maxLength={6}
+                className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 text-center text-2xl tracking-[0.5em] transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setStep('phone')}
+                className="mt-2 text-sm font-medium text-brand-600 hover:underline"
+              >
+                Change number
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={!canResend || loading}
+                className="text-sm font-medium text-brand-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
+              >
+                {canResend ? 'Resend OTP' : `Resend in ${secondsLeft}s`}
+              </button>
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+              <span className="btn-text">{loading ? 'Verifying...' : 'Verify & Continue'}</span>
             </button>
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-          >
-            {loading ? 'Verifying...' : 'Verify & Continue'}
-          </button>
-        </form>
-        <button
-          type="button"
-          onClick={() => setStep('phone')}
-          className="mt-4 w-full text-sm text-brand-600 hover:underline"
-        >
-          Change phone number
-        </button>
-      </div>
+          </form>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-bold text-brand-600 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
+      </AuthPageLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-      <h1 className="mb-6 text-2xl font-bold text-brand-800">Parent Registration</h1>
+    <AuthPageLayout title="Parent Registration" subtitle="Enter your phone to get started">
       <form onSubmit={handleSubmitPhone} className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Phone Number</label>
@@ -146,7 +150,7 @@ export default function ParentRegisterStart() {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
+            className="w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             placeholder="10-digit mobile number"
             required
           />
@@ -155,11 +159,11 @@ export default function ParentRegisterStart() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+          className="w-full rounded-xl bg-brand-600 py-3 font-semibold text-white shadow-md transition hover:bg-brand-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? 'Sending OTP...' : 'Send OTP'}
         </button>
       </form>
-    </div>
+    </AuthPageLayout>
   );
 }

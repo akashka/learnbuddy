@@ -7,7 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { RouteMeta } from '@/components/RouteMeta';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import NotFoundPage from '@/pages/errors/NotFoundPage';
-import Home from '@/pages/Home';
+import { RootRedirect } from '@/components/RootRedirect';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ParentRegisterStart from '@/pages/parent/ParentRegisterStart';
@@ -59,7 +59,7 @@ export default function App() {
           <RouteMeta />
           <Routes>
             <Route element={<AppShell />}>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/about-us" element={<AboutUs />} />

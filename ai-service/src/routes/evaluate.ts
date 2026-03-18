@@ -1,6 +1,7 @@
 /**
  * Evaluation routes
  */
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { evaluateStudentExam, evaluateTeacherExam } from '../services/evaluation.js';
 import type { StudentExamQuestion, TeacherExamQuestion } from '../services/types.js';
@@ -8,7 +9,7 @@ import type { StudentExamQuestion, TeacherExamQuestion } from '../services/types
 const router = Router();
 
 /** POST /v1/evaluate/exam - Student exam evaluation */
-router.post('/exam', async (req, res) => {
+router.post('/exam', async (req: Request, res: Response) => {
   try {
     const { questions, answers, type } = req.body;
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { AuthPageLayout } from '@/components/AuthPageLayout';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -20,7 +21,8 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg text-center">
+    <AuthPageLayout card={false}>
+    <div className="rounded-3xl border-2 border-brand-200 bg-white p-8 text-center shadow-2xl">
       {status === 'success' && (
         <>
           <div className="mb-4 text-5xl">✓</div>
@@ -47,5 +49,6 @@ export default function VerifyEmail() {
         <p className="text-gray-600">Verifying...</p>
       )}
     </div>
+    </AuthPageLayout>
   );
 }

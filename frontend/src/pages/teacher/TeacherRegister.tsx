@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
 
@@ -108,137 +109,144 @@ export default function TeacherRegister() {
 
   if (step === 'phone') {
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-2xl font-bold text-brand-800">Teacher Registration</h1>
+      <AuthPageLayout title="Become a Teacher" subtitle="Enter your phone to start or continue">
         <form onSubmit={handleSendOtp} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">{t('phone')}</label>
+            <label className="mb-2 block font-semibold text-brand-800">{t('phone')}</label>
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="10-digit mobile number"
+              inputMode="numeric"
+              maxLength={10}
+              className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               required
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-          >
-            {loading ? 'Sending OTP...' : 'Send OTP'}
+          <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+            <span className="btn-text">{loading ? 'Sending OTP...' : 'Send OTP'}</span>
           </button>
         </form>
-      </div>
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link to="/login" className="font-bold text-brand-600 hover:underline">
+            Login
+          </Link>
+        </p>
+      </AuthPageLayout>
     );
   }
 
   if (step === 'otp') {
     const normalized = String(phone).replace(/\D/g, '').slice(-4);
     return (
-      <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-2xl font-bold text-brand-800">Verify Phone</h1>
-        <p className="mb-4 text-sm text-gray-600">
+      <AuthPageLayout title="Verify Phone" subtitle="Enter the OTP sent to your number">
+        <p className="mb-4 text-sm text-brand-600">
           OTP sent to ******{normalized}. Enter the 6-digit code.
         </p>
         <form onSubmit={handleVerifyOtp} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">OTP</label>
+            <label className="mb-2 block font-semibold text-brand-800">Enter OTP</label>
             <input
               type="text"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
-              placeholder="000000"
+              placeholder="6-digit OTP"
+              inputMode="numeric"
               maxLength={6}
+              className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 text-center text-2xl tracking-[0.5em] transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               required
             />
+            <button
+              type="button"
+              onClick={() => setStep('phone')}
+              className="mt-2 text-sm font-medium text-brand-600 hover:underline"
+            >
+              Change number
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleResendOtp}
               disabled={!canResend || loading}
-              className="text-sm text-brand-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
+              className="text-sm font-medium text-brand-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
             >
-              {canResend ? 'Resend OTP' : `Resend OTP in ${secondsLeft}s`}
+              {canResend ? 'Resend OTP' : `Resend in ${secondsLeft}s`}
             </button>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-          >
-            {loading ? 'Verifying...' : 'Verify & Continue'}
+          <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+            <span className="btn-text">{loading ? 'Verifying...' : 'Verify & Continue'}</span>
           </button>
         </form>
-        <button
-          type="button"
-          onClick={() => setStep('phone')}
-          className="mt-4 w-full text-sm text-brand-600 hover:underline"
-        >
-          Change phone number
-        </button>
-      </div>
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link to="/login" className="font-bold text-brand-600 hover:underline">
+            Login
+          </Link>
+        </p>
+      </AuthPageLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-brand-200 bg-white p-8 shadow-lg">
-      <h1 className="mb-6 text-2xl font-bold text-brand-800">Teacher Registration</h1>
-      <p className="mb-4 text-sm text-gray-600">Phone verified. Complete your profile.</p>
+    <AuthPageLayout title="Complete Profile" subtitle="Phone verified. Enter your details.">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">{t('name')}</label>
+          <label className="mb-2 block font-semibold text-brand-800">{t('name')}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
+            placeholder="Enter your full name"
+            className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
             required
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">{t('email')}</label>
+          <label className="mb-2 block font-semibold text-brand-800">{t('email')}</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
+            placeholder="your@email.com"
+            className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
             required
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">{t('phone')}</label>
+          <label className="mb-2 block font-semibold text-brand-800">{t('phone')}</label>
           <input
             type="tel"
             value={phone}
             readOnly
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-600"
+            className="w-full rounded-xl border-2 border-brand-100 bg-brand-50 px-4 py-3 text-gray-600"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">{t('password')}</label>
+          <label className="mb-2 block font-semibold text-brand-800">{t('password')}</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2"
+            className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
             required
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-brand-600 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-        >
-          {loading ? 'Registering...' : t('register')}
+        <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+          <span className="btn-text">{loading ? 'Registering...' : t('register')}</span>
         </button>
       </form>
-    </div>
+      <p className="mt-6 text-center text-sm text-gray-600">
+        Already have an account?{' '}
+        <Link to="/login" className="font-bold text-brand-600 hover:underline">
+          Login
+        </Link>
+      </p>
+    </AuthPageLayout>
   );
 }

@@ -1,6 +1,7 @@
 /**
  * Generation routes
  */
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import {
   generateQualificationExam,
@@ -14,7 +15,7 @@ import type { ExamType } from '../services/types.js';
 const router = Router();
 
 /** POST /v1/generate/qualification-exam - Teacher qualification exam (5 MCQs) */
-router.post('/qualification-exam', async (req, res) => {
+router.post('/qualification-exam', async (req: Request, res: Response) => {
   try {
     const { subject, board, classLevel } = req.body;
     if (!subject || !board || !classLevel) {
@@ -36,7 +37,7 @@ router.post('/qualification-exam', async (req, res) => {
 });
 
 /** POST /v1/generate/student-exam - Student exam questions */
-router.post('/student-exam', async (req, res) => {
+router.post('/student-exam', async (req: Request, res: Response) => {
   try {
     const { subject, board, classLevel, examType, examMode, topics } = req.body;
     if (!subject || !board || !classLevel) {
@@ -87,7 +88,7 @@ router.post('/study-material', async (req, res) => {
 });
 
 /** POST /v1/generate/teacher-qualification-exam - Full teacher qualification (15 questions) */
-router.post('/teacher-qualification-exam', async (req, res) => {
+router.post('/teacher-qualification-exam', async (req: Request, res: Response) => {
   try {
     const { combinations, durationMinutes } = req.body;
     if (!combinations || !Array.isArray(combinations) || combinations.length === 0) {

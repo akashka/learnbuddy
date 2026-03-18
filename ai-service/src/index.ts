@@ -37,7 +37,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.get('/health', async (_req, res) => {
+app.get('/health', async (_req: express.Request, res: express.Response) => {
   const redis = await redisHealth();
   res.json({
     ok: true,

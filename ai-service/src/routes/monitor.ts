@@ -1,6 +1,7 @@
 /**
  * Monitoring routes - classroom and exam
  */
+import type { Request, Response } from 'express';
 import { Router } from 'express';
 import {
   analyzeSessionMonitoring,
@@ -13,7 +14,7 @@ import {
 const router = Router();
 
 /** POST /v1/monitor/classroom - Single frame or session monitoring */
-router.post('/classroom', async (req, res) => {
+router.post('/classroom', async (req: Request, res: Response) => {
   try {
     const { frame, role, referencePhotoUrl, sessionId, studentFrame, teacherFrame } = req.body;
 
@@ -83,7 +84,7 @@ router.post('/exam', async (req, res) => {
 });
 
 /** POST /v1/monitor/transcribe - Speech-to-text for exam monitoring */
-router.post('/transcribe', async (req, res) => {
+router.post('/transcribe', async (req: Request, res: Response) => {
   try {
     const { audioDataUrl } = req.body;
     if (!audioDataUrl) {
@@ -105,7 +106,7 @@ router.post('/transcribe', async (req, res) => {
 });
 
 /** POST /v1/monitor/verify-document - Verify document photo matches profile */
-router.post('/verify-document', async (req, res) => {
+router.post('/verify-document', async (req: Request, res: Response) => {
   try {
     const { documentImageUrl, profilePhotoUrl } = req.body;
     if (!documentImageUrl || !profilePhotoUrl) {
