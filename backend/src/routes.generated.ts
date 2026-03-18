@@ -45,6 +45,8 @@ import { POST as POST__api_admin_masters_mappings } from './api/admin/masters/ma
 import { GET as GET__api_admin_masters } from './api/admin/masters/route.js';
 import { POST as POST__api_admin_me_changepassword } from './api/admin/me/change-password/route.js';
 import { GET as GET__api_admin_me, PATCH as PATCH__api_admin_me } from './api/admin/me/route.js';
+import { GET as GET__api_admin_notificationtemplates_id, PATCH as PATCH__api_admin_notificationtemplates_id, DELETE as DELETE__api_admin_notificationtemplates_id } from './api/admin/notification-templates/[id]/route.js';
+import { GET as GET__api_admin_notificationtemplates, POST as POST__api_admin_notificationtemplates } from './api/admin/notification-templates/route.js';
 import { GET as GET__api_admin_parents_id, PATCH as PATCH__api_admin_parents_id } from './api/admin/parents/[id]/route.js';
 import { GET as GET__api_admin_parents_export } from './api/admin/parents/export/route.js';
 import { GET as GET__api_admin_parents } from './api/admin/parents/route.js';
@@ -254,6 +256,11 @@ export function registerRoutes(app: Express) {
   app.get('/api/admin/me', authMiddleware, adaptNextRoute(GET__api_admin_me));
   app.patch('/api/admin/me', authMiddleware, adaptNextRoute(PATCH__api_admin_me));
   app.post('/api/admin/me/change-password', authMiddleware, adaptNextRoute(POST__api_admin_me_changepassword));
+  app.get('/api/admin/notification-templates', authMiddleware, adaptNextRoute(GET__api_admin_notificationtemplates));
+  app.post('/api/admin/notification-templates', authMiddleware, adaptNextRoute(POST__api_admin_notificationtemplates));
+  app.get('/api/admin/notification-templates/:id', authMiddleware, adaptNextRoute(GET__api_admin_notificationtemplates_id));
+  app.patch('/api/admin/notification-templates/:id', authMiddleware, adaptNextRoute(PATCH__api_admin_notificationtemplates_id));
+  app.delete('/api/admin/notification-templates/:id', authMiddleware, adaptNextRoute(DELETE__api_admin_notificationtemplates_id));
   app.get('/api/admin/parents', authMiddleware, adaptNextRoute(GET__api_admin_parents));
   app.get('/api/admin/parents/export', authMiddleware, adaptNextRoute(GET__api_admin_parents_export));
   app.get('/api/admin/parents/:id', authMiddleware, adaptNextRoute(GET__api_admin_parents_id));

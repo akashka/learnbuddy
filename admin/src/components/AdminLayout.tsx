@@ -33,6 +33,7 @@ const ALL_NAV_ITEMS = [
   { to: '/job-positions', label: 'Job Positions', icon: '💼' },
   { to: '/documents', label: 'Documents', icon: '📁' },
   { to: '/contact-submissions', label: 'Contact Submissions', icon: '📬' },
+  { to: '/notification-templates', label: 'Notification Templates', icon: '📢' },
 ];
 
 export default function AdminLayout() {

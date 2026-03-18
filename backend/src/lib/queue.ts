@@ -10,16 +10,34 @@ import { runCronNotifications } from './jobs/cron-notifications.js';
 const REDIS_URL = process.env.REDIS_URL || '';
 const QUEUE_PREFIX = 'tp:';
 
-function getConnectionOptions(): { host: string; port: number; password?: string; maxRetriesPerRequest: null } | null {
+type RedisConnOpts = {
+  host: string;
+  port: number;
+  password?: string;
+  maxRetriesPerRequest: null;
+  retryStrategy?: (times: number) => number | null;
+  enableReadyCheck?: boolean;
+  connectTimeout?: number;
+  tls?: Record<string, unknown>;
+};
+
+function getConnectionOptions(): RedisConnOpts | null {
   if (!REDIS_URL) return null;
   try {
     const u = new URL(REDIS_URL);
-    const opts: { host: string; port: number; password?: string; maxRetriesPerRequest: null } = {
+    const opts: RedisConnOpts = {
       host: u.hostname,
       port: parseInt(u.port || '6379', 10),
       maxRetriesPerRequest: null,
+      enableReadyCheck: true,
+      connectTimeout: 10000,
+      retryStrategy: (times) => {
+        if (times > 20) return null;
+        return Math.min(times * 500, 5000);
+      },
     };
-    if (u.password) opts.password = u.password;
+    if (u.password) opts.password = decodeURIComponent(u.password);
+    if (u.protocol === 'rediss:') opts.tls = { rejectUnauthorized: true };
     return opts;
   } catch {
     return null;

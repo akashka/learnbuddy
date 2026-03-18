@@ -33,6 +33,8 @@ import SecurityIncidents from '@/pages/SecurityIncidents';
 import AuditLogs from '@/pages/AuditLogs';
 import AuditLogDetail from '@/pages/AuditLogDetail';
 import ContactSubmissions from '@/pages/ContactSubmissions';
+import NotificationTemplates from '@/pages/NotificationTemplates';
+import NotificationTemplateEditor from '@/pages/NotificationTemplateEditor';
 import AIReviewRequests from '@/pages/AIReviewRequests';
 import AIUsageLogs from '@/pages/AIUsageLogs';
 import AIUsageLogDetail from '@/pages/AIUsageLogDetail';
@@ -93,6 +95,9 @@ function AppRoutes() {
         <Route path="cms-pages/:slug" element={<CmsPageEditor />} />
         <Route path="website-settings" element={<WebsiteSettings />} />
         <Route path="contact-submissions" element={<ContactSubmissions />} />
+        <Route path="notification-templates" element={<NotificationTemplates />} />
+        <Route path="notification-templates/new" element={<NotificationTemplateEditor />} />
+        <Route path="notification-templates/:id" element={<NotificationTemplateEditor />} />
         <Route path="job-positions" element={<JobPositions />} />
         <Route path="job-positions/:id" element={<JobPositionEditor />} />
         <Route path="security-incidents" element={<SecurityIncidents />} />

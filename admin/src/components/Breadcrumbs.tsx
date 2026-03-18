@@ -22,6 +22,8 @@ const ROUTE_LABELS: Record<string, string> = {
   'teacher-payments': 'Teacher Payments',
   'job-positions': 'Job Positions',
   'website-settings': 'Website Settings',
+  'contact-submissions': 'Contact Submissions',
+  'notification-templates': 'Notification Templates',
   documents: 'Documents',
 };
 
@@ -45,6 +47,7 @@ function getListPath(segments: string[], index: number): string | null {
   if (segments[0] === 'audit-logs' && segments.length > 1 && index === 0) return '/audit-logs';
   if (segments[0] === 'ai-data' && segments.length > 1 && index === 0) return '/ai-data';
   if (segments[0] === 'job-positions' && segments.length > 1 && index === 0) return '/job-positions';
+  if (segments[0] === 'notification-templates' && segments.length > 1 && index === 0) return '/notification-templates';
   return null;
 }
 

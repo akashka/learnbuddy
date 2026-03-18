@@ -16,7 +16,8 @@
     "seed-job-positions": "tsx scripts/seed-job-positions.ts",
     "seed-documents": "tsx scripts/seed-documents.ts",
     "seed-staff": "tsx scripts/seed-staff.ts",
-    "seed-discount-codes": "tsx scripts/seed-discount-codes.ts"
+    "seed-discount-codes": "tsx scripts/seed-discount-codes.ts",
+    "seed-notification-templates": "tsx scripts/seed-notification-templates.ts"
   },
   "dependencies": {
     "@google/genai": "^1.44.0",

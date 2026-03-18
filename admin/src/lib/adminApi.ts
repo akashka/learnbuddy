@@ -598,6 +598,107 @@ export const adminApi = {
       }>(`${BASE}/reports/technology${sp.toString() ? `?${sp}` : ''}`);
     },
   },
+  notificationTemplates: {
+    list: (params?: { channel?: 'sms' | 'email' | 'in_app'; includeInactive?: boolean }) => {
+      const sp = new URLSearchParams();
+      if (params?.channel) sp.set('channel', params.channel);
+      if (params?.includeInactive) sp.set('includeInactive', 'true');
+      const q = sp.toString();
+      return apiJson<{
+        templates: {
+          _id: string;
+          channel: string;
+          code: string;
+          name: string;
+          description?: string;
+          isActive: boolean;
+          body?: string;
+          approvedWordings?: string[];
+          subject?: string;
+          bodyHtml?: string;
+          headerHtml?: string;
+          footerHtml?: string;
+          logoUrl?: string;
+          title?: string;
+          message?: string;
+          ctaLabel?: string;
+          ctaUrl?: string;
+          variableHints?: string[];
+          createdAt: string;
+          updatedAt: string;
+        }[];
+      }>(`${BASE}/notification-templates${q ? `?${q}` : ''}`);
+    },
+    get: (id: string) =>
+      apiJson<{
+        _id: string;
+        channel: string;
+        code: string;
+        name: string;
+        description?: string;
+        isActive: boolean;
+        body?: string;
+        approvedWordings?: string[];
+        subject?: string;
+        bodyHtml?: string;
+        headerHtml?: string;
+        footerHtml?: string;
+        logoUrl?: string;
+        title?: string;
+        message?: string;
+        ctaLabel?: string;
+        ctaUrl?: string;
+        variableHints?: string[];
+        createdAt: string;
+        updatedAt: string;
+      }>(`${BASE}/notification-templates/${id}`),
+    create: (data: {
+      channel: 'sms' | 'email' | 'in_app';
+      code: string;
+      name: string;
+      description?: string;
+      isActive?: boolean;
+      body?: string;
+      approvedWordings?: string[];
+      subject?: string;
+      bodyHtml?: string;
+      headerHtml?: string;
+      footerHtml?: string;
+      logoUrl?: string;
+      title?: string;
+      message?: string;
+      ctaLabel?: string;
+      ctaUrl?: string;
+      variableHints?: string[];
+    }) =>
+      apiJson(`${BASE}/notification-templates`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: string, data: Partial<{
+      name: string;
+      description: string;
+      isActive: boolean;
+      body: string;
+      approvedWordings: string[];
+      subject: string;
+      bodyHtml: string;
+      headerHtml: string;
+      footerHtml: string;
+      logoUrl: string;
+      title: string;
+      message: string;
+      ctaLabel: string;
+      ctaUrl: string;
+      variableHints: string[];
+    }>) =>
+      apiJson(`${BASE}/notification-templates/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      apiJson(`${BASE}/notification-templates/${id}`, { method: 'DELETE' }),
+  },
   securityIncidents: {
     list: (params?: { status?: string; severity?: string; childrenAffected?: string; sort?: string; order?: string; page?: number; limit?: number }) => {
       const sp = new URLSearchParams();

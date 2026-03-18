@@ -41,9 +41,10 @@ const ROLE_NAV: Record<StaffRole, string[]> = {
     'job-positions',
     'documents',
     'contact-submissions',
+    'notification-templates',
   ],
   sales: ['dashboard', 'reports', 'profile', 'teachers', 'parents', 'students', 'enrollments', 'discount-codes', 'classes', 'documents'],
-  marketing: ['dashboard', 'reports', 'profile', 'teachers', 'parents', 'students', 'cms-pages', 'website-settings', 'contact-submissions', 'documents'],
+  marketing: ['dashboard', 'reports', 'profile', 'teachers', 'parents', 'students', 'cms-pages', 'website-settings', 'contact-submissions', 'notification-templates', 'documents'],
   hr: ['dashboard', 'profile', 'teachers', 'parents', 'students', 'users', 'job-positions', 'documents'],
   finance: ['dashboard', 'reports', 'profile', 'teachers', 'teacher-payments', 'enrollments', 'discount-codes', 'documents'],
 };
