@@ -1,6 +1,5 @@
 /**
- * Adapts Next.js route handlers (Request -> Response) to Express (req, res).
- * When authMiddleware has run and set req.auth, passes the decoded payload via X-Auth-Payload
+ * Adapts Next.js route handlers (Request -> Response) to Express (req, res). * When authMiddleware has run and set req.auth, passes the decoded payload via X-Auth-Payload
  * so route handlers can use getAuthFromRequest() without re-validating the token.
  * Passes req.params as { params: Promise<...> } for handlers that expect route params.
  */

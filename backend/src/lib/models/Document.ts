@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model, Types } from 'mongoose';
+import mongoose, { Schema, Document as MongooseDocument, Model, Types } from 'mongoose';
 
 export interface IDocumentVersion {
   url: string;
@@ -7,7 +7,7 @@ export interface IDocumentVersion {
   originalFilename: string;
 }
 
-export interface IDocument extends Document {
+export interface IDocument extends MongooseDocument {
   name: string;
   folderId: Types.ObjectId | null;
   category: string;

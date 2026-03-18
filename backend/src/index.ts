@@ -1,3 +1,4 @@
+/// <reference path="./global.d.ts" />
 import path from 'path';
 import fs from 'fs';
 import 'dotenv/config';

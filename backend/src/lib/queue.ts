@@ -4,27 +4,28 @@
  * When Redis is unavailable, jobs are not queued (cron endpoints fall back to sync execution).
  */
 import { Queue, Worker, type Job } from 'bullmq';
-import IORedis from 'ioredis';
 import { generateClassSchedules } from './generate-class-schedules.js';
 import { runCronNotifications } from './jobs/cron-notifications.js';
 
 const REDIS_URL = process.env.REDIS_URL || '';
 const QUEUE_PREFIX = 'tp:';
 
-function createConnection(): IORedis | null {
+function getConnectionOptions(): { host: string; port: number; password?: string; maxRetriesPerRequest: null } | null {
   if (!REDIS_URL) return null;
   try {
-    return new IORedis(REDIS_URL, {
+    const u = new URL(REDIS_URL);
+    const opts: { host: string; port: number; password?: string; maxRetriesPerRequest: null } = {
+      host: u.hostname,
+      port: parseInt(u.port || '6379', 10),
       maxRetriesPerRequest: null,
-      retryStrategy(times: number) {
-        if (times > 5) return null;
-        return Math.min(times * 200, 2000);
-      },
-    });
+    };
+    if (u.password) opts.password = u.password;
+    return opts;
   } catch {
     return null;
   }
 }
+const connection = getConnectionOptions();
 
 let queue: Queue | null = null;
 let worker: Worker | null = null;
@@ -35,12 +36,10 @@ export const JOB_NAMES = {
 } as const;
 
 export function getQueue(): Queue | null {
-  if (!REDIS_URL) return null;
+  if (!REDIS_URL || !connection) return null;
   if (queue) return queue;
-  const conn = createConnection();
-  if (!conn) return null;
   queue = new Queue('cron', {
-    connection: conn,
+    connection,
     prefix: QUEUE_PREFIX,
     defaultJobOptions: {
       attempts: 3,
@@ -85,9 +84,7 @@ export async function setupRepeatJobs(): Promise<void> {
 }
 
 export function startWorker(): void {
-  if (!REDIS_URL) return;
-  const conn = createConnection();
-  if (!conn) return;
+  if (!REDIS_URL || !connection) return;
 
   worker = new Worker(
     'cron',
@@ -102,7 +99,7 @@ export function startWorker(): void {
       }
     },
     {
-      connection: conn,
+      connection,
       prefix: QUEUE_PREFIX,
       concurrency: 2,
     }
