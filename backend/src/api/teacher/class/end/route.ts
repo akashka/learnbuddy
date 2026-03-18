@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const teacher = await Teacher.findOne({ userId: decoded.userId });
     if (!teacher) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { sessionId } = body;
     if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
 

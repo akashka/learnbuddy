@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const pages = await CmsPage.find().sort({ slug: 1 }).lean();
-    const rows = pages.map((p) => pickFields(p as Record<string, unknown>, fields));
+    const rows = pages.map((p) => pickFields(p as unknown as Record<string, unknown>, fields));
 
     const validFields = fields.filter((f) => ALL_FIELDS.some((af) => af.key === f));
     const headers = validFields.length ? validFields : ['slug', 'title', 'updatedAt'];

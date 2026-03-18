@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const parent = await Parent.findOne({ userId: decoded.userId }).lean();
     if (!parent) return NextResponse.json({ error: 'Parent not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { teacherId } = body;
     if (!teacherId) return NextResponse.json({ error: 'teacherId required' }, { status: 400 });
 

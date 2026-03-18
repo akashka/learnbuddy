@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       AIReviewRequest.find(query)
         .populate('raisedBy', 'email phone')
         .populate('studentId', 'name classLevel')
-        .sort(sortObj)
+        .sort(sortObj as any)
         .skip(skip)
         .limit(limit)
         .lean(),

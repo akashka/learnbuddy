@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const parent = await Parent.findOne({ userId: decoded.userId });
     if (!parent) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { studentId, newPassword } = body;
 
     if (!studentId || !newPassword || newPassword.trim().length < 4) {

@@ -9,7 +9,7 @@ import { cacheInvalidatePattern } from '@/lib/cache';
 
 export async function POST(request: NextRequest) {
   try {
-    const { phone } = (await request.json()) || {};
+    const { phone } = ((await request.json()) as any) || {};
 
     if (!phone) {
       return NextResponse.json({ error: 'Phone required' }, { status: 400 });

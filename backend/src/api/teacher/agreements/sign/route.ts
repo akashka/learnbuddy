@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { type } = body;
 
     if (!type || !VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {

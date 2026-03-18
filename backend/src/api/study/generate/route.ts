@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { subject, board, classLevel, topic } = body;
 
     if (!subject || !board || !classLevel || !topic) {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       subject,
       topic,
       content: { title: material.title, summary: material.summary, sections: material.sections },
-      requestedBy: decoded.userId,
+      requestedBy: decoded.userId as any,
       requesterRole: decoded.role as 'student' | 'teacher',
     });
 

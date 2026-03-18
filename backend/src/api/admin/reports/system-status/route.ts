@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
           });
           clearTimeout(timeout);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
+          const data = (await res.json()) as { ok?: boolean };
           return data?.ok === true;
         });
         services.aiService = {

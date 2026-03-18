@@ -58,7 +58,7 @@ export async function PATCH(request: NextRequest) {
 
     await connectDB();
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const {
       status,
       boardNotifiedAt,

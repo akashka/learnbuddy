@@ -7,7 +7,7 @@ import { generateToken } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { phone, otp } = await request.json();
+    const { phone, otp } = (await request.json()) as any;
 
     if (!phone || !otp) {
       return NextResponse.json({ error: 'Phone and OTP required' }, { status: 400 });

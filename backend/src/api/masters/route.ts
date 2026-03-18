@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const master = await Master.create(body);
     await cacheInvalidatePattern('masters:*');
     return NextResponse.json(master);

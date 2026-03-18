@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const { pendingId } = await request.json();
+    const { pendingId } = (await request.json()) as any;
 
     if (!pendingId) {
       return NextResponse.json({ error: 'Pending ID required' }, { status: 400 });

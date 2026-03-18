@@ -18,7 +18,7 @@ export async function PUT(request: NextRequest) {
     const parent = await Parent.findOne({ userId: decoded.userId });
     if (!parent) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const {
       studentId,
       name,
@@ -55,7 +55,7 @@ export async function PUT(request: NextRequest) {
     await Student.findByIdAndUpdate(studentId, { $set: update });
 
     const forwardedFor = request.headers['x-forwarded-for'];
-    const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor || request.socket?.remoteAddress;
+    const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor || (request.socket as { remoteAddress?: string })?.remoteAddress;
     const userAgent = request.headers['user-agent'];
 
     await ConsentLog.insertMany([

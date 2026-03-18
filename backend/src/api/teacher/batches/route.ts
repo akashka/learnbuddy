@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { name, board, classLevel, subject, minStudents = 1, maxStudents = 3, feePerMonth = 2000, slots = [], startDate } = body;
 
     if (!name || !board || !classLevel || !subject) {

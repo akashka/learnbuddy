@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { name, photo, email, phone, staffRole, position, department, password } = body;
 
     if (!name || !email || !staffRole) {

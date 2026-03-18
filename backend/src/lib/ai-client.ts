@@ -47,7 +47,7 @@ async function call<T>(
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error((data as { message?: string }).message || data?.error || 'AI service error');
+      throw new Error((data as { message?: string; error?: string }).message || (data as { error?: string }).error || 'AI service error');
     }
     return data as T;
   });

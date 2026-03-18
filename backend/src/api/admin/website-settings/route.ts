@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const updates: Record<string, string> = {};
     const keys = [
       'playStoreUrl',

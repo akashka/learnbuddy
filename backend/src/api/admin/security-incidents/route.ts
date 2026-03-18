@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const [incidents, total] = await Promise.all([
       SecurityIncident.find(query)
         .populate('reportedBy', 'email')
-        .sort(sortObj)
+        .sort(sortObj as any)
         .skip(skip)
         .limit(limit)
         .lean(),
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const {
       title,
       description,

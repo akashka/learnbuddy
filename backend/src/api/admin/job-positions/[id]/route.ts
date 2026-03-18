@@ -53,7 +53,7 @@ export async function PUT(
     const { id } = await context.params;
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const updates: Record<string, string> = {};
     if (typeof body.title === 'string') updates.title = body.title.trim();
     if (typeof body.team === 'string') updates.team = body.team.trim();

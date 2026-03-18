@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { question, subject, board, classLevel, topic } = body;
 
     if (!question || !subject || !board || !classLevel) {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         questionWarning: doubtResult.questionWarning,
         answerWarning: doubtResult.answerWarning,
       },
-      requestedBy: decoded.userId,
+      requestedBy: decoded.userId as any,
       requesterRole: decoded.role as 'student' | 'teacher',
     });
 

@@ -74,7 +74,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid document ID' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const updates: Record<string, unknown> = {};
     if (typeof body.name === 'string' && body.name.trim()) updates.name = body.name.trim();
     if (typeof body.category === 'string') updates.category = body.category.trim() || 'General';

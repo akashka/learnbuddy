@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       classLevel,
       subject,
       content: { questions },
-      requestedBy: decoded.userId,
+      requestedBy: decoded.userId as any,
       requesterRole: 'teacher',
     });
     return NextResponse.json({ questions });
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     const teacher = await Teacher.findOne({ userId: decoded.userId });
     if (!teacher) return NextResponse.json({ error: 'Teacher not found' }, { status: 404 });
 
-    const { answers, subject, board, classLevel } = await request.json();
+    const { answers, subject, board, classLevel } = (await request.json()) as any;
     if (!answers || !Array.isArray(answers)) {
       return NextResponse.json({ error: 'Answers required' }, { status: 400 });
     }

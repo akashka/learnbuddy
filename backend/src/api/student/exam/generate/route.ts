@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const student = await Student.findOne({ userId: decoded.userId });
     if (!student) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { subject, board, classLevel, examMode, examType, topic, topics } = body;
 
     if (!subject || !board || !classLevel) {
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       subject,
       topics: topicList,
       content: { questions, timeLimit, totalMarks: totalMarks },
-      requestedBy: decoded.userId,
+      requestedBy: decoded.userId as any,
       requesterRole: 'student',
       metadata: { examType: resolvedExamType },
     });

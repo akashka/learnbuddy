@@ -5,7 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 export function verifyTeacherRegistrationSession(request: NextRequest, phone: string): boolean {
   const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
-  const sessionCookie = request.cookies.get('teacher_reg_session')?.value;
+  const sessionCookie = request.cookies?.get('teacher_reg_session');
   if (!sessionCookie) return false;
   try {
     const decoded = jwt.verify(sessionCookie, JWT_SECRET) as { phone?: string; purpose?: string };

@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { phone, otp, type } = await request.json();
+    const { phone, otp, type } = (await request.json()) as any;
 
     if (!phone || !otp) {
       return NextResponse.json({ error: 'Phone and OTP required' }, { status: 400 });

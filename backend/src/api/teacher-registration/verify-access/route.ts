@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
-    const sessionCookie = request.cookies.get('teacher_reg_session')?.value;
+    const sessionCookie = request.cookies?.get('teacher_reg_session');
 
     if (!sessionCookie) {
       return NextResponse.json({ verified: false, error: 'Session expired. Please verify your number again.' }, { status: 401 });

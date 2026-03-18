@@ -58,7 +58,7 @@ export async function PATCH(
     const { id } = await context.params;
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const updates: Record<string, string> = {};
     if (typeof body.status === 'string' && ['new', 'viewed', 'in_process', 'approved', 'rejected'].includes(body.status)) {
       updates.status = body.status;

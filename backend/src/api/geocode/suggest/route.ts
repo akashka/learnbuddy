@@ -8,7 +8,7 @@ const HERE_SUGGEST_URL = 'https://autocomplete.geocoder.ls.hereapi.com/6.2/sugge
  * Returns address/location suggestions as the user types.
  */
 export async function GET(request: NextRequest) {
-  const q = request.nextUrl.searchParams.get('q');
+  const q = new URL(request.url).searchParams.get('q');
   if (!q || q.trim().length < 2) {
     return NextResponse.json({ suggestions: [] });
   }

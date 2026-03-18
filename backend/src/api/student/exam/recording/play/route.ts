@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     }
     const mime = file.endsWith('.mp4') ? 'video/mp4' : file.endsWith('.ogg') ? 'audio/ogg' : 'video/webm';
 
-    return new NextResponse(new Uint8Array(content), {
+    return NextResponse.body(content as any, {
       headers: {
         'Content-Type': mime,
         'Content-Length': content.length.toString(),

@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id } = await params;
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const {
       code,
       type,

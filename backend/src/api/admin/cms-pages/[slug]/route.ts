@@ -49,7 +49,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Slug required' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { title, content } = body;
 
     if (typeof title !== 'string' || title.trim() === '') {

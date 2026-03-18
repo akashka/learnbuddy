@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     const sortObj = { [sort]: order === 'asc' ? 1 : -1 };
 
     const [logs, total] = await Promise.all([
-      AuditLog.find(query).sort(sortObj).skip(skip).limit(limit).lean(),
+      AuditLog.find(query).sort(sortObj as any).skip(skip).limit(limit).lean(),
       AuditLog.countDocuments(query),
     ]);
 

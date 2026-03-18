@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const [logs, total] = await Promise.all([
       AIUsageLog.find(query)
         .populate('userId', 'email phone')
-        .sort(sortObj)
+        .sort(sortObj as any)
         .skip(skip)
         .limit(limit)
         .lean(),

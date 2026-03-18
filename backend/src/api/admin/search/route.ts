@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         $or: [
           { name: regex },
           { phone: regex },
-          ...(userIds.length ? [{ userId: { $in: userIds } }] : []),
+          ...(userIds.length ? [{ userId: { $in: userIds } } as any] : []),
         ],
       })
         .populate('userId', 'email')
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         $or: [
           { name: regex },
           { phone: regex },
-          ...(userIds.length ? [{ userId: { $in: userIds } }] : []),
+          ...(userIds.length ? [{ userId: { $in: userIds } } as any] : []),
         ],
       })
         .populate('userId', 'email')
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         $or: [
           { name: regex },
           { studentId: regex },
-          ...(userIds.length ? [{ userId: { $in: userIds } }] : []),
+          ...(userIds.length ? [{ userId: { $in: userIds } } as any] : []),
         ],
       })
         .populate('userId', 'email')

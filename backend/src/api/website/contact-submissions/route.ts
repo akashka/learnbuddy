@@ -5,7 +5,7 @@ import { ContactSubmission } from '@/lib/models/ContactSubmission';
 /** Public: Submit contact form (concern, suggestion, feedback, etc.) */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const name = body.name as string;
     const email = body.email as string;
     const phone = (body.phone as string) || '';

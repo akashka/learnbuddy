@@ -16,7 +16,7 @@ export async function PATCH(
     await connectDB();
 
     const { id } = await params;
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { topic, displayOrder, isActive } = body;
 
     const updates: Record<string, unknown> = {};

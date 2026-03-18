@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { whatWasWrong } = body;
 
     if (!whatWasWrong || typeof whatWasWrong !== 'string' || !whatWasWrong.trim()) {

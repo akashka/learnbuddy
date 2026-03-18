@@ -45,7 +45,7 @@ export async function PUT(request: NextRequest) {
     }
 
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { name, qualification, profession, languages, experienceMonths, bio, bankDetails, demoVideoUrl } = body;
 
     const update: Record<string, unknown> = {};

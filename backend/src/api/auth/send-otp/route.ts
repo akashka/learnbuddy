@@ -10,7 +10,7 @@ function generateOTP(): string {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { phone } = await request.json();
+    const { phone } = (await request.json()) as any;
 
     if (!phone || phone.length < 10) {
       return NextResponse.json({ error: 'Valid phone number required' }, { status: 400 });

@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const student = await Student.findOne({ userId: decoded.userId });
     if (!student) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { examId, answers, warnings, closedDueToCheating, timeTaken } = body;
 
     if (!examId) return NextResponse.json({ error: 'Exam ID required' }, { status: 400 });

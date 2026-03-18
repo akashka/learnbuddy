@@ -24,13 +24,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .lean();
 
     const redemptions = enrollments.map((e) => {
-      const student = e.studentId as { _id?: string; name?: string; studentId?: string; classLevel?: string; parentId?: { name?: string; phone?: string } } | null;
-      const teacher = e.teacherId as { _id?: string; name?: string } | null;
+      const student = e.studentId as unknown as { _id?: string; name?: string; studentId?: string; classLevel?: string; parentId?: { name?: string; phone?: string } } | null;
+      const teacher = e.teacherId as unknown as { _id?: string; name?: string } | null;
       return {
         _id: e._id,
         studentName: student?.name,
         studentId: student?.studentId,
-        classLevel: student?.classLevel,
+        studentClassLevel: student?.classLevel,
         parentName: student?.parentId?.name,
         parentPhone: student?.parentId?.phone,
         teacherName: teacher?.name,

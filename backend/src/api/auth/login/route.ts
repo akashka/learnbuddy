@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   const meta = getClientMeta(request);
   try {
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { type, studentId, password, email } = body;
 
     if (type === 'student') {

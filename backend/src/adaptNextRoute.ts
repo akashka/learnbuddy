@@ -40,6 +40,18 @@ export function adaptNextRoute(handler: (request: Request, context?: any) => Pro
       }
 
       const request = new Request(url, init);
+      // Attach Next.js-compat props (Request is extensible at runtime)
+      const req = request as Request & { cookies?: { get(n: string): string | undefined }; nextUrl?: URL; socket?: unknown };
+      const cookieHeader = expressReq.get('cookie') || '';
+      const cookieMap = Object.fromEntries(
+        cookieHeader.split(';').map((s) => {
+          const [k, ...v] = s.trim().split('=');
+          return [k, v.join('=').trim()];
+        })
+      );
+      req.cookies = { get: (name: string) => cookieMap[name] };
+      req.nextUrl = new URL(url);
+      req.socket = (expressReq as ExpressRequest & { socket?: unknown }).socket;
       const context = { params: Promise.resolve((expressReq.params || {}) as Record<string, string>) };
       const response = await handler(request, context);
 

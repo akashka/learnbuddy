@@ -9,7 +9,7 @@ import { hashPassword, generateToken } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { phone, data: formData, complete } = body;
 
     if (!phone) {

@@ -61,7 +61,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const status = body.status as string | undefined;
     const adminNotes = body.adminNotes as string | undefined;
 

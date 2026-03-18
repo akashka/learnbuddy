@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const userId = decoded.userId;
 
-    const body = await request.json().catch(() => ({}));
+    const body = (await request.json().catch(() => ({}))) as any;
     const { notificationIds, markAll } = body;
 
     await connectDB();

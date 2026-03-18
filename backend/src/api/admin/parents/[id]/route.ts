@@ -40,7 +40,7 @@ export async function PATCH(
 
     await connectDB();
     const { id } = await params;
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { name, phone, location } = body;
 
     const update: Record<string, unknown> = {};

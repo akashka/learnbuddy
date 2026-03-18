@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
     const [aiTotal, aiSuccess, aiByOperation, aiByDay] = await Promise.all([
       AIUsageLog.countDocuments({ createdAt: { $gte: startDate } }),
       AIUsageLog.countDocuments({ createdAt: { $gte: startDate }, success: true }),
-      AIUsageLog.aggregate(aiByOperationPipeline),
-      AIUsageLog.aggregate(aiByDayPipeline),
+      AIUsageLog.aggregate(aiByOperationPipeline as any[]),
+      AIUsageLog.aggregate(aiByDayPipeline as any[]),
     ]);
 
     const successRate = aiTotal > 0 ? Math.round((aiSuccess / aiTotal) * 100) : 0;

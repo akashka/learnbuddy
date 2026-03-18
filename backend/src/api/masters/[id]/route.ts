@@ -17,7 +17,7 @@ export async function PATCH(
     const { id } = await params;
     await connectDB();
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const updates: Record<string, unknown> = {};
     if (body.value !== undefined) updates.value = body.value;
     if (body.displayOrder !== undefined) updates.displayOrder = body.displayOrder;

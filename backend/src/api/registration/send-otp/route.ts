@@ -9,7 +9,7 @@ function generateOTP(): string {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { phone, type } = await request.json();
+    const { phone, type } = (await request.json()) as any;
 
     if (!phone || String(phone).replace(/\D/g, '').length < 10) {
       return NextResponse.json({ error: 'Valid phone number required' }, { status: 400 });

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const parent = await Parent.findOne({ userId: decoded.userId });
     if (!parent) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const {
       name,
       dateOfBirth,
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     });
 
     const forwardedFor = request.headers['x-forwarded-for'];
-    const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor || request.socket?.remoteAddress;
+    const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor || (request.socket as { remoteAddress?: string })?.remoteAddress;
     const userAgent = request.headers['user-agent'];
 
     await ConsentLog.insertMany([

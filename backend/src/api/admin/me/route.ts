@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { name, phone, photo } = body;
 
     const update: Record<string, unknown> = {};

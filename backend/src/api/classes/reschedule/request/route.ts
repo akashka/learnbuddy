@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { sessionId, reason, proposedSlots } = body;
     if (!sessionId || !reason?.trim() || !Array.isArray(proposedSlots) || proposedSlots.length < 1 || proposedSlots.length > 2) {
       return NextResponse.json({ error: 'sessionId, reason, and 1-2 proposedSlots required' }, { status: 400 });

@@ -5,7 +5,7 @@ import { logAIUsage } from '@/lib/ai-audit';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const { phone, frame } = body;
 
     if (!phone || !frame) {
