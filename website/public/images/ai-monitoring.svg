@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 200" fill="none">
+  <defs>
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <!-- Screen with AI overlay -->
+  <rect x="30" y="30" width="290" height="140" rx="12" fill="#1e1b4b"/>
+  <rect x="45" y="45" width="260" height="110" rx="8" fill="#312e81"/>
+  <!-- Video feed placeholder -->
+  <circle cx="175" cy="100" r="35" fill="#4f46e5" opacity="0.5"/>
+  <path d="M165 90 L165 110 L180 100 Z" fill="white"/>
+  <!-- AI badge -->
+  <rect x="230" y="55" width="70" height="28" rx="14" fill="url(#aiGrad)"/>
+  <text x="265" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="white">AI Live</text>
+  <!-- Shield -->
+  <path d="M265 130 L275 125 L285 130 L285 145 L275 150 L265 145 Z" fill="#34d399"/>
+  <path d="M270 132 L273 138 L280 135" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

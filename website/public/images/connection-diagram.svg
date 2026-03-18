@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" fill="none">
+  <!-- Parent -->
+  <circle cx="100" cy="100" r="45" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+  <path d="M85 95 L95 100 L85 105" fill="#4f46e5"/>
+  <text x="100" y="108" text-anchor="middle" font-size="12" font-weight="600" fill="#3730a3">Parent</text>
+  <!-- Student -->
+  <circle cx="250" cy="100" r="45" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <path d="M235 95 L245 100 L235 105" fill="#f59e0b"/>
+  <text x="250" y="108" text-anchor="middle" font-size="12" font-weight="600" fill="#92400e">Student</text>
+  <!-- Teacher -->
+  <circle cx="400" cy="100" r="45" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+  <path d="M385 95 L395 100 L385 105" fill="#10b981"/>
+  <text x="400" y="108" text-anchor="middle" font-size="12" font-weight="600" fill="#065f46">Teacher</text>
+  <!-- AI center -->
+  <circle cx="250" cy="50" r="25" fill="#4f46e5" opacity="0.9"/>
+  <text x="250" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="white">AI</text>
+  <!-- Connection lines -->
+  <line x1="130" y1="95" x2="220" y2="95" stroke="#a5b4fc" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="280" y1="95" x2="370" y2="95" stroke="#a5b4fc" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="250" y1="55" x2="250" y2="75" stroke="#818cf8" stroke-width="2"/>
+  <line x1="150" y1="70" x2="230" y2="55" stroke="#818cf8" stroke-width="1.5" opacity="0.7"/>
+  <line x1="270" y1="55" x2="350" y2="70" stroke="#818cf8" stroke-width="1.5" opacity="0.7"/>
+</svg>

@@ -1,0 +1,184 @@
+# LearnBuddy User Guides
+
+Step-by-step guides for parents, teachers, students, and admins.
+
+---
+
+## For Parents
+
+### Getting Started
+
+1. **Register**
+   - Go to Register → Parent Registration
+   - Enter phone, verify OTP
+   - Fill profile (name, location)
+   - Add your children (name, board, class)
+
+2. **Find a Teacher**
+   - Go to Marketplace
+   - Filter by board, class, subject
+   - Browse teacher profiles, batches, fees, reviews
+   - Add to wishlist if you want to decide later
+
+3. **Enroll**
+   - Open teacher profile, select a batch
+   - Choose your child and duration (3, 6, or 12 months)
+   - Pick slots (days and times)
+   - Proceed to checkout and complete payment
+
+4. **After Enrollment**
+   - My Kids: View and edit children
+   - My Classes: See upcoming classes, request reschedules
+   - Notifications: Class reminders, reschedule updates
+
+### Rescheduling a Class
+
+1. Go to My Classes
+2. Find the class you want to reschedule
+3. Click Request Reschedule
+4. Propose 1–2 alternative slots
+5. Wait for teacher to confirm or reject
+6. If confirmed, the new slot appears in your schedule
+
+### Reviewing a Teacher
+
+After your child has attended classes, go to the teacher’s profile and submit a review (rating and comment).
+
+---
+
+## For Teachers
+
+### Getting Started
+
+1. **Register**
+   - Go to Register → Teacher Registration
+   - Enter phone, verify OTP
+   - Fill profile (name, qualification, experience, languages, etc.)
+   - Take the qualification exam (AI-generated MCQ)
+   - Upload documents (ID, photo) for verification
+   - Wait for admin approval (status: pending → qualified)
+
+2. **Create Batches**
+   - Go to Batches
+   - Create a batch: name, subject, board, class, fee, slots (e.g. Mon 4–5pm, Wed 4–5pm)
+   - Set min/max students (1–3)
+   - Set start date (tomorrow to 30 days ahead)
+
+3. **When Students Enroll**
+   - Batches show enrolled students
+   - Schedules are generated automatically
+   - You’ll see upcoming classes in My Classes
+
+### Conducting a Class
+
+1. Go to My Classes
+2. Find the class for today
+3. Click Start Class
+4. (Optional) Enable AI monitoring for attendance/behavior
+5. Conduct the class
+6. Click End Class when done
+
+### Managing Reschedules
+
+- If a parent requests a reschedule, you’ll see it in My Classes
+- Confirm one of the proposed slots or reject
+- If you confirm, a new session is created and the old one is marked rescheduled
+
+### Viewing Payments
+
+- Go to Payments to see earnings and payment history
+- Ensure bank details are filled in Profile for payouts
+
+---
+
+## For Students
+
+### Getting Started
+
+- Your parent enrolls you in a batch
+- You’ll see your courses and classes after login
+
+### Attending a Class
+
+1. Go to My Classes
+2. Find the class for today
+3. Click Start Class
+4. Join the video/meeting (as configured)
+5. Click End Class when done
+
+### Taking an Exam
+
+1. Go to Exams
+2. Choose exam type:
+   - **Quick test:** 5 questions, ~15 min, one topic
+   - **Class test:** 10 questions, ~35 min, 1–3 topics
+   - **Preparatory:** 20 questions, ~2 hr, full syllabus
+3. Select subject and topic(s)
+4. Click Generate Exam (AI creates questions)
+5. Start exam, answer questions, submit
+6. View score and AI feedback
+
+### Using Study Materials
+
+1. Go to Courses
+2. Select subject and topic
+3. Click Generate Study Material (AI creates content)
+4. Read sections, summaries
+5. Use Ask Doubt to ask questions in context
+
+---
+
+## For Admins
+
+### Logging In
+
+- Use the admin URL (e.g. /admin)
+- Log in with admin credentials (created via seed-admin or manually)
+
+### Managing Teachers
+
+- **Teachers:** List all, filter by status
+- **Approve/Reject:** Change status from pending to qualified or rejected
+- **Teacher detail:** View full profile, documents, batches, enrollments
+- **Marketplace order:** Set a number (1 = first) to control relevance sorting
+
+### Managing Enrollments
+
+- **Enrollments:** List all, filter by status
+- **Manage:** Update status (active, completed, cancelled) if needed
+
+### Masters and Topics
+
+- **Masters:** Add/edit boards, classes, subjects
+- **Mappings:** Configure which subjects exist for each board–class
+- **Topics:** Add/edit topics for study materials and exams
+
+### Generating Schedules
+
+- Go to Schedules (or use cron)
+- Trigger schedule generation for active enrollments
+- New ClassSession records are created for the configured period
+
+### AI Data and Drafts
+
+- **AI data:** View cached AI-generated content
+- **Drafts:** Manage draft content used across the platform
+
+---
+
+## Common Questions
+
+**How do I change my phone or password?**  
+Use Profile (parent/teacher) or ask your parent (student). Change password is under My Kids for parents.
+
+**Why can’t I see a teacher in the marketplace?**  
+Only teachers with status “qualified” appear. Pending or rejected teachers are hidden.
+
+**When are classes scheduled?**  
+Schedules are generated by a cron job or manually by admin. After enrollment, allow some time for generation.
+
+**What if I miss a class?**  
+Request a reschedule (parent) or contact the teacher. Reschedule must be confirmed by the other party.
+
+**How does AI monitoring work?**  
+During class or exam, you can enable monitoring. The system analyzes video frames for attendance and behavior. Alerts can be raised for anomalies.

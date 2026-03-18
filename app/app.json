@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "LearnBuddy",
+    "slug": "learnbuddy",
+    "version": "1.0.0",
+    "orientation": "default",
+    "scheme": "learnbuddy",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#6366f1"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.learnbuddy.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6366f1"
+      },
+      "package": "com.learnbuddy.app"
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}

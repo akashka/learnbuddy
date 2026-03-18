@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tuition Platform (LearnBuddy)
 
-## Getting Started
+Multi-project layout: backend, admin, frontend, website, AI service, and app – each deployed independently.
 
-First, run the development server:
+## Quick Start
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Project    | Command                      | URL                    |
+|------------|------------------------------|------------------------|
+| Backend    | `cd backend && npm run dev`  | http://localhost:3005 |
+| AI Service | `cd ai-service && npm run dev` | http://localhost:3006 |
+| Frontend   | `cd frontend && npm run dev`  | http://localhost:3007 |
+| Admin      | `cd admin && npm run dev`    | http://localhost:3008 |
+| Website    | `cd website && npm run dev`  | http://localhost:3009 |
+| App        | `cd app && npm start`        | Expo (mobile)          |
+
+**Start all:** `./scripts/start-all.sh` (starts Redis via Docker or redis-server, then all services)
+
+## Structure
+
+```
+├── backend/     # Node.js + Express API (117 routes)
+├── ai-service/ # AI microservice (multi-model, monitoring)
+├── admin/      # Admin web app (React + Vite)
+├── frontend/   # Main web app (React + Vite)
+├── website/    # Marketing/landing website
+├── app/        # Mobile app (Expo)
+├── docs/       # Documentation
+└── scripts/    # Convenience scripts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Backend:** `.env` with `MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`. Optional: `REDIS_URL` (caching), `AI_SERVICE_URL`, `AI_SERVICE_API_KEY` to use AI service.
+- **AI Service:** `.env` with `GEMINI_API_KEY`. Optional: `REDIS_URL` (AI output caching), `AI_SERVICE_API_KEY`, `JWT_SECRET` for auth.
+- **Frontend/Admin:** `.env` with `VITE_API_BASE_URL=http://localhost:3005`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Redis:** `start-all.sh` starts Redis locally (Docker or redis-server). `REDIS_URL=redis://localhost:6379` is set in backend and ai-service .env.
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [docs/](./docs/) for architecture, data flow, component connections, and quick start.

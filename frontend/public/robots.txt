@@ -1,0 +1,5 @@
+# LearnBuddy App - robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://app.learnbuddy.com/sitemap.xml
