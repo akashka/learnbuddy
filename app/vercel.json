@@ -1,5 +1,6 @@
 {
-  "buildCommand": "npm install && npx expo export -p web",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": null,
   "rewrites": [{ "source": "/((?!assets|.*\\.).*)", "destination": "/index.html" }]
