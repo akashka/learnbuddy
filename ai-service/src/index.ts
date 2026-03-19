@@ -15,13 +15,12 @@ import sentimentRoutes from './routes/sentiment.js';
 import { redisHealth } from './lib/redis.js';
 
 const PORT = process.env.PORT || 3006;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3005,http://localhost:3007,http://localhost:3008,http://localhost:3009';
 
 const app = express();
 
 app.use(
   cors({
-    origin: CORS_ORIGIN.split(',').map((o) => o.trim()),
+    origin: true,
     credentials: true,
   })
 );

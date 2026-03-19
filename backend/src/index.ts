@@ -18,7 +18,6 @@ import { requestIdMiddleware } from './lib/requestId.js';
 import { startWorker, setupRepeatJobs, closeQueue } from './lib/queue.js';
 
 const PORT = process.env.PORT || 3005;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3007,http://localhost:3008,http://localhost:3009';
 
 const app = express();
 
@@ -27,7 +26,7 @@ app.use(requestIdMiddleware);
 
 app.use(
   cors({
-    origin: CORS_ORIGIN.split(',').map((o) => o.trim()),
+    origin: true,
     credentials: true,
   })
 );
