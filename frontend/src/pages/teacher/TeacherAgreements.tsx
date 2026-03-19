@@ -62,7 +62,9 @@ export default function TeacherAgreements() {
       </p>
 
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-3 text-red-700">{error}</div>
+        <div className="mb-4 rounded-lg bg-red-50 p-3 text-red-700">
+          {error instanceof Error ? error.message : error}
+        </div>
       )}
 
       <div className="space-y-4">
