@@ -1,6 +1,6 @@
-# Deploy Website, Frontend & App on Vercel
+# Deploy Website, Frontend, Admin & App on Vercel
 
-This guide walks you through deploying the **website** (marketing), **frontend** (main web app), and **app** (Expo web) to Vercel.
+This guide walks you through deploying the **website** (marketing), **frontend** (main web app), **admin** (admin dashboard), and **app** (Expo web) to Vercel.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ This guide walks you through deploying the **website** (marketing), **frontend**
 1. Go to [vercel.com](https://vercel.com) and sign in
 2. Click **Add New** → **Project**
 3. Import your GitHub repository (`tuition-platform`)
-4. You'll create **3 separate projects** from the same repo (one for each app)
+4. You'll create **4 separate projects** from the same repo (one for each app)
 
 ---
 
@@ -70,9 +70,34 @@ This guide walks you through deploying the **website** (marketing), **frontend**
 
 ---
 
-## Step 4: Deploy App (Expo Web)
+## Step 4: Deploy Admin (Admin Dashboard)
 
 1. **Add New** → **Project** → Select `tuition-platform`
+2. Configure:
+
+| Field | Value |
+|-------|-------|
+| **Project Name** | `learnbuddy-admin` |
+| **Root Directory** | `admin` |
+| **Framework Preset** | Vite |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+
+3. **Environment Variables** → Add:
+
+| Key | Value |
+|-----|-------|
+| `VITE_API_BASE_URL` | `https://your-backend.onrender.com` |
+
+4. Click **Deploy**
+
+> **Note:** The admin dashboard requires staff login. Ensure you have staff users seeded in your backend.
+
+---
+
+## Step 5: Deploy App (Expo Web)
+
+1. **Add New** → **Project** → Select `tuition-platform` again
 2. Configure:
 
 | Field | Value |
@@ -93,24 +118,25 @@ This guide walks you through deploying the **website** (marketing), **frontend**
 
 ---
 
-## Step 5: Update CORS on Render Backend
+## Step 6: Update CORS on Render Backend (Optional)
 
-Add your Vercel URLs to the backend's `CORS_ORIGIN` on Render:
+CORS is set to allow-all by default. If you later restrict origins, add your Vercel URLs to the backend's `CORS_ORIGIN` on Render:
 
 ```
-https://learnbuddy-website.vercel.app,https://learnbuddy-frontend.vercel.app,https://learnbuddy-app.vercel.app
+https://learnbuddy-website.vercel.app,https://learnbuddy-frontend.vercel.app,https://learnbuddy-admin.vercel.app,https://learnbuddy-app.vercel.app
 ```
 
 (Add custom domains too when you set them up.)
 
 ---
 
-## Step 6: Update Cross-References (Optional)
+## Step 7: Update Cross-References (Optional)
 
 After deployment, update env vars if you use custom domains:
 
 - **Website**: `VITE_WEBSITE_URL`, `VITE_APP_URL`, `VITE_ADMIN_URL`
 - **Frontend**: `VITE_APP_WEBSITE_URL` (for sitemap/OG tags)
+- **Admin**: Links to website/frontend if needed
 
 ---
 
@@ -120,6 +146,7 @@ After deployment, update env vars if you use custom domains:
 |-----|-------------------|
 | Website | `https://learnbuddy-website.vercel.app` |
 | Frontend | `https://learnbuddy-frontend.vercel.app` |
+| Admin | `https://learnbuddy-admin.vercel.app` |
 | App (Expo web) | `https://learnbuddy-app.vercel.app` |
 
 ---
