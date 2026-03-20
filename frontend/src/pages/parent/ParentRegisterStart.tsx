@@ -91,7 +91,7 @@ export default function ParentRegisterStart() {
     return (
       <AuthPageLayout title="Verify Phone" subtitle="Enter the OTP sent to your number">
         <div>
-          <p className="mb-4 text-sm text-brand-600">
+          <p className="mb-4 text-base text-brand-600">
             OTP sent to ******{normalized}. Enter the 6-digit code.
           </p>
           <form onSubmit={handleVerifyOtp} className="space-y-4">
@@ -130,9 +130,9 @@ export default function ParentRegisterStart() {
               <span className="btn-text">{loading ? 'Verifying...' : 'Verify & Continue'}</span>
             </button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-lg text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-brand-600 hover:underline">
+            <Link to="/login" className="font-bold text-brand-600 underline underline-offset-2 hover:underline">
               Login
             </Link>
           </p>
@@ -145,7 +145,7 @@ export default function ParentRegisterStart() {
     <AuthPageLayout title="Parent Registration" subtitle="Enter your phone to get started">
       <form onSubmit={handleSubmitPhone} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Phone Number</label>
+          <label className="mb-1 block text-base font-medium text-gray-700">Phone Number</label>
           <input
             type="tel"
             value={phone}

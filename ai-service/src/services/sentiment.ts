@@ -3,7 +3,7 @@
  * Detects abusive, violation, sexual, religious, hateful, etc. content.
  * Returns sentiment score (0-1) and optionally masked text.
  */
-import { geminiGenerateJson } from '../providers/gemini.js';
+import { aiGenerateJson } from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 
 export interface SentimentResult {
@@ -54,7 +54,7 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
 
   return withGeminiFallback(
     async () => {
-      const result = await geminiGenerateJson<{
+      const result = await aiGenerateJson<{
         score: number;
         flags: string[];
         maskedText?: string;

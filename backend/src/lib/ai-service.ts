@@ -1,24 +1,24 @@
 /**
- * AI Service - Gemini API integration for resource generation, exams, doubt answering, document verification
+ * AI Service - Multi-provider (Gemini, OpenAI) for resource generation, exams, doubt answering, document verification
  */
 import {
-  geminiGenerate,
-  geminiGenerateJson,
-  geminiGenerateWithImages,
-  geminiGenerateWithImageAndAudio,
-  geminiTranscribeAudio,
-  isGeminiConfigured,
-} from '@/lib/gemini';
+  aiGenerate,
+  aiGenerateJson,
+  aiGenerateWithImages,
+  aiGenerateWithImageAndAudio,
+  aiTranscribeAudio,
+  isAIConfigured,
+} from '@/lib/ai-unified';
 
-async function withGeminiFallback<T>(
+async function withAIFallback<T>(
   fn: () => Promise<T>,
   fallback: T
 ): Promise<T> {
-  if (!isGeminiConfigured()) return fallback;
+  if (!isAIConfigured()) return fallback;
   try {
     return await fn();
   } catch (err) {
-    console.error('Gemini API error:', err);
+    console.error('AI API error:', err);
     return fallback;
   }
 }
@@ -28,9 +28,9 @@ export async function generateQualificationExam(
   board: string,
   classLevel: string
 ): Promise<{ question: string; options: string[]; correctAnswer: number }[]> {
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
-      const result = await geminiGenerateJson<{
+      const result = await aiGenerateJson<{
         questions: { question: string; options: string[]; correctAnswer: number }[];
       }>(
         `Generate 5 MCQ questions for a teacher qualification exam. Subject: ${subject}, Board: ${board}, Class: ${classLevel}. Each question must have exactly 4 options. correctAnswer is 0-indexed (0=A, 1=B, 2=C, 3=D). Focus on teaching methodology, curriculum knowledge, and subject expertise.`,
@@ -116,9 +116,9 @@ export async function generateStudentExamQuestions(
       ? `Focus strictly on these topics: ${topics.join(', ')}.`
       : 'Cover key concepts from the entire syllabus as per the final exam pattern.';
 
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
-      const result = await geminiGenerateJson<{
+      const result = await aiGenerateJson<{
         questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string; imageUrl?: string; requiresDrawing?: boolean }[];
       }>(
         `Generate ${numQuestions} exam questions for ${subject}, ${board} Class ${classLevel}. ${topicHint}
@@ -254,9 +254,9 @@ export async function evaluateStudentExam(
       feedbackText = `Correct answer: ${displayCorrectAnswer}`;
     } else if (isImageAnswer) {
       const totalMarksForQ = q.marks;
-      const aiEval = await withGeminiFallback(
+      const aiEval = await withAIFallback(
         async () => {
-          const result = await geminiGenerateWithImages(
+          const result = await aiGenerateWithImages(
             `You are an expert teacher grading a student's drawing/diagram for an exam question.
 
 Question: ${q.question}
@@ -289,9 +289,9 @@ Return JSON only: { "marksObtained": <0 to ${totalMarksForQ}>, "feedback": "brie
         score += totalMarksForQ;
         feedbackText = 'Correct';
       } else {
-      const aiEval = await withGeminiFallback(
+      const aiEval = await withAIFallback(
         async () => {
-          const result = await geminiGenerateJson<{ marksObtained: number; feedback: string }>(
+          const result = await aiGenerateJson<{ marksObtained: number; feedback: string }>(
             `You are an expert teacher grading an exam. Evaluate the student's answer like a human teacher would.
 
 Question: ${q.question}
@@ -375,13 +375,13 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
   const correctCount = questionFeedback.filter((f) => f.correct).length;
   good.push(`${correctCount}/${questions.length} questions answered correctly.`);
 
-  const aiOverall = await withGeminiFallback(
+  const aiOverall = await withAIFallback(
     async () => {
       const qaSummary = questions
         .slice(0, 5)
         .map((q, i) => `Q: ${q.question}\nA: ${answers[i]}`)
         .join('\n\n');
-      return await geminiGenerate(
+      return await aiGenerate(
         `Student scored ${score}/${totalMarks} (${pct}%). Provide 1-2 sentence personalized feedback for a student. Be encouraging but constructive.\n\nSample Q&A:\n${qaSummary}`
       );
     },
@@ -408,21 +408,97 @@ export interface StudyMaterialContent {
   caption?: string;
 }
 
+export interface Flashcard {
+  front: string;
+  back: string;
+}
+
 function getConceptSvg(topic: string): string {
   const safe = String(topic).replace(/[<>"&]/g, '').slice(0, 40) || 'Concept';
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="220" viewBox="0 0 500 220"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#10b981"/><stop offset="100%" style="stop-color:#059669"/></linearGradient></defs><rect width="500" height="220" fill="url(#bg)" rx="12"/><text x="250" y="100" text-anchor="middle" fill="white" font-size="24" font-weight="bold">📚 ${safe}</text><text x="250" y="140" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="14">Concept Overview</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export async function generateStudyMaterial(
+export async function generateFlashcards(
   subject: string,
   topic: string,
   board: string,
   classLevel: string
-): Promise<{ title: string; summary: string; sections: StudyMaterialContent[] }> {
-  return withGeminiFallback(
+): Promise<{ cards: Flashcard[] }> {
+  return withAIFallback(
     async () => {
-      const text = await geminiGenerate(
+      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+        `Generate 10-12 flashcards for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students. Each card: "front" = question/term, "back" = answer. Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+        'Generate flashcards in valid JSON format.'
+      );
+      return { cards: (result.cards || []).slice(0, 15) };
+    },
+    { cards: getPlaceholderFlashcards(subject, topic, board, classLevel) }
+  );
+}
+
+function getPlaceholderFlashcards(
+  subject: string,
+  topic: string,
+  board: string,
+  classLevel: string
+): Flashcard[] {
+  return [
+    { front: `What is the main concept in ${topic}?`, back: `Key concept from ${subject} (${board} Class ${classLevel}).` },
+    { front: `Define the key term in ${topic}.`, back: `Definition as per ${board} curriculum.` },
+  ];
+}
+
+export async function generateFlashcardsFromStudyMaterial(
+  studyMaterialText: string,
+  topic: string,
+  subject: string
+): Promise<{ cards: Flashcard[] }> {
+  if (!studyMaterialText || studyMaterialText.trim().length < 50) return { cards: [] };
+  return withAIFallback(
+    async () => {
+      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+        `Extract 8-12 flashcards from this study material. Topic: ${topic}, Subject: ${subject}.\n\n${studyMaterialText.slice(0, 6000)}\n\nReturn JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+        'Extract flashcards in valid JSON format.'
+      );
+      return { cards: (result.cards || []).slice(0, 15) };
+    },
+    { cards: [] }
+  );
+}
+
+export async function generateFlashcardsFromExamFeedback(
+  feedback: { good?: string[]; bad?: string[]; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[] },
+  questions: { question: string }[],
+  subject: string,
+  board: string,
+  classLevel: string
+): Promise<{ cards: Flashcard[] }> {
+  const incorrectIndices = (feedback.questionFeedback || []).filter((qf) => !qf.correct).map((qf) => qf.questionIndex);
+  if (incorrectIndices.length === 0) return { cards: [] };
+  return withAIFallback(
+    async () => {
+      const weakQ = incorrectIndices.map((i) => questions[i]?.question).filter(Boolean).join(' | ');
+      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+        `Generate 6-10 remedial flashcards for ${subject} (${board} Class ${classLevel}). Weak areas: ${(feedback.bad || []).join('. ')}. Questions wrong: ${weakQ}. Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+        'Generate flashcards in valid JSON format.'
+      );
+      return { cards: (result.cards || []).slice(0, 12) };
+    },
+    { cards: [] }
+  );
+}
+
+export async function generateStudyMaterial(
+  subject: string,
+  topic: string,
+  board: string,
+  classLevel: string,
+  _options?: { includeFlashcards?: boolean }
+): Promise<{ title: string; summary: string; sections: StudyMaterialContent[]; flashcards?: Flashcard[] }> {
+  return withAIFallback(
+    async () => {
+      const text = await aiGenerate(
         `Create fun, engaging study material for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students.
         Use markdown with:
         1. **Introduction** - Start with a friendly hook, use emojis (📖 ✨ 💡) to make it engaging
@@ -434,20 +510,27 @@ export async function generateStudyMaterial(
         Make it colorful in description, use emojis sparingly for emphasis, and align with Indian school curriculum. Write as if explaining to a curious student - friendly and encouraging.`,
         'You are an expert, friendly teacher creating fun study materials for Indian school students. Use simple language, real examples, and make learning enjoyable.'
       );
-      return {
+      const base = {
         title: `${topic} - ${subject}`,
         summary: `Study material for ${topic} (${board} Class ${classLevel}).`,
         sections: [
-          { type: 'text', content: text },
+          { type: 'text' as const, content: text },
           {
-            type: 'image',
+            type: 'image' as const,
             content: getConceptSvg(topic),
             caption: `${topic} - Concept overview`,
           },
         ],
       };
+      if (_options?.includeFlashcards) {
+        const { cards } = await generateFlashcards(subject, topic, board, classLevel);
+        return { ...base, flashcards: cards };
+      }
+      return base;
     },
-    getPlaceholderStudyMaterial(subject, topic, board, classLevel)
+    _options?.includeFlashcards
+      ? { ...getPlaceholderStudyMaterial(subject, topic, board, classLevel), flashcards: getPlaceholderFlashcards(subject, topic, board, classLevel) } as { title: string; summary: string; sections: StudyMaterialContent[]; flashcards?: Flashcard[] }
+      : getPlaceholderStudyMaterial(subject, topic, board, classLevel)
   );
 }
 
@@ -462,7 +545,7 @@ function getPlaceholderStudyMaterial(
     summary: `Study material for ${topic}.`,
     sections: [
       {
-        type: 'text',
+        type: 'text' as const,
         content: `# ${topic}\n\nThis covers ${topic} for ${subject} (${board} Class ${classLevel}).\n\n## Key Concepts\n\n• Introduction and main points\n• Practical applications\n• Tips for exam preparation`,
       },
     ],
@@ -473,9 +556,9 @@ export async function answerDoubt(
   question: string,
   context: { subject: string; topic: string; board: string; classLevel: string }
 ): Promise<{ answer: string; questionWarning?: boolean; answerWarning?: boolean; sentimentScore?: number }> {
-  const rawAnswer = await withGeminiFallback(
+  const rawAnswer = await withAIFallback(
     async () => {
-      return await geminiGenerate(
+      return await aiGenerate(
         `A student asks: "${question}"\n\nContext: ${context.subject}, ${context.board} Class ${context.classLevel}, topic: ${context.topic}.\n\nProvide a clear, educational answer suitable for a school student. Use simple language and include examples if helpful. Format your answer with markdown: use **bold** for key terms, bullet points for lists, numbered steps when explaining procedures, and headings for distinct sections.`,
         'You are a patient and knowledgeable tutor helping Indian school students. Explain concepts clearly and encourage learning. Always use markdown formatting (bullets, numbered lists, bold for emphasis) to make answers easy to read.'
       );
@@ -501,10 +584,10 @@ export async function analyzeSessionMonitoring(
   sessionId: string,
   frames: { studentFrame?: string; teacherFrame?: string; audioLevel?: number }
 ): Promise<{ alert: boolean; type?: string; message?: string }> {
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
       if (frames.studentFrame && frames.teacherFrame) {
-        const result = await geminiGenerateWithImages(
+        const result = await aiGenerateWithImages(
           'Analyze these two images from an online tutoring session. Image 1: student view. Image 2: teacher view. Is the session appropriate and safe? Reply with JSON only: { "alert": false or true, "type": "reason if alert", "message": "brief message" }',
           [frames.studentFrame, frames.teacherFrame]
         );
@@ -523,17 +606,19 @@ export async function analyzeSessionMonitoring(
 export async function analyzeExamFrame(
   studentFrame: string
 ): Promise<{ alert: boolean; type?: string; message?: string }> {
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `Analyze this webcam frame from an online exam. Strictly check:
-1. Is the person ALONE? (no other people in frame or background)
+1. Is the person ALONE? (no other people in frame, background, or reflection)
 2. Is the person's FACE clearly visible and facing the camera/screen?
-3. No phone, tablet, book, notes, or second screen visible?
-4. Camera not covered, not blank/black, not showing ceiling/wall?
-5. Person not looking away from screen (e.g. looking at phone, another person, notes)?
+3. PERSON CHANGED? Different face/person than expected - flag if identity appears to have switched.
+4. SCREEN CLEAR? Camera not blurry, dark, obstructed, blank/black, or showing ceiling/wall.
+5. No phone, tablet, book, notes, second screen, or cheat materials visible?
+6. Person not looking away from screen (e.g. at phone, another person, notes)?
+7. No attempt to cover camera or obstruct view?
 
-Flag alert=true if ANY: multiple people, extra person in background, phone/device visible, book/notes, face not visible, looking away, camera covered/blank, suspicious activity.
+Flag alert=true if ANY: multiple people, person changed, extra person, phone/device, book/notes, face not visible, screen unclear, looking away, camera covered/blank, suspicious activity.
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`,
         [studentFrame]
       );
@@ -565,27 +650,28 @@ export async function analyzeExamFrameWithAudio(
     ? `\n\nSPEECH-TO-TEXT TRANSCRIPT (what was heard):\n"${transcript}"\n\nUse this transcript to detect: someone dictating answers, reading from notes, another person helping, suspicious conversation. Flag alert=true if transcript suggests cheating.`
     : '';
 
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
       const prompt = `STRICT exam proctoring. Analyze this webcam frame and audio. You MUST flag alert=true for ANY violation.
 
 VIDEO - Flag alert=true if:
-1. MULTIPLE PEOPLE: More than one person visible (face, body, in background, reflection). Even one extra person = alert.
-2. PERSON LEFT/ABSENT: No clear face visible, person left the frame, only showing empty chair/room, back of head, or person turned away.
-3. WRONG PERSON: Face does not match expected exam taker (e.g. someone else taking the exam).
-4. SCREEN QUALITY: Image too dark (can barely see), too bright/washed out (overexposed), or camera showing ceiling/wall/blank.
-5. DEVICES: Phone, tablet, second screen, book, notes, or cheat materials visible.
-6. LOOKING AWAY: Person clearly looking at phone, another person, notes, or away from screen for extended time.
+1. MULTIPLE PEOPLE: More than one person visible (face, body, in background, reflection, mirror). Even one extra person = alert.
+2. PERSON CHANGED: Different person than expected (face changed, someone else in frame). Flag if identity appears to have switched.
+3. PERSON LEFT/ABSENT: No clear face visible, person left the frame, only showing empty chair/room, back of head, or person turned away.
+4. SCREEN/CAMERA NOT CLEAR: Image too dark, too bright/washed out, blurry, obstructed, camera showing ceiling/wall/blank/black, or view is unclear for proper monitoring.
+5. DEVICES: Phone, tablet, second screen, laptop, book, notes, cheat materials, or any external aid visible.
+6. LOOKING AWAY: Person clearly looking at phone, another person, notes, second screen, or away from exam screen.
+7. SUSPICIOUS: Any attempt to obstruct view, cover camera, or hide activity.
 
 AUDIO - Flag alert=true if:
-7. MULTIPLE VOICES: Someone else speaking, helping, dictating answers, or background conversation.
-8. EXCESSIVE NOISE: TV, music, loud background noise, or suspicious sounds.
-9. TRANSCRIPT CHEATING: If transcript provided, flag if someone appears to be dictating answers, reading from notes, or receiving help.${transcriptSection}
+8. MULTIPLE VOICES: Someone else speaking, helping, dictating answers, or background conversation.
+9. EXCESSIVE NOISE: TV, music, loud background noise, or suspicious sounds.
+10. TRANSCRIPT CHEATING: If transcript provided, flag if someone appears to be dictating answers, reading from notes, or receiving help.${transcriptSection}
 
 BE STRICT. When in doubt, flag. Better to warn than miss cheating.
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`;
 
-      const result = await geminiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
+      const result = await aiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch?.[0]) {
         const parsed = JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -603,14 +689,14 @@ export async function analyzeClassroomFrame(
   role: 'student' | 'teacher',
   referencePhotoUrl?: string | null
 ): Promise<{ alert: boolean; type?: string; message?: string }> {
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
       const roleDesc = role === 'student' ? 'student' : 'teacher';
       const images = referencePhotoUrl ? [frame, referencePhotoUrl] : [frame];
       const faceMatchPrompt = referencePhotoUrl
         ? `Image 1: Current webcam. Image 2: Stored ${roleDesc} photo. Does the face in Image 1 match Image 2? Flag if mismatch. `
         : '';
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `STRICT AI inspection for online class. This is the ${roleDesc}'s webcam view.
 ${faceMatchPrompt}
 Check ALL:
@@ -640,7 +726,7 @@ Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message
 /** Transcribe audio to text using Gemini (speech-to-text for exam monitoring) */
 export async function transcribeAudio(audioDataUrl: string): Promise<string> {
   if (!audioDataUrl?.trim()) return '';
-  return withGeminiFallback(async () => geminiTranscribeAudio(audioDataUrl), '');
+  return withAIFallback(async () => aiTranscribeAudio(audioDataUrl), '');
 }
 
 export interface TeacherExamQuestion {
@@ -654,13 +740,13 @@ export async function generateTeacherQualificationExam(
   combinations: { board: string; classLevel: string; subject: string }[],
   durationMinutes: number = 15
 ): Promise<TeacherExamQuestion[]> {
-  if (!isGeminiConfigured()) {
+  if (!isAIConfigured()) {
     throw new Error('GEMINI_API_KEY is not configured. Please add it to .env.local');
   }
   const comboDesc = combinations
     .map((c) => `${c.board} Board, Class ${c.classLevel}, ${c.subject}`)
     .join('; ');
-  const result = await geminiGenerateJson<{
+  const result = await aiGenerateJson<{
     questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string }[];
   }>(
     `You are an expert in Indian school curricula (CBSE, ICSE, State Boards). Generate 15 REAL qualification exam questions for teachers. Teaching combinations: ${comboDesc}.
@@ -703,9 +789,9 @@ export async function verifyDocumentPhoto(
   documentImageUrl: string,
   profilePhotoUrl: string
 ): Promise<'verified' | 'not_verified' | 'partially_verified'> {
-  return withGeminiFallback(
+  return withAIFallback(
     async () => {
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `You are verifying identity documents. Image 1: ID proof document (Aadhaar/Passport etc). Image 2: Student/person photo.
         Does the photo on the ID document match the person in the second photo? Consider face similarity.
         Reply with exactly one word: verified, not_verified, or partially_verified.`,

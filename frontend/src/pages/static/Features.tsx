@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchPageContent } from '@/lib/api';
-import { TrustBadges } from '@/components/TrustBadges';
 
 const defaultSafetyFeatures = [
   { title: 'DPDP Compliant', desc: "Full compliance with India's Digital Personal Data Protection Act. Children's data is protected.", icon: '🛡️', emoji: '🔒' },
@@ -45,16 +44,15 @@ export default function Features() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:py-12">
-      <section className="mb-12 rounded-3xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-8 shadow-xl md:p-12">
-        <h1 className="mb-3 text-4xl font-extrabold text-brand-900 md:text-5xl">{heroTitle}</h1>
+    <div className="flex w-full flex-col items-center px-2 py-4 sm:px-4 sm:py-6 md:py-8">
+      <section className="mb-8 w-full rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6 text-center shadow-xl sm:mb-12 sm:rounded-3xl sm:p-8 md:p-12">
+        <h1 className="mb-3 text-3xl font-extrabold text-brand-900 sm:text-4xl md:text-5xl">{heroTitle}</h1>
         <p className="text-xl text-gray-600">{heroSubtitle}</p>
-        <TrustBadges variant="inline" className="mt-6" />
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-6 text-2xl font-bold text-brand-900 md:text-3xl">Safety & Compliance</h2>
-        <div className="grid gap-6 md:grid-cols-3">
+      <section className="mb-8 w-full sm:mb-12">
+        <h2 className="mb-6 text-center text-2xl font-bold text-brand-900 sm:text-3xl">Safety & Compliance</h2>
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
           {safetyFeatures.map((item, i) => (
             <div key={i} className="rounded-2xl border-2 border-brand-100 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6 shadow-lg">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-100 to-accent-100/50 text-3xl">{item.icon}</div>

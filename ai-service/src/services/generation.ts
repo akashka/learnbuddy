@@ -1,11 +1,11 @@
 /**
  * AI Service - Generation (exams, study material)
  */
-import { geminiGenerate, geminiGenerateJson, isGeminiConfigured } from '../providers/gemini.js';
+import { aiGenerate, aiGenerateJson, isAIConfigured } from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 import { cacheGetOrSet, AI_CACHE_TTL } from '../lib/cache.js';
 import { analyzeSentiment, getSafeDisplayText } from './sentiment.js';
-import type { StudentExamQuestion, StudyMaterialContent, TeacherExamQuestion } from './types.js';
+import type { StudentExamQuestion, StudyMaterialContent, TeacherExamQuestion, Flashcard } from './types.js';
 import type { ExamType } from './types.js';
 
 export async function generateQualificationExam(
@@ -15,7 +15,7 @@ export async function generateQualificationExam(
 ): Promise<{ question: string; options: string[]; correctAnswer: number }[]> {
   return withGeminiFallback(
     async () => {
-      const result = await geminiGenerateJson<{
+      const result = await aiGenerateJson<{
         questions: { question: string; options: string[]; correctAnswer: number }[];
       }>(
         `Generate 5 MCQ questions for a teacher qualification exam. Subject: ${subject}, Board: ${board}, Class: ${classLevel}. Each question must have exactly 4 options. correctAnswer is 0-indexed (0=A, 1=B, 2=C, 3=D). Focus on teaching methodology, curriculum knowledge, and subject expertise.`,
@@ -99,7 +99,7 @@ export async function generateStudentExamQuestions(
 
   return withGeminiFallback(
     async () => {
-      const result = await geminiGenerateJson<{
+      const result = await aiGenerateJson<{
         questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string; imageUrl?: string; requiresDrawing?: boolean }[];
       }>(
         `Generate ${numQuestions} exam questions for ${subject}, ${board} Class ${classLevel}. ${topicHint}
@@ -183,17 +183,149 @@ function getConceptSvg(topic: string): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export async function generateStudyMaterial(
+/** Option A: Standalone flashcard generation from topic */
+export async function generateFlashcards(
   subject: string,
   topic: string,
   board: string,
   classLevel: string
-): Promise<{ title: string; summary: string; sections: StudyMaterialContent[] }> {
-  const cacheKey = `sm:${subject}:${topic}:${board}:${classLevel}`.replace(/[^a-zA-Z0-9:_-]/g, '_');
+): Promise<{ cards: Flashcard[] }> {
+  const cacheKey = `fc:${subject}:${topic}:${board}:${classLevel}`.replace(/[^a-zA-Z0-9:_-]/g, '_');
   return cacheGetOrSet(cacheKey, AI_CACHE_TTL, () =>
     withGeminiFallback(
       async () => {
-        const text = await geminiGenerate(
+        const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+          `Generate 10-12 flashcards for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students.
+Each card: "front" = question/term/concept prompt, "back" = answer/definition/explanation.
+Focus on key definitions, formulas, concepts from the Indian school curriculum.
+Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+          'You are an expert teacher creating flashcards for Indian school students. Use clear, concise language.'
+        );
+        const cards = (result.cards || []).slice(0, 15).map((c) => ({
+          front: String(c.front || '').trim() || 'Concept',
+          back: String(c.back || '').trim() || 'Answer',
+        }));
+        for (const c of cards) {
+          const sentF = await analyzeSentiment(c.front);
+          if (!sentF.safe) {
+            const { text } = getSafeDisplayText(c.front, sentF);
+            c.front = text;
+          }
+          const sentB = await analyzeSentiment(c.back);
+          if (!sentB.safe) {
+            const { text } = getSafeDisplayText(c.back, sentB);
+            c.back = text;
+          }
+        }
+        return { cards };
+      },
+      getPlaceholderFlashcards(subject, topic, board, classLevel)
+    )
+  );
+}
+
+function getPlaceholderFlashcards(
+  subject: string,
+  topic: string,
+  board: string,
+  classLevel: string
+): { cards: Flashcard[] } {
+  return {
+    cards: [
+      { front: `What is the main concept in ${topic}?`, back: `Key concept from ${subject} (${board} Class ${classLevel}).` },
+      { front: `Define the key term in ${topic}.`, back: `Definition as per ${board} curriculum.` },
+      { front: `What formula is used in ${topic}?`, back: `The standard formula for this topic.` },
+    ],
+  };
+}
+
+/** Option C: Generate flashcards from study material text */
+export async function generateFlashcardsFromStudyMaterial(
+  studyMaterialText: string,
+  topic: string,
+  subject: string
+): Promise<{ cards: Flashcard[] }> {
+  if (!studyMaterialText || studyMaterialText.trim().length < 50) {
+    return { cards: [] };
+  }
+  return withGeminiFallback(
+    async () => {
+      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+        `Extract 8-12 flashcards from this study material. Topic: ${topic}, Subject: ${subject}.
+
+Study material:
+---
+${studyMaterialText.slice(0, 6000)}
+---
+
+Create flashcards: "front" = question/term, "back" = answer from the material.
+Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+        'Extract key concepts as flashcards. Be accurate to the source material.'
+      );
+      const cards = (result.cards || []).slice(0, 15).map((c) => ({
+        front: String(c.front || '').trim() || 'Concept',
+        back: String(c.back || '').trim() || 'Answer',
+      }));
+      return { cards };
+    },
+    { cards: [] }
+  );
+}
+
+/** Option D: Generate flashcards from exam feedback (weak areas) */
+export async function generateFlashcardsFromExamFeedback(
+  feedback: { good?: string[]; bad?: string[]; overall?: string; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[] },
+  questions: { question: string; type?: string }[],
+  subject: string,
+  board: string,
+  classLevel: string
+): Promise<{ cards: Flashcard[] }> {
+  const incorrectIndices = (feedback.questionFeedback || [])
+    .filter((qf) => !qf.correct)
+    .map((qf) => qf.questionIndex);
+  if (incorrectIndices.length === 0) {
+    return { cards: [] };
+  }
+  const weakQuestions = incorrectIndices
+    .map((i) => questions[i])
+    .filter(Boolean)
+    .map((q) => q!.question);
+  const badAreas = (feedback.bad || []).join('. ');
+  const context = `Weak areas: ${badAreas}. Questions that were answered incorrectly: ${weakQuestions.join(' | ')}`;
+  return withGeminiFallback(
+    async () => {
+      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+        `A student scored poorly on ${subject} (${board} Class ${classLevel}). Generate 6-10 flashcards to help them improve.
+
+${context}
+
+Create flashcards: "front" = question/concept they need to practice, "back" = correct answer/explanation.
+Focus on the concepts they got wrong.
+Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
+        'You are an expert teacher creating remedial flashcards for weak areas.'
+      );
+      const cards = (result.cards || []).slice(0, 12).map((c) => ({
+        front: String(c.front || '').trim() || 'Concept',
+        back: String(c.back || '').trim() || 'Answer',
+      }));
+      return { cards };
+    },
+    { cards: [] }
+  );
+}
+
+export async function generateStudyMaterial(
+  subject: string,
+  topic: string,
+  board: string,
+  classLevel: string,
+  options?: { includeFlashcards?: boolean }
+): Promise<{ title: string; summary: string; sections: StudyMaterialContent[]; flashcards?: Flashcard[] }> {
+  const cacheKey = `sm:${subject}:${topic}:${board}:${classLevel}:${options?.includeFlashcards ? 'fc' : ''}`.replace(/[^a-zA-Z0-9:_-]/g, '_');
+  return cacheGetOrSet(cacheKey, AI_CACHE_TTL, () =>
+    withGeminiFallback(
+      async () => {
+        const text = await aiGenerate(
           `Create fun, engaging study material for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students.
         Use markdown with:
         1. **Introduction** - Start with a friendly hook, use emojis (📖 ✨ 💡) to make it engaging
@@ -211,20 +343,31 @@ export async function generateStudyMaterial(
           const { text: masked } = getSafeDisplayText(text, textSentiment);
           safeText = masked;
         }
-        return {
+        const base = {
           title: `${topic} - ${subject}`,
           summary: `Study material for ${topic} (${board} Class ${classLevel}).`,
           sections: [
-            { type: 'text', content: safeText },
+            { type: 'text' as const, content: safeText },
             {
-              type: 'image',
+              type: 'image' as const,
               content: getConceptSvg(topic),
               caption: `${topic} - Concept overview`,
             },
           ],
         };
+        if (options?.includeFlashcards) {
+          const { cards } = await generateFlashcards(subject, topic, board, classLevel);
+          return { ...base, flashcards: cards };
+        }
+        return base;
       },
-      getPlaceholderStudyMaterial(subject, topic, board, classLevel)
+      options?.includeFlashcards
+        ? (() => {
+            const p = getPlaceholderStudyMaterial(subject, topic, board, classLevel);
+            const { cards } = getPlaceholderFlashcards(subject, topic, board, classLevel);
+            return { ...p, flashcards: cards };
+          })()
+        : getPlaceholderStudyMaterial(subject, topic, board, classLevel)
     )
   );
 }
@@ -251,13 +394,13 @@ export async function generateTeacherQualificationExam(
   combinations: { board: string; classLevel: string; subject: string }[],
   durationMinutes: number = 15
 ): Promise<TeacherExamQuestion[]> {
-  if (!isGeminiConfigured()) {
+  if (!isAIConfigured()) {
     throw new Error('GEMINI_API_KEY is not configured. Please add it to .env.local');
   }
   const comboDesc = combinations
     .map((c) => `${c.board} Board, Class ${c.classLevel}, ${c.subject}`)
     .join('; ');
-  const result = await geminiGenerateJson<{
+  const result = await aiGenerateJson<{
     questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string }[];
   }>(
     `You are an expert in Indian school curricula (CBSE, ICSE, State Boards). Generate 15 REAL qualification exam questions for teachers. Teaching combinations: ${comboDesc}.

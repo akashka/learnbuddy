@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { adminApi } from '@/lib/adminApi';
 import { DataState } from '@/components/DataState';
 import { FilterBar } from '@/components/FilterBar';
 import { ColumnSelector } from '@/components/ColumnSelector';
 import { useTablePreferences } from '@/hooks/useTablePreferences';
+import { formatDateTime, formatDurationMs } from '@shared/formatters';
 
 const LOG_COLUMNS = [
   { key: 'time', label: 'Time' },
   { key: 'operation', label: 'Operation' },
+  { key: 'model', label: 'Model' },
   { key: 'user', label: 'User' },
   { key: 'source', label: 'Source' },
   { key: 'entity', label: 'Entity' },
@@ -21,6 +23,7 @@ const LOG_COLUMNS = [
 type Log = {
   _id: string;
   operationType: string;
+  modelId?: string;
   userId?: { email?: string; phone?: string };
   userRole?: string;
   source: string;
@@ -68,16 +71,27 @@ export default function AIUsageLogs() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-2xl font-bold text-accent-800">AI Usage Logs</h1>
-      <p className="mb-4 text-accent-700">
-        Audit trail of all AI invocations. Metadata is logged for compliance; no raw PII or media stored.
-      </p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-accent-800">AI Usage Logs</h1>
+          <p className="mt-1 text-accent-700">
+            Audit trail of all AI invocations. Metadata is logged for compliance; no raw PII or media stored.
+          </p>
+        </div>
+        <Link
+          to="/ai-models"
+          className="rounded-lg border-2 border-accent-200 bg-white px-4 py-2 text-sm font-medium text-accent-700 hover:border-accent-400 hover:bg-accent-50"
+        >
+          🤖 Configure AI Models
+        </Link>
+      </div>
 
       <FilterBar
         filters={[
-          { key: 'operation', label: 'Operation', value: operationFilter, onChange: (v) => updateParams({ operation: v }), options: [
+          { key: 'operation', label: 'Operation', value: operationFilter, onChange: setOperationFilter, options: [
             { value: '', label: 'All' },
             { value: 'generate_study_material', label: 'Study Material' },
+            { value: 'generate_flashcards', label: 'Flashcards' },
             { value: 'answer_doubt', label: 'Answer Doubt' },
             { value: 'generate_exam_questions', label: 'Exam Questions' },
             { value: 'evaluate_student_exam', label: 'Evaluate Exam' },
@@ -108,6 +122,7 @@ export default function AIUsageLogs() {
                 <tr>
                   {(visibleColumns.includes('time') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">Time</th>}
                   {(visibleColumns.includes('operation') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">Operation</th>}
+                  {(visibleColumns.includes('model') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">Model</th>}
                   {(visibleColumns.includes('user') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">User</th>}
                   {(visibleColumns.includes('source') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">Source</th>}
                   {(visibleColumns.includes('entity') || visibleColumns.length === 0) && <th className="px-4 py-2 text-left">Entity</th>}
@@ -125,7 +140,7 @@ export default function AIUsageLogs() {
                     {col('time') && (
                       <td className="px-4 py-2 whitespace-nowrap">
                         <Link to={`/ai-usage-logs/${log._id}`} state={{ from: location.pathname + location.search }} className="text-accent-600 hover:underline">
-                          {new Date(log.createdAt).toLocaleString()}
+                          {formatDateTime(log.createdAt)}
                         </Link>
                       </td>
                     )}
@@ -145,7 +160,7 @@ export default function AIUsageLogs() {
                     {col('output') && <td className="px-4 py-2 max-w-[150px] truncate" title={JSON.stringify(log.outputMetadata)}>
                       {log.outputMetadata ? JSON.stringify(log.outputMetadata).slice(0, 60) + '...' : '-'}
                     </td>}
-                    {col('duration') && <td className="px-4 py-2">{log.durationMs != null ? `${log.durationMs}ms` : '-'}</td>}
+                    {col('duration') && <td className="px-4 py-2">{log.durationMs != null ? formatDurationMs(log.durationMs) : '-'}</td>}
                     {col('status') && <td className="px-4 py-2">
                       <span className={log.success ? 'text-green-600' : 'text-red-600'}>
                         {log.success ? 'OK' : log.errorMessage || 'Failed'}
@@ -155,7 +170,7 @@ export default function AIUsageLogs() {
                 );})}
                 {data.logs.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                       No AI usage logs yet.
                     </td>
                   </tr>

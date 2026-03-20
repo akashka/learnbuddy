@@ -357,7 +357,7 @@ export default function Users() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowForm(false)}>
           <div
-            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Add User</h2>
@@ -518,7 +518,7 @@ export default function Users() {
       {editingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditingId(null)}>
           <div
-            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Edit User</h2>
@@ -762,7 +762,7 @@ export default function Users() {
           aria-labelledby="toggle-confirm-title"
         >
           <div
-            className="w-full max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-xl"
+            className="w-full max-w-lg overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="toggle-confirm-title" className="mb-2 text-lg font-semibold text-accent-800">

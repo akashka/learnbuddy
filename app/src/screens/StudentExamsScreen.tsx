@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatDateTime } from '../lib/formatters';
 
 interface Exam {
   _id: string;
@@ -34,8 +35,6 @@ export function StudentExamsScreen() {
   if (loading) return <View style={styles.center}><Text style={styles.loading}>Loading...</Text></View>;
   if (error) return <View style={styles.center}><Text style={styles.error}>Error: {error}</Text></View>;
 
-  const formatDate = (d?: string) => (d ? new Date(d).toLocaleString() : '-');
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{t('exams')}</Text>
@@ -46,7 +45,7 @@ export function StudentExamsScreen() {
             {e.score != null && e.totalMarks != null ? `Score: ${e.score}/${e.totalMarks}` : ''}
             {e.status && ` • ${e.status}`}
           </Text>
-          <Text style={styles.date}>Attempted: {formatDate(e.attemptedAt)}</Text>
+          <Text style={styles.date}>Attempted: {formatDateTime(e.attemptedAt)}</Text>
         </Card>
       ))}
       {exams.length === 0 && <Text style={styles.empty}>No exams yet.</Text>}

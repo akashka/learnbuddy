@@ -177,18 +177,6 @@ export default function ParentProfile() {
         </form>
       </div>
 
-      <div className="rounded-xl border border-brand-200 bg-white p-4">
-        <h2 className="mb-2 font-semibold text-brand-800">Privacy & Data</h2>
-        <p className="mb-3 text-sm text-gray-600">
-          View your data, consent history, download your data, or delete your account.
-        </p>
-        <Link
-          to="/parent/privacy"
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-100 px-4 py-2 text-brand-700 hover:bg-brand-200"
-        >
-          <span>🔒</span> Privacy & Data
-        </Link>
-      </div>
     </div>
   );
 }

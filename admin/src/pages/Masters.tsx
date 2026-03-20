@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { adminApi } from '@/lib/adminApi';
+import { useAutoSelectSingleOption } from '@/hooks/useAutoSelectSingleOption';
 import { DataState } from '@/components/DataState';
 import { ColumnSelector } from '@/components/ColumnSelector';
 import { ExportButton } from '@/components/ExportButton';
@@ -410,6 +411,13 @@ function TopicAddModal({
   const [topic, setTopic] = useState('');
   const [displayOrder, setDisplayOrder] = useState(999);
 
+  const boardOptions = boards.filter((b) => b.isActive !== false).map((b) => b.value);
+  const classOptions = classes.filter((c) => c.isActive !== false).map((c) => c.value);
+  const subjectOptions = subjects.filter((s) => s.isActive !== false).map((s) => s.value);
+  useAutoSelectSingleOption(board, setBoard, boardOptions);
+  useAutoSelectSingleOption(classLevel, setClassLevel, classOptions);
+  useAutoSelectSingleOption(subject, setSubject, subjectOptions);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!board || !classLevel || !subject || !topic.trim()) return;
@@ -418,7 +426,7 @@ function TopicAddModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-4 text-lg font-semibold text-accent-800">Add Topic</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -491,7 +499,7 @@ function TopicEditModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-4 text-lg font-semibold text-accent-800">Edit Topic</h2>
         <p className="mb-4 text-sm text-accent-600">{topic.board} • {topic.classLevel} • {topic.subject}</p>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -532,7 +540,7 @@ function TopicDeleteModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h2 className="mb-2 text-lg font-semibold text-accent-800">Delete Topic</h2>
         <p className="mb-4 text-sm text-accent-600">
           Are you sure you want to delete &quot;{topic.topic}&quot; ({topic.board} • {topic.classLevel} • {topic.subject})?

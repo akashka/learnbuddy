@@ -1,12 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/adminApi';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { formatCurrency } from '@shared/formatters';
 
 const CHART_COLORS = ['#4f46e5', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
-}
 
 export default function ReportTabTeacherPerformance() {
   const [sortBy, setSortBy] = useState('revenue');

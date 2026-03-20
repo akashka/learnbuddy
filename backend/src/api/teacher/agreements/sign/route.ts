@@ -15,7 +15,13 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = (await request.json()) as any;
+
+    let body: { type?: string } = {};
+    try {
+      body = (await request.json()) as { type?: string };
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
     const { type } = body;
 
     if (!type || !VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Teacher agreement sign error:', error);
-    return NextResponse.json({ error: 'Failed to sign' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to sign';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

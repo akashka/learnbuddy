@@ -15,6 +15,7 @@ export function api(path: string, options?: RequestInit): Promise<Response> {
   const token = localStorage.getItem('token');
   return fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

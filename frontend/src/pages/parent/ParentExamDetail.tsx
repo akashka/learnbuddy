@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { ReadAloudButton } from '@/components/ReadAloudButton';
+import { Modal } from '@/components/Modal';
 
 interface IAIFeedback {
   good?: string[];
@@ -165,9 +166,12 @@ export default function ParentExamDetail() {
         )}
       </div>
 
-      {showReviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-w-md rounded-xl bg-white p-6 shadow-lg">
+      <Modal
+        isOpen={showReviewModal}
+        onClose={() => { setShowReviewModal(false); setRemark(''); setSubmitError(''); setSubmitSuccess(false); }}
+        maxWidth="max-w-lg"
+      >
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-brand-800">Request Human Review</h2>
             <p className="mb-4 text-sm text-gray-600">
               If you believe the AI evaluation is incorrect for your child&apos;s exam, request a
@@ -212,9 +216,8 @@ export default function ParentExamDetail() {
                 </div>
               </form>
             )}
-          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

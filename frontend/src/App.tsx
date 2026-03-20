@@ -8,7 +8,6 @@ import { RouteMeta } from '@/components/RouteMeta';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import NotFoundPage from '@/pages/errors/NotFoundPage';
 import { RootRedirect } from '@/components/RootRedirect';
-import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ParentRegisterStart from '@/pages/parent/ParentRegisterStart';
 import ParentRegisterForm from '@/pages/parent/ParentRegisterForm';
@@ -20,16 +19,21 @@ import ParentProfile from '@/pages/parent/ParentProfile';
 import ParentPerformances from '@/pages/parent/ParentPerformances';
 import ParentCheckout from '@/pages/parent/ParentCheckout';
 import ParentPayment from '@/pages/parent/ParentPayment';
+import ParentPayments from '@/pages/parent/ParentPayments';
 import ParentExamDetail from '@/pages/parent/ParentExamDetail';
 import Privacy from '@/pages/Privacy';
+import Settings from '@/pages/Settings';
 import TeacherRegister from '@/pages/teacher/TeacherRegister';
+import TeacherRegisterStep from '@/pages/teacher/TeacherRegisterStep';
 import TeacherDashboard from '@/pages/teacher/TeacherDashboard';
 import TeacherBatches from '@/pages/teacher/TeacherBatches';
 import TeacherClasses from '@/pages/teacher/TeacherClasses';
 import TeacherProfile from '@/pages/teacher/TeacherProfile';
 import TeacherExams from '@/pages/teacher/TeacherExams';
 import TeacherExamDetail from '@/pages/teacher/TeacherExamDetail';
+import TeacherStudents from '@/pages/teacher/TeacherStudents';
 import TeacherAgreements from '@/pages/teacher/TeacherAgreements';
+import TeacherPayments from '@/pages/teacher/TeacherPayments';
 import StudentDashboard from '@/pages/student/StudentDashboard';
 import StudentCourses from '@/pages/student/StudentCourses';
 import StudentClasses from '@/pages/student/StudentClasses';
@@ -38,6 +42,7 @@ import StudentExamDetail from '@/pages/student/StudentExamDetail';
 import TakeExam from '@/pages/student/TakeExam';
 import StudyMaterials from '@/pages/StudyMaterials';
 import ReviewRequests from '@/pages/ReviewRequests';
+import Notifications from '@/pages/Notifications';
 import AboutUs from '@/pages/static/AboutUs';
 import ContactUs from '@/pages/static/ContactUs';
 import Faq from '@/pages/static/Faq';
@@ -48,7 +53,9 @@ import PrivacyPolicy from '@/pages/static/PrivacyPolicy';
 import TermsConditions from '@/pages/static/TermsConditions';
 import RefundPolicy from '@/pages/static/RefundPolicy';
 import CourseOwnershipRules from '@/pages/static/CourseOwnershipRules';
+import SafetyAndTrust from '@/pages/static/SafetyAndTrust';
 import VerifyEmail from '@/pages/VerifyEmail';
+import Disputes from '@/pages/Disputes';
 
 export default function App() {
   return (
@@ -60,7 +67,7 @@ export default function App() {
           <Routes>
             <Route element={<AppShell />}>
               <Route path="/" element={<RootRedirect />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<RootRedirect />} />
               <Route path="/register" element={<Register />} />
               <Route path="/about-us" element={<AboutUs />} />
               <Route path="/contact-us" element={<ContactUs />} />
@@ -75,6 +82,7 @@ export default function App() {
               <Route path="/terms-conditions" element={<TermsConditions />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/course-ownership-rules" element={<CourseOwnershipRules />} />
+              <Route path="/safety-and-trust" element={<SafetyAndTrust />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
 
               {/* Parent - public registration start */}
@@ -139,6 +147,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/parent/payments"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <ParentPayments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/parent/performances"
                 element={
                   <ProtectedRoute allowedRoles={['parent']}>
@@ -154,9 +170,34 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/parent/privacy"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <Privacy />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/parent/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/disputes"
+                element={
+                  <ProtectedRoute allowedRoles={['parent', 'teacher']}>
+                    <Disputes />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Teacher */}
               <Route path="/teacher/register" element={<TeacherRegister />} />
+              <Route path="/teacher/register/step/:step" element={<TeacherRegisterStep />} />
               <Route
                 path="/teacher/dashboard"
                 element={
@@ -182,6 +223,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/teacher/payments"
+                element={
+                  <ProtectedRoute allowedRoles={['teacher']}>
+                    <TeacherPayments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/teacher/profile"
                 element={
                   <ProtectedRoute allowedRoles={['teacher']}>
@@ -198,10 +247,18 @@ export default function App() {
                 }
               />
               <Route
-                path="/teacher/exams"
+                path="/teacher/settings"
                 element={
                   <ProtectedRoute allowedRoles={['teacher']}>
-                    <TeacherExams />
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/teacher/students"
+                element={
+                  <ProtectedRoute allowedRoles={['teacher']}>
+                    <TeacherStudents />
                   </ProtectedRoute>
                 }
               />
@@ -284,6 +341,14 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['teacher']}>
                     <StudyMaterials />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute allowedRoles={['parent', 'teacher', 'student']}>
+                    <Notifications />
                   </ProtectedRoute>
                 }
               />

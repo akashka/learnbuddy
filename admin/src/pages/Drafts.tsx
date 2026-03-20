@@ -233,7 +233,7 @@ export default function Drafts() {
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditing(null)}>
-          <div className="max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="mb-4 text-lg font-semibold text-accent-800">
               Edit {editing.type === 'teacher' ? 'Teacher' : 'Parent'} Draft
             </h2>

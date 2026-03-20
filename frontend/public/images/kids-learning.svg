@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" fill="none">
+  <defs>
+    <linearGradient id="kidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef3c7"/>
+      <stop offset="100%" style="stop-color:#fde68a"/>
+    </linearGradient>
+  </defs>
+  <!-- Desk -->
+  <rect x="50" y="180" width="300" height="20" rx="4" fill="#78716c"/>
+  <!-- Laptop -->
+  <rect x="120" y="140" width="160" height="100" rx="8" fill="#e0e7ff"/>
+  <rect x="130" y="150" width="140" height="75" rx="4" fill="white"/>
+  <circle cx="200" cy="185" r="20" fill="#4f46e5" opacity="0.3"/>
+  <!-- Student figure -->
+  <ellipse cx="200" cy="230" rx="50" ry="15" fill="#c7d2fe"/>
+  <circle cx="200" cy="170" r="35" fill="#fef3c7"/>
+  <circle cx="195" cy="165" r="4" fill="#374151"/>
+  <circle cx="205" cy="165" r="4" fill="#374151"/>
+  <!-- Stars/Achievements -->
+  <path d="M50 80 L52 88 L60 88 L53 93 L55 101 L47 96 L39 101 L41 93 L34 88 L42 88 Z" fill="#fbbf24"/>
+  <path d="M350 100 L352 106 L358 106 L353 110 L355 116 L349 112 L343 116 L345 110 L340 106 L346 106 Z" fill="#34d399"/>
+  <path d="M80 220 L82 226 L88 226 L83 230 L85 236 L79 232 L73 236 L75 230 L70 226 L76 226 Z" fill="#60a5fa"/>
+</svg>

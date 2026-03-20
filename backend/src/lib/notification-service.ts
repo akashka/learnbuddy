@@ -14,7 +14,7 @@ export interface CreateNotificationParams {
   message: string;
   ctaLabel?: string;
   ctaUrl?: string;
-  entityType?: 'enrollment' | 'class' | 'exam' | 'reschedule' | 'payment' | 'ai_review';
+  entityType?: 'enrollment' | 'class' | 'exam' | 'reschedule' | 'payment' | 'ai_review' | 'dispute';
   entityId?: string;
   metadata?: Record<string, unknown>;
 }

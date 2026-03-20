@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import { adminApi } from '@/lib/adminApi';
+import { useAutoSelectSingleOption } from '@/hooks/useAutoSelectSingleOption';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 import { FilterBar } from '@/components/FilterBar';
@@ -10,6 +11,7 @@ import { BulkActionBar } from '@/components/BulkActionBar';
 import { BulkCheckbox } from '@/components/BulkCheckbox';
 import { useTablePreferences } from '@/hooks/useTablePreferences';
 import { useBulkSelect } from '@/hooks/useBulkSelect';
+import { formatCurrency } from '@shared/formatters';
 
 type Pending = {
   _id?: string;
@@ -108,6 +110,12 @@ export default function Enrollments() {
     adminApi.parents.list({ limit: 500 }).then((r) => setParents((r as { parents: { _id: string; name?: string }[] }).parents));
     adminApi.teachers.list({ limit: 500 }).then((r) => setTeachers((r as { teachers: { _id: string; name?: string; batches?: unknown[] }[] }).teachers));
   }, []);
+
+  const parentIds = parents.map((p) => p._id);
+  const teacherIds = teachers.map((t) => t._id);
+  useAutoSelectSingleOption(addStudentForm.parentId, (v) => setAddStudentForm((f) => ({ ...f, parentId: v })), parentIds);
+  useAutoSelectSingleOption(mapForm.parentId, (v) => setMapForm((f) => ({ ...f, parentId: v })), parentIds);
+  useAutoSelectSingleOption(mapForm.teacherId, (v) => setMapForm((f) => ({ ...f, teacherId: v })), teacherIds);
 
   useEffect(() => {
     if (!mapForm.parentId) {
@@ -477,7 +485,7 @@ export default function Enrollments() {
 
       {showAddStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddStudent(false)}>
-          <div className="max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Add student to parent</h2>
             <form onSubmit={handleAddStudent} className="space-y-4">
               <div>
@@ -549,7 +557,7 @@ export default function Enrollments() {
 
       {showMapBatch && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowMapBatch(false)}>
-          <div className="max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-md overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Map teacher batch to student</h2>
             <form onSubmit={handleMapBatch} className="space-y-4">
               <div>
@@ -607,7 +615,7 @@ export default function Enrollments() {
                 >
                   {teacherBatches.map((b) => (
                     <option key={b.batchIndex} value={b.batchIndex}>
-                      {b.name} – {b.subject} (₹{b.feePerMonth ?? '-'}/mo)
+                      {b.name} – {b.subject} ({b.feePerMonth != null ? formatCurrency(b.feePerMonth) : '-'}/mo)
                     </option>
                   ))}
                   {mapForm.teacherId && teacherBatches.length === 0 && <option value="">No batches</option>}
@@ -638,7 +646,7 @@ export default function Enrollments() {
 
       {paymentLinkModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setPaymentLinkModal(null)}>
-          <div className="max-w-lg rounded-xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Payment link</h2>
             <p className="mb-2 text-sm text-accent-700">Share this link with the parent to complete payment:</p>
             <div className="mb-4 flex gap-2">

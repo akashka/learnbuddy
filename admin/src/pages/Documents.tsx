@@ -3,6 +3,7 @@ import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 import { API_BASE } from '@/lib/api';
+import { formatDate, formatDateTime } from '@shared/formatters';
 
 type Folder = { id: string; name: string; parentId: string | null; allowedRoles: string[] };
 type Doc = {
@@ -268,7 +269,7 @@ export default function Documents() {
                 {d.name}
               </span>
               <span className="mt-1 text-xs text-accent-500">
-                v{d.latestVersion?.version ?? '-'} • {d.latestVersion?.uploadedAt ? new Date(d.latestVersion.uploadedAt).toLocaleDateString() : '-'}
+                v{d.latestVersion?.version ?? '-'} • {d.latestVersion?.uploadedAt ? formatDate(d.latestVersion.uploadedAt) : '-'}
               </span>
             </button>
           ))}
@@ -287,7 +288,7 @@ export default function Documents() {
           onClick={() => !creatingDoc && setShowAddDoc(false)}
         >
           <form
-            className="w-full max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="w-full max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleCreateDoc}
           >
@@ -375,7 +376,7 @@ export default function Documents() {
           onClick={() => !creatingFolder && setShowAddFolder(false)}
         >
           <form
-            className="w-full max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="w-full max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
             onSubmit={handleCreateFolder}
           >
@@ -441,7 +442,7 @@ export default function Documents() {
           onClick={() => setViewDoc(null)}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-xl border border-accent-200 bg-white shadow-xl"
+            className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-accent-200 bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-accent-200 px-6 py-4">
@@ -450,9 +451,9 @@ export default function Documents() {
                 <p className="text-sm text-accent-600">
                   Version {docDetail?.latestVersion?.version ?? viewDoc.latestVersion?.version ?? '-'} • Updated{' '}
                   {docDetail?.latestVersion?.uploadedAt
-                    ? new Date(docDetail.latestVersion.uploadedAt).toLocaleString()
+                    ? formatDateTime(docDetail.latestVersion.uploadedAt)
                     : viewDoc.latestVersion?.uploadedAt
-                      ? new Date(viewDoc.latestVersion.uploadedAt).toLocaleString()
+                      ? formatDateTime(viewDoc.latestVersion.uploadedAt)
                       : '-'}
                 </p>
               </div>
@@ -531,7 +532,7 @@ export default function Documents() {
                   <ul className="space-y-1 text-sm text-accent-600">
                     {[...docDetail.versions].reverse().map((v) => (
                       <li key={v.version}>
-                        v{v.version} • {new Date(v.uploadedAt).toLocaleString()} • {v.originalFilename}
+                        v{v.version} • {formatDateTime(v.uploadedAt)} • {v.originalFilename}
                       </li>
                     ))}
                   </ul>

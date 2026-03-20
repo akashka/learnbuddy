@@ -11,8 +11,30 @@ interface ReadAloudButtonProps {
   'aria-label'?: string;
 }
 
+function sanitizeForSpeech(text: string): string {
+  if (!text?.trim()) return '';
+  let s = text
+    .replace(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu, '')  // Remove emojis
+    .replace(/[\uFE00-\uFE0F\u200D\u200C]/g, '')                         // Variation selectors, ZWJ
+    .replace(/[\u2600-\u26FF\u2700-\u27BF]/g, '')                        // Misc symbols, dingbats
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/#{1,6}\s*/g, '')
+    .replace(/\*\s/g, ' ')
+    .replace(/[-–—]/g, ', ')
+    .replace(/[•·]/g, ', ')
+    .replace(/\n{2,}/g, '. ')
+    .replace(/\n/g, ', ')
+    .replace(/[,;:]/g, (m) => m === ',' ? ', ' : '. ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return s;
+}
+
 /**
- * Picks the best Indian English voice. Prefers en-IN, falls back to en-GB, en-US.
+ * Picks the best Indian English voice. Strongly prefers en-IN, then en-GB, en-US.
  * Uses opposite gender: preferFemaleVoice=true → female voice, false → male voice.
  */
 function getBestVoice(preferFemale: boolean): SpeechSynthesisVoice | null {
@@ -21,21 +43,28 @@ function getBestVoice(preferFemale: boolean): SpeechSynthesisVoice | null {
   const fallback = voices.filter((v) => v.lang.startsWith('en-GB') || v.lang.startsWith('en-US'));
   const pool = indian.length > 0 ? indian : fallback.length > 0 ? fallback : voices;
 
-  // Prefer localService for smoother playback
   const local = pool.filter((v) => v.localService);
   const target = local.length > 0 ? local : pool;
 
-  // Filter by gender: female voices often have "Female" in name, male have "Male"
+  const indianFemale = ['veena', 'heera', 'priya', 'google'];
   const femaleVoices = target.filter(
-    (v) => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('veena')
-  );
+    (v) => v.name.toLowerCase().includes('female') || indianFemale.some((n) => v.name.toLowerCase().includes(n))
+  ).sort((a, b) => {
+    const score = (v: SpeechSynthesisVoice) => {
+      const n = v.name.toLowerCase();
+      if (n.includes('veena') || n.includes('heera') || n.includes('priya')) return 3;
+      if (n.includes('india') || n.includes('indian')) return 2;
+      if (v.lang.startsWith('en-IN')) return 1;
+      return 0;
+    };
+    return score(b) - score(a);
+  });
   const maleVoices = target.filter(
-    (v) => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('ravi')
+    (v) => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('ravi') || v.name.toLowerCase().includes('kumar')
   );
 
   if (preferFemale && femaleVoices.length > 0) return femaleVoices[0];
   if (!preferFemale && maleVoices.length > 0) return maleVoices[0];
-  // Fallback: use first available from pool
   return target[0] ?? null;
 }
 
@@ -66,21 +95,23 @@ export function ReadAloudButton({
   }, []);
 
   const speak = useCallback(() => {
-    const t = text?.trim();
-    if (!t || !voicesReady) return;
+    const raw = text?.trim();
+    if (!raw || !voicesReady) return;
 
     if (isSpeaking) {
       stop();
       return;
     }
 
+    const t = sanitizeForSpeech(raw);
+    if (!t) return;
+
     const utterance = new SpeechSynthesisUtterance(t);
     const voice = getBestVoice(preferFemaleVoice);
     if (voice) utterance.voice = voice;
 
-    // Kid-friendly: slightly slower, clear pace
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
+    utterance.rate = 0.88;
+    utterance.pitch = 1.0;
     utterance.volume = 1;
 
     utterance.onstart = () => setIsSpeaking(true);

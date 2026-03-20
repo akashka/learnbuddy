@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/Card';
 import { DeleteAccountSection } from '../components/DeleteAccountSection';
 import { colors, spacing, typography } from '../theme';
+import { formatDate } from '../lib/formatters';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -146,7 +147,7 @@ export function PrivacyScreen() {
                 <Text style={styles.consentType}>{consentTypeLabel[c.consentType] || c.consentType}</Text>
                 <Text style={styles.consentChild}>{c.studentName || '-'}</Text>
                 <Text style={styles.consentDate}>
-                  {c.grantedAt ? new Date(c.grantedAt).toLocaleDateString() : '-'}
+                  {c.grantedAt ? formatDate(c.grantedAt) : '-'}
                 </Text>
               </View>
             ))

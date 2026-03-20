@@ -164,6 +164,29 @@ export const CMS_SEED_PAGES = [
     `.trim(),
   },
   {
+    slug: 'safety-and-trust',
+    title: 'Safety & Trust',
+    content: `
+      <h2>Safety & Trust</h2>
+      <p>At ${BRAND.name}, your child's safety and your trust are our top priorities. We combine AI technology, verified teachers, and transparent practices to create a secure learning environment.</p>
+
+      <h3>AI-Monitored Sessions</h3>
+      <p>Every live class and exam is monitored by AI for safety and quality. Our AI helps detect inappropriate content, ensures a safe learning environment, and supports teachers in delivering effective lessons. Parents get peace of mind knowing sessions are overseen in real time.</p>
+
+      <h3>Teacher Verification</h3>
+      <p>All teachers undergo background verification (BGV) before they can teach on ${BRAND.name}. We verify identity, qualifications, and conduct. Teachers also pass an AI qualification exam to ensure teaching quality and subject knowledge.</p>
+
+      <h3>Secure Payments</h3>
+      <p>All payments are processed through secure, encrypted channels. We use trusted payment providers. Your financial data is protected. Transparent pricing—no hidden fees.</p>
+
+      <h3>Data Protection</h3>
+      <p>We are DPDP (Digital Personal Data Protection Act) compliant. Children's data is protected with encryption, secure storage, and strict access controls. See our <a href="/privacy-policy">Privacy Policy</a> for details.</p>
+
+      <h3>Your Trust Matters</h3>
+      <p>We are committed to maintaining the highest standards of safety and transparency. If you have questions or concerns, <a href="/contact-us">contact us</a>. For more details, see our <a href="/faq">FAQ</a> and <a href="/terms-conditions">Terms & Conditions</a>.</p>
+    `.trim(),
+  },
+  {
     slug: 'privacy-policy',
     title: 'Privacy Policy',
     content: `

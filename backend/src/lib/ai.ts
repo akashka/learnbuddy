@@ -39,11 +39,45 @@ export async function generateStudyMaterial(
   subject: string,
   topic: string,
   board: string,
+  classLevel: string,
+  options?: { includeFlashcards?: boolean }
+) {
+  return USE_AI_SERVICE
+    ? aiClient.generateStudyMaterial(subject, topic, board, classLevel, options)
+    : aiService.generateStudyMaterial(subject, topic, board, classLevel, options);
+}
+
+export async function generateFlashcards(
+  subject: string,
+  topic: string,
+  board: string,
   classLevel: string
 ) {
   return USE_AI_SERVICE
-    ? aiClient.generateStudyMaterial(subject, topic, board, classLevel)
-    : aiService.generateStudyMaterial(subject, topic, board, classLevel);
+    ? aiClient.generateFlashcards(subject, topic, board, classLevel)
+    : aiService.generateFlashcards(subject, topic, board, classLevel);
+}
+
+export async function generateFlashcardsFromStudyMaterial(
+  studyMaterialText: string,
+  topic: string,
+  subject: string
+) {
+  return USE_AI_SERVICE
+    ? aiClient.generateFlashcardsFromStudyMaterial(studyMaterialText, topic, subject)
+    : aiService.generateFlashcardsFromStudyMaterial(studyMaterialText, topic, subject);
+}
+
+export async function generateFlashcardsFromExamFeedback(
+  feedback: { good?: string[]; bad?: string[]; overall?: string; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[] },
+  questions: { question: string; type?: string }[],
+  subject: string,
+  board: string,
+  classLevel: string
+) {
+  return USE_AI_SERVICE
+    ? aiClient.generateFlashcardsFromExamFeedback(feedback, questions, subject, board, classLevel)
+    : aiService.generateFlashcardsFromExamFeedback(feedback, questions, subject, board, classLevel);
 }
 
 export async function generateTeacherQualificationExam(

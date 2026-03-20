@@ -21,17 +21,17 @@ export default function ForYou() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:py-12">
-      <section className="mb-12 rounded-3xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-8 text-center shadow-xl md:p-12">
+    <div className="flex w-full flex-col items-center px-2 py-4 sm:px-4 sm:py-6 md:py-8">
+      <section className="mb-8 w-full rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6 text-center shadow-xl sm:mb-12 sm:rounded-3xl sm:p-8 md:p-12">
         <h1 className="mb-3 text-4xl font-extrabold text-brand-900 md:text-5xl">For You</h1>
         <p className="mx-auto max-w-2xl text-xl text-gray-600">
           Whether you&apos;re a parent, student, or teacher—LearnBuddy has something for everyone.
         </p>
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-6 text-2xl font-bold text-brand-900 md:text-3xl">Choose your path</h2>
-        <div className="grid gap-6 md:grid-cols-3">
+      <section className="mb-8 w-full sm:mb-12">
+        <h2 className="mb-6 text-center text-2xl font-bold text-brand-900 sm:text-3xl">Choose your path</h2>
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
           {roles.map((role) => (
             <Link
               key={role.to}

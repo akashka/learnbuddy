@@ -148,7 +148,7 @@ function BulkConfirmModal({
       aria-labelledby="bulk-confirm-title"
     >
       <div
-        className="w-full max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-xl"
+        className="w-full max-w-lg overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="bulk-confirm-title" className="mb-2 text-lg font-semibold text-accent-800">

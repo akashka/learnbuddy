@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
+import { formatCurrency } from '@shared/formatters';
 
 type DiscountCodeDoc = {
   _id: string;
@@ -114,6 +115,19 @@ export default function DiscountCodes() {
     }
   }, [editingId, showForm, toast]);
 
+  useEffect(() => {
+    const boards = masters?.boards ?? [];
+    if (boards.length === 1 && form.applicableBoards.length === 0) {
+      setForm((f) => ({ ...f, applicableBoards: [boards[0].value] }));
+    }
+  }, [masters?.boards, form.applicableBoards.length]);
+  useEffect(() => {
+    const classes = masters?.classes ?? [];
+    if (classes.length === 1 && form.applicableClasses.length === 0) {
+      setForm((f) => ({ ...f, applicableClasses: [classes[0].value] }));
+    }
+  }, [masters?.classes, form.applicableClasses.length]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -202,11 +216,11 @@ export default function DiscountCodes() {
               {codes.map((c) => (
                 <tr key={c._id} className="border-t border-accent-100 hover:bg-accent-50/50">
                   <td className="px-4 py-2 font-mono font-medium">{c.code}</td>
-                  <td className="px-4 py-2">{c.type === 'percent' ? `${c.value}%` : `₹${c.value}`}</td>
+                  <td className="px-4 py-2">{c.type === 'percent' ? `${c.value}%` : formatCurrency(c.value)}</td>
                   <td className="px-4 py-2">
-                    {c.type === 'percent' ? `${c.value}%` : `₹${c.value}`}
-                    {c.minAmount != null && <span className="text-gray-500"> (min ₹{c.minAmount})</span>}
-                    {c.type === 'percent' && c.maxDiscountAmount != null && <span className="text-gray-500"> (max ₹{c.maxDiscountAmount})</span>}
+                    {c.type === 'percent' ? `${c.value}%` : formatCurrency(c.value)}
+                    {c.minAmount != null && <span className="text-gray-500"> (min {formatCurrency(c.minAmount)})</span>}
+                    {c.type === 'percent' && c.maxDiscountAmount != null && <span className="text-gray-500"> (max {formatCurrency(c.maxDiscountAmount)})</span>}
                   </td>
                   <td className="px-4 py-2">
                     {new Date(c.validFrom).toLocaleDateString()} – {new Date(c.validUntil).toLocaleDateString()}
@@ -251,7 +265,7 @@ export default function DiscountCodes() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => { setShowForm(false); setEditingId(null); }}>
-          <div className="max-w-lg w-full rounded-xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-xl w-full overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="mb-4 text-lg font-semibold text-accent-800">
               {editingId ? 'Edit discount code' : 'Create discount code'}
             </h2>
@@ -423,7 +437,7 @@ export default function DiscountCodes() {
 
       {viewRedemptionsId && redemptionsData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setViewRedemptionsId(null)}>
-          <div className="max-w-4xl w-full max-h-[90vh] rounded-xl border border-accent-200 bg-white shadow-lg overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-hidden rounded-2xl border border-accent-200 bg-white shadow-lg flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 border-b border-accent-200 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-accent-800">
                 Redemptions: {redemptionsData.code.code}
@@ -467,8 +481,8 @@ export default function DiscountCodes() {
                         <td className="px-4 py-2">
                           {String(r.subject ?? '-')} • {String(r.board ?? '-')} Class {String(r.classLevel ?? '-')}
                         </td>
-                        <td className="px-4 py-2">₹{String(r.totalAmount ?? '-')}</td>
-                        <td className="px-4 py-2 text-green-600">-₹{String(r.discountCodeAmount ?? 0)}</td>
+<td className="px-4 py-2">{r.totalAmount != null ? formatCurrency(r.totalAmount) : '-'}</td>
+                    <td className="px-4 py-2 text-green-600">-{r.discountCodeAmount != null ? formatCurrency(r.discountCodeAmount) : formatCurrency(0)}</td>
                         <td className="px-4 py-2">
                           {r.createdAt ? new Date(String(r.createdAt)).toLocaleDateString() : '-'}
                         </td>

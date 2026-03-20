@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import Login from '@/pages/Login';
 
 const DASHBOARD_BY_ROLE: Record<string, string> = {
   parent: '/parent/dashboard',
@@ -20,9 +21,9 @@ export function RootRedirect() {
   }
 
   if (user) {
-    const dashboard = DASHBOARD_BY_ROLE[user.role] ?? '/login';
+    const dashboard = DASHBOARD_BY_ROLE[user.role] ?? '/parent/dashboard';
     return <Navigate to={dashboard} replace />;
   }
 
-  return <Navigate to="/login" replace />;
+  return <Login />;
 }

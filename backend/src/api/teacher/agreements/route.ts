@@ -23,14 +23,18 @@ export async function GET(request: NextRequest) {
     if (!teacher) return NextResponse.json({ error: 'Teacher not found' }, { status: 404 });
 
     const signed = (teacher.signedAgreements || []).reduce(
-      (acc: Record<string, { version: string; signedAt: string }>, a) => {
-        acc[a.type] = { version: a.version, signedAt: a.signedAt?.toISOString() || '' };
+      (acc: Record<string, { version: string; signedAt: string; ipAddress?: string }>, a) => {
+        acc[a.type] = {
+          version: a.version,
+          signedAt: a.signedAt?.toISOString() || '',
+          ipAddress: a.ipAddress,
+        };
         return acc;
       },
       {}
     );
 
-    const agreements: { type: string; label: string; content: string; signed?: { version: string; signedAt: string } }[] = [];
+    const agreements: { type: string; label: string; content: string; signed?: { version: string; signedAt: string; ipAddress?: string } }[] = [];
 
     for (const a of AGREEMENT_TYPES) {
       const page = await CmsPage.findOne({ slug: a.slug }).lean();

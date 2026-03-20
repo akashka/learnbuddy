@@ -37,7 +37,14 @@ Frontend, App ──────────────────────
 |----------|----------|-------------|
 | `MONGODB_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Secret for signing JWTs. Must match AI service when using JWT auth |
-| `GEMINI_API_KEY` | Yes* | Used when AI service is not configured (fallback) |
+| `GEMINI_API_KEY` | Yes* | Google Gemini (free tier) |
+| `GROQ_API_KEY` | No | Groq – free, ultra-fast |
+| `HF_TOKEN` | No | Hugging Face Inference – free tier |
+| `OPENROUTER_API_KEY` | No | OpenRouter – free models |
+| `CLOUDFLARE_ACCOUNT_ID` | No | Cloudflare Workers AI (with CLOUDFLARE_API_TOKEN) |
+| `CLOUDFLARE_API_TOKEN` | No | Cloudflare Workers AI |
+| `TOGETHER_API_KEY` | No | Together AI – free models |
+| `OPENAI_API_KEY` | No | OpenAI – $5 free credits |
 | `PORT` | No | Default 3005 |
 | `CORS_ORIGIN` | No | Comma-separated origins. Default: frontend, admin, website |
 | `REDIS_URL` | No | Redis for cache, BullMQ, token blacklist |
@@ -47,7 +54,7 @@ Frontend, App ──────────────────────
 | `CRON_SECRET` | No | Secret for cron endpoints |
 | `NEXT_PUBLIC_HERE_API_KEY` | No | For location features |
 
-*GEMINI_API_KEY is required if AI_SERVICE_URL is not set.
+*At least one of GEMINI_API_KEY or OPENAI_API_KEY is required if AI_SERVICE_URL is not set.
 
 ### AI Service (`ai-service/.env`)
 
@@ -55,7 +62,14 @@ Frontend, App ──────────────────────
 |----------|----------|-------------|
 | `PORT` | No | Default 3006 |
 | `CORS_ORIGIN` | No | Comma-separated origins (backend + clients) |
-| `GEMINI_API_KEY` | Yes | Google Gemini API key |
+| `GEMINI_API_KEY` | Yes* | Google Gemini |
+| `GROQ_API_KEY` | No | Groq |
+| `HF_TOKEN` | No | Hugging Face Inference |
+| `OPENROUTER_API_KEY` | No | OpenRouter |
+| `CLOUDFLARE_ACCOUNT_ID` | No | Cloudflare Workers AI |
+| `CLOUDFLARE_API_TOKEN` | No | Cloudflare Workers AI |
+| `TOGETHER_API_KEY` | No | Together AI |
+| `OPENAI_API_KEY` | No | OpenAI |
 | `REDIS_URL` | No | For AI output caching |
 | `AI_SERVICE_API_KEY` | No | Must match backend when using API key auth |
 | `JWT_SECRET` | No | Must match backend when validating monitor JWTs |
@@ -116,7 +130,7 @@ All backend routes are under `/api/`. Examples:
 
 AI service routes are under `/v1/`:
 
-- `/v1/generate/*` — exam and study material generation
+- `/v1/generate/*` — exam, study material, and flashcard generation
 - `/v1/evaluate/*` — exam evaluation
 - `/v1/monitor/*` — classroom, exam, document verification
 - `/v1/doubt/*` — doubt answering

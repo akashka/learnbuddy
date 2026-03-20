@@ -34,6 +34,8 @@ const ROLE_NAV: Record<StaffRole, string[]> = {
     'enrollments',
     'classes',
     'teacher-payments',
+    'disputes', // redirects to teacher-payments
+    'ai-models',
     'ai-usage-logs',
     'ai-review-requests',
     'security-incidents',
@@ -46,7 +48,7 @@ const ROLE_NAV: Record<StaffRole, string[]> = {
   sales: ['dashboard', 'reports', 'profile', 'teachers', 'parents', 'students', 'enrollments', 'discount-codes', 'classes', 'documents'],
   marketing: ['dashboard', 'reports', 'profile', 'teachers', 'parents', 'students', 'cms-pages', 'website-settings', 'contact-submissions', 'notification-templates', 'documents'],
   hr: ['dashboard', 'profile', 'teachers', 'parents', 'students', 'users', 'job-positions', 'documents'],
-  finance: ['dashboard', 'reports', 'profile', 'teachers', 'teacher-payments', 'enrollments', 'discount-codes', 'documents'],
+  finance: ['dashboard', 'reports', 'profile', 'teachers', 'teacher-payments', 'disputes', 'enrollments', 'discount-codes', 'documents'],
 };
 
 export function StaffProfileProvider({ children }: { children: React.ReactNode }) {

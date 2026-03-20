@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiJson } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AddEditStudentForm from './AddEditStudentForm';
+import { formatCurrency } from '@shared/formatters';
 
 interface Child {
   _id: string;
@@ -88,7 +89,7 @@ export default function ParentStudents() {
                   <ul className="mt-2 text-sm">
                     {c.enrollments.map((e) => (
                       <li key={e._id}>
-                        {e.subject} - {e.teacher?.name || 'Teacher'} (₹{e.feePerMonth}/mo)
+                        {e.subject} - {e.teacher?.name || 'Teacher'} ({formatCurrency(e.feePerMonth ?? 0)}/mo)
                       </li>
                     ))}
                   </ul>

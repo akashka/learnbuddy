@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from '@/lib/next-compat';
+import connectDB from '@/lib/db';
+import { Topic } from '@/lib/models/Topic';
 import { getAuthFromRequest } from '@/lib/auth';
 
 const TOPICS_BY_SUBJECT: Record<string, string[]> = {
@@ -21,13 +23,28 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const subject = searchParams.get('subject');
+    const subject = searchParams.get('subject') || '';
+    const board = searchParams.get('board') || '';
+    const classLevel = searchParams.get('classLevel') || searchParams.get('class') || '';
 
     if (!subject) {
       return NextResponse.json({ error: 'Subject required' }, { status: 400 });
     }
 
-    const topics = TOPICS_BY_SUBJECT[subject] || [
+    await connectDB();
+
+    const query: Record<string, string | boolean> = { subject, isActive: true };
+    if (board) query.board = board;
+    if (classLevel) query.classLevel = classLevel;
+
+    const dbTopics = await Topic.find(query).sort({ displayOrder: 1, topic: 1 }).lean();
+
+    if (dbTopics.length > 0) {
+      const topics = dbTopics.map((t) => t.topic);
+      return NextResponse.json({ topics });
+    }
+
+    const fallback = TOPICS_BY_SUBJECT[subject] || [
       'Introduction',
       'Key Concepts',
       'Advanced Topics',
@@ -35,8 +52,7 @@ export async function GET(request: NextRequest) {
       'Practice Problems',
       'Summary',
     ];
-
-    return NextResponse.json({ topics });
+    return NextResponse.json({ topics: fallback });
   } catch (error) {
     console.error('Topics error:', error);
     return NextResponse.json({ error: 'Failed' }, { status: 500 });

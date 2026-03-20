@@ -167,7 +167,7 @@ export default function TeacherExamDetail() {
 
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-w-md rounded-xl bg-white p-6 shadow-lg">
+          <div className="mx-4 max-w-lg overflow-hidden rounded-2xl bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-brand-800">Request Human Review</h2>
             <p className="mb-4 text-sm text-gray-600">
               If you believe the AI evaluation is incorrect, request a human admin to review it.
@@ -196,6 +196,7 @@ export default function TeacherExamDetail() {
                       setShowReviewModal(false);
                       setRemark('');
                       setSubmitError('');
+                      setSubmitSuccess(false);
                     }}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                   >

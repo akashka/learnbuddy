@@ -7,11 +7,14 @@ import { GoogleGenAI, createPartFromText, createPartFromBase64 } from '@google/g
 const apiKey = process.env.GEMINI_API_KEY;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
+// Higher capability first; when rate limit exhausted, fall back to lower models (often more quota)
+// Note: gemini-1.5-* deprecated Apr 2025 - use 2.x only
 const MODEL_FALLBACKS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-2.5-pro',
+  'gemini-2.5-pro',        // highest capability, 5 RPM
+  'gemini-2.5-flash',      // 10 RPM
   'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-2.5-flash-lite', // 15 RPM, 1000 RPD - most generous
 ];
 
 function isRetryableError(err: unknown): boolean {

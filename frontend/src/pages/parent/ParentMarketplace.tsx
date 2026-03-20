@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InlineErrorDisplay } from '@/components/InlineErrorDisplay';
+import { formatCurrency } from '@shared/formatters';
 
 interface Teacher {
   _id: string;
@@ -52,7 +53,7 @@ export default function ParentMarketplace() {
               <p className="text-sm">Rating: {teacher.averageRating} ({teacher.reviewCount || 0} reviews)</p>
             )}
             {teacher.feeStartsFrom != null && (
-              <p className="text-sm font-medium">{t('fee')}: ₹{teacher.feeStartsFrom}/month</p>
+              <p className="text-sm font-medium">{t('fee')}: {formatCurrency(teacher.feeStartsFrom ?? 0)}/month</p>
             )}
             <Link
               to={`/parent/checkout?teacherId=${teacher._id}&batchIndex=0&duration=3months`}

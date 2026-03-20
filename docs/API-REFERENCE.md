@@ -140,7 +140,10 @@ Overview of backend and AI service endpoints. All backend routes use base path `
 |--------|------|------|-------------|
 | GET | `/api/study/topics` | Yes | List topics (board, class, subject) |
 | GET | `/api/study/eligibility` | Yes | Check study eligibility |
-| POST | `/api/study/generate` | Yes | Generate study material (AI) |
+| POST | `/api/study/generate` | Yes | Generate study material (AI, optional flashcards) |
+| POST | `/api/study/generate-flashcards` | Yes | Generate flashcards from topic (Option A) |
+| POST | `/api/study/generate-flashcards-from-material` | Yes | Extract flashcards from study material (Option C) |
+| POST | `/api/study/generate-flashcards-from-exam` | Yes | Generate flashcards from exam weak areas (Option D) |
 | POST | `/api/study/ask` | Yes | Ask doubt (AI) |
 
 ### Classes (Reschedule)
@@ -274,7 +277,10 @@ Base path: `/v1`. Auth: `X-API-Key` or `Authorization: Bearer <jwt>`.
 | POST | `/v1/generate/qualification-exam` | Generate teacher qualification exam |
 | POST | `/v1/generate/student-exam` | Generate student exam |
 | POST | `/v1/generate/teacher-qualification-exam` | Generate teacher qualification (multi-combo) |
-| POST | `/v1/generate/study-material` | Generate study material |
+| POST | `/v1/generate/study-material` | Generate study material (optional includeFlashcards) |
+| POST | `/v1/generate/flashcards` | Generate flashcards from topic |
+| POST | `/v1/generate/flashcards-from-material` | Extract flashcards from study material text |
+| POST | `/v1/generate/flashcards-from-exam` | Generate flashcards from exam feedback |
 
 ### Evaluate
 

@@ -363,7 +363,7 @@ export default function SecurityIncidents() {
       {editingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditingId(null)}>
           <div
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Update Incident</h2>

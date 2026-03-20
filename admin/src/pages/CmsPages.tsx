@@ -4,6 +4,7 @@ import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 import { ExportButton } from '@/components/ExportButton';
+import { formatDate } from '@shared/formatters';
 
 type CmsPage = { slug: string; title: string; content: string; updatedAt: string };
 
@@ -118,7 +119,7 @@ export default function CmsPages() {
                   <span className="ml-2 text-sm text-accent-600">/{p.slug}</span>
                 </div>
                 <span className="text-sm text-accent-600">
-                  Updated {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '-'}
+                  Updated {p.updatedAt ? formatDate(p.updatedAt) : '-'}
                 </span>
               </Link>
             ))}
@@ -132,7 +133,7 @@ export default function CmsPages() {
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !creating && setShowCreate(false)}>
           <div
-            className="w-full max-w-md rounded-xl border border-accent-200 bg-white p-6 shadow-lg"
+            className="w-full max-w-xl overflow-hidden rounded-2xl border border-accent-200 bg-white p-6 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-4 text-lg font-semibold text-accent-800">Create CMS Page</h2>

@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatCurrency } from '../lib/formatters';
 
 interface Teacher {
   _id: string;
@@ -48,7 +49,7 @@ export function ParentMarketplaceScreen() {
               <Text style={styles.rating}>Rating: {teacher.averageRating} ({teacher.reviewCount || 0} reviews)</Text>
             )}
             {teacher.feeStartsFrom != null && (
-              <Text style={styles.fee}>{t('fee')}: ₹{teacher.feeStartsFrom}/month</Text>
+              <Text style={styles.fee}>{t('fee')}: {formatCurrency(teacher.feeStartsFrom ?? 0)}/month</Text>
             )}
           </Card>
         ))}

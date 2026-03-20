@@ -2,10 +2,10 @@
  * AI Service - Classroom and exam monitoring
  */
 import {
-  geminiGenerateWithImages,
-  geminiGenerateWithImageAndAudio,
-  geminiTranscribeAudio,
-} from '../providers/gemini.js';
+  aiGenerateWithImages,
+  aiGenerateWithImageAndAudio,
+  aiTranscribeAudio,
+} from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 import { analyzeSentiment, getSafeDisplayText } from './sentiment.js';
 
@@ -16,7 +16,7 @@ export async function analyzeSessionMonitoring(
   return withGeminiFallback(
     async () => {
       if (frames.studentFrame && frames.teacherFrame) {
-        const result = await geminiGenerateWithImages(
+        const result = await aiGenerateWithImages(
           'Analyze these two images from an online tutoring session. Image 1: student view. Image 2: teacher view. Is the session appropriate and safe? Reply with JSON only: { "alert": false or true, "type": "reason if alert", "message": "brief message" }',
           [frames.studentFrame, frames.teacherFrame]
         );
@@ -37,15 +37,17 @@ export async function analyzeExamFrame(
 ): Promise<{ alert: boolean; type?: string; message?: string }> {
   return withGeminiFallback(
     async () => {
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `Analyze this webcam frame from an online exam. Strictly check:
-1. Is the person ALONE? (no other people in frame or background)
+1. Is the person ALONE? (no other people in frame, background, or reflection)
 2. Is the person's FACE clearly visible and facing the camera/screen?
-3. No phone, tablet, book, notes, or second screen visible?
-4. Camera not covered, not blank/black, not showing ceiling/wall?
-5. Person not looking away from screen (e.g. looking at phone, another person, notes)?
+3. PERSON CHANGED? Different face/person than expected - flag if identity appears to have switched.
+4. SCREEN CLEAR? Camera not blurry, dark, obstructed, blank/black, or showing ceiling/wall.
+5. No phone, tablet, book, notes, second screen, or cheat materials visible?
+6. Person not looking away from screen (e.g. at phone, another person, notes)?
+7. No attempt to cover camera or obstruct view?
 
-Flag alert=true if ANY: multiple people, extra person in background, phone/device visible, book/notes, face not visible, looking away, camera covered/blank, suspicious activity.
+Flag alert=true if ANY: multiple people, person changed, extra person, phone/device, book/notes, face not visible, screen unclear, looking away, camera covered/blank, suspicious activity.
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`,
         [studentFrame]
       );
@@ -75,7 +77,7 @@ export async function analyzeExamFrameWithAudio(
   let transcript = '';
   if (audioDataUrl?.trim()) {
     try {
-      transcript = await transcribeAudio(audioDataUrl);
+      transcript = await aiTranscribeAudio(audioDataUrl);
     } catch {
       transcript = '';
     }
@@ -104,22 +106,23 @@ export async function analyzeExamFrameWithAudio(
       const prompt = `STRICT exam proctoring. Analyze this webcam frame and audio. You MUST flag alert=true for ANY violation.
 
 VIDEO - Flag alert=true if:
-1. MULTIPLE PEOPLE: More than one person visible (face, body, in background, reflection). Even one extra person = alert.
-2. PERSON LEFT/ABSENT: No clear face visible, person left the frame, only showing empty chair/room, back of head, or person turned away.
-3. WRONG PERSON: Face does not match expected exam taker (e.g. someone else taking the exam).
-4. SCREEN QUALITY: Image too dark (can barely see), too bright/washed out (overexposed), or camera showing ceiling/wall/blank.
-5. DEVICES: Phone, tablet, second screen, book, notes, or cheat materials visible.
-6. LOOKING AWAY: Person clearly looking at phone, another person, notes, or away from screen for extended time.
+1. MULTIPLE PEOPLE: More than one person visible (face, body, in background, reflection, mirror). Even one extra person = alert.
+2. PERSON CHANGED: Different person than expected (face changed, someone else in frame). Flag if identity appears to have switched.
+3. PERSON LEFT/ABSENT: No clear face visible, person left the frame, only showing empty chair/room, back of head, or person turned away.
+4. SCREEN/CAMERA NOT CLEAR: Image too dark, too bright/washed out, blurry, obstructed, camera showing ceiling/wall/blank/black, or view is unclear for proper monitoring.
+5. DEVICES: Phone, tablet, second screen, laptop, book, notes, cheat materials, or any external aid visible.
+6. LOOKING AWAY: Person clearly looking at phone, another person, notes, second screen, or away from exam screen.
+7. SUSPICIOUS: Any attempt to obstruct view, cover camera, or hide activity.
 
 AUDIO - Flag alert=true if:
-7. MULTIPLE VOICES: Someone else speaking, helping, dictating answers, or background conversation.
-8. EXCESSIVE NOISE: TV, music, loud background noise, or suspicious sounds.
-9. TRANSCRIPT CHEATING: If transcript provided, flag if someone appears to be dictating answers, reading from notes, or receiving help.${transcriptSection}
+8. MULTIPLE VOICES: Someone else speaking, helping, dictating answers, or background conversation.
+9. EXCESSIVE NOISE: TV, music, loud background noise, or suspicious sounds.
+10. TRANSCRIPT CHEATING: If transcript provided, flag if someone appears to be dictating answers, reading from notes, or receiving help.${transcriptSection}
 
 BE STRICT. When in doubt, flag. Better to warn than miss cheating.
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`;
 
-      const result = await geminiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
+      const result = await aiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch?.[0]) {
         const parsed = JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -162,7 +165,7 @@ export async function analyzeClassroomFrame(
       const faceMatchPrompt = referencePhotoUrl
         ? `Image 1: Current webcam. Image 2: Stored ${roleDesc} photo. Does the face in Image 1 match Image 2? Flag if mismatch. `
         : '';
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `STRICT AI inspection for online class. This is the ${roleDesc}'s webcam view.
 ${faceMatchPrompt}
 Check ALL:
@@ -189,11 +192,11 @@ Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message
   );
 }
 
-/** Transcribe audio to text using Gemini (speech-to-text for exam monitoring) */
+/** Transcribe audio to text (speech-to-text for exam monitoring) */
 export async function transcribeAudio(audioDataUrl: string): Promise<string> {
   if (!audioDataUrl?.trim()) return '';
   return withGeminiFallback(
-    async () => geminiTranscribeAudio(audioDataUrl),
+    async () => aiTranscribeAudio(audioDataUrl),
     ''
   );
 }
@@ -205,7 +208,7 @@ export async function verifyDocumentPhoto(
 ): Promise<'verified' | 'not_verified' | 'partially_verified'> {
   return withGeminiFallback(
     async () => {
-      const result = await geminiGenerateWithImages(
+      const result = await aiGenerateWithImages(
         `You are verifying identity documents. Image 1: ID proof document (Aadhaar/Passport etc). Image 2: Student/person photo.
         Does the photo on the ID document match the person in the second photo? Consider face similarity.
         Reply with exactly one word: verified, not_verified, or partially_verified.`,

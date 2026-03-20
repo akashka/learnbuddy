@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export type AIOperationType =
   | 'generate_study_material'
+  | 'generate_flashcards'
   | 'answer_doubt'
   | 'generate_exam_questions'
   | 'generate_qualification_exam'
@@ -44,6 +45,7 @@ const AIUsageLogSchema = new Schema<IAIUsageLog>(
       type: String,
       enum: [
         'generate_study_material',
+        'generate_flashcards',
         'answer_doubt',
         'generate_exam_questions',
         'generate_qualification_exam',

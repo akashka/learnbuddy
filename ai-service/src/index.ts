@@ -13,6 +13,8 @@ import monitorRoutes from './routes/monitor.js';
 import doubtRoutes from './routes/doubt.js';
 import sentimentRoutes from './routes/sentiment.js';
 import { redisHealth } from './lib/redis.js';
+import { startHealthMonitor } from './services/health-monitor.js';
+import { getAllProviderHealth } from './services/provider-health.js';
 
 const PORT = process.env.PORT || 3006;
 
@@ -46,6 +48,19 @@ app.get('/health', async (_req: express.Request, res: express.Response) => {
   });
 });
 
+app.get('/health/providers', async (_req: express.Request, res: express.Response) => {
+  try {
+    const [text, vision, audio] = await Promise.all([
+      getAllProviderHealth('text'),
+      getAllProviderHealth('vision'),
+      getAllProviderHealth('audio'),
+    ]);
+    res.json({ text, vision, audio });
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to get provider health' });
+  }
+});
+
 // Protected v1 routes - require API key or JWT
 app.use('/v1/generate', authMiddleware, generateRoutes);
 app.use('/v1/evaluate', authMiddleware, evaluateRoutes);
@@ -55,7 +70,8 @@ app.use('/v1/sentiment', authMiddleware, sentimentRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`AI Service running at http://localhost:${PORT}`);
-  console.log('Set GEMINI_API_KEY for AI features. Auth: X-API-Key or Authorization: Bearer <token>');
+  console.log('Set GEMINI_API_KEY or OPENAI_API_KEY for AI features. Auth: X-API-Key or Authorization: Bearer <token>');
+  startHealthMonitor();
 });
 
 server.on('error', (err: NodeJS.ErrnoException) => {

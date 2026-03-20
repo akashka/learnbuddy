@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatCurrency } from '../lib/formatters';
 
 interface Child {
   _id: string;
@@ -51,7 +52,7 @@ export function ParentStudentsScreen() {
             <View style={styles.enrollments}>
               {c.enrollments.map((e) => (
                 <Text key={e._id} style={styles.enrollment}>
-                  {e.subject} - {e.teacher?.name || 'Teacher'} (₹{e.feePerMonth}/mo)
+                  {e.subject} - {e.teacher?.name || 'Teacher'} ({formatCurrency(e.feePerMonth ?? 0)}/mo)
                 </Text>
               ))}
             </View>

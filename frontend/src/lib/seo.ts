@@ -5,8 +5,7 @@
 import { BRAND } from '@shared/brand';
 
 export const SEO_PAGES = [
-  { path: '/', title: `${BRAND.name} - ${BRAND.tagline}`, description: 'One-to-one online tuition for kids with AI monitoring. Find teachers, enroll, or teach. Safe, personalized learning from home.' },
-  { path: '/login', title: 'Login', description: 'Log in to LearnBuddy. Access your parent, teacher, or student account.' },
+  { path: '/', title: `${BRAND.name} - ${BRAND.tagline}`, description: 'Log in to LearnBuddy. One-to-one online tuition for kids with AI monitoring. Access your parent, teacher, or student account.' },
   { path: '/register', title: 'Register', description: 'Create a LearnBuddy account. Register as a parent to find teachers, or as a teacher to teach and earn.' },
   { path: '/for-you', title: 'For You', description: 'Whether you\'re a parent, student, or teacher—LearnBuddy has something for everyone.' },
   { path: '/for-parents', title: 'For Parents', description: 'Find qualified teachers for your child. AI-monitored classes, BGV verified. Track progress.' },
@@ -21,6 +20,7 @@ export const SEO_PAGES = [
   { path: '/terms-conditions', title: 'Terms & Conditions', description: 'Terms of service for using LearnBuddy.' },
   { path: '/refund-policy', title: 'Refund Policy', description: 'LearnBuddy refund policy. Cancellation and refund terms.' },
   { path: '/course-ownership-rules', title: 'Course Ownership Rules', description: 'Course ownership and usage rules for LearnBuddy enrollments.' },
+  { path: '/safety-and-trust', title: 'Safety & Trust', description: 'AI-monitored sessions, verified teachers, secure payments. How LearnBuddy keeps your child safe.' },
   { path: '/parent/register', title: 'Register as Parent', description: 'Create a parent account. Find teachers for your child.' },
   { path: '/parent/register/form', title: 'Parent Registration', description: 'Complete your parent registration on LearnBuddy.' },
 ] as const;

@@ -81,13 +81,46 @@ export async function generateStudentExamQuestions(
   });
 }
 
+export interface Flashcard {
+  front: string;
+  back: string;
+}
+
 export async function generateStudyMaterial(
   subject: string,
   topic: string,
   board: string,
+  classLevel: string,
+  options?: { includeFlashcards?: boolean }
+): Promise<{ title: string; summary: string; sections: { type: string; content: string; caption?: string }[]; flashcards?: Flashcard[] }> {
+  return call('/v1/generate/study-material', { subject, topic, board, classLevel, includeFlashcards: options?.includeFlashcards });
+}
+
+export async function generateFlashcards(
+  subject: string,
+  topic: string,
+  board: string,
   classLevel: string
-): Promise<{ title: string; summary: string; sections: { type: string; content: string; caption?: string }[] }> {
-  return call('/v1/generate/study-material', { subject, topic, board, classLevel });
+): Promise<{ cards: Flashcard[] }> {
+  return call('/v1/generate/flashcards', { subject, topic, board, classLevel });
+}
+
+export async function generateFlashcardsFromStudyMaterial(
+  studyMaterialText: string,
+  topic: string,
+  subject: string
+): Promise<{ cards: Flashcard[] }> {
+  return call('/v1/generate/flashcards-from-material', { studyMaterialText, topic, subject });
+}
+
+export async function generateFlashcardsFromExamFeedback(
+  feedback: { good?: string[]; bad?: string[]; overall?: string; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[] },
+  questions: { question: string; type?: string }[],
+  subject: string,
+  board: string,
+  classLevel: string
+): Promise<{ cards: Flashcard[] }> {
+  return call('/v1/generate/flashcards-from-exam', { feedback, questions, subject, board, classLevel });
 }
 
 export async function generateTeacherQualificationExam(

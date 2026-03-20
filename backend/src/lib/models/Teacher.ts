@@ -8,6 +8,9 @@ export interface ISlot {
   endTime: string;
 }
 
+/** When enrollment closes: teacher_only = teacher closes manually; one_week_after_start = auto 1 week after start; max_students_reached = auto when full */
+export type EnrollmentClosureType = 'teacher_only' | 'one_week_after_start' | 'max_students_reached';
+
 export interface IBatch {
   name: string;
   slots: ISlot[];
@@ -20,6 +23,10 @@ export interface IBatch {
   isActive?: boolean;
   /** Batch starting date: must be tomorrow to 30 days from today */
   startDate?: Date;
+  /** Teacher can manually close enrollment anytime */
+  enrollmentOpen?: boolean;
+  /** How enrollment auto-closes: teacher_only | one_week_after_start | max_students_reached */
+  enrollmentClosureType?: EnrollmentClosureType;
 }
 
 export type AIExamPerformance = 'green' | 'yellow' | 'red';
@@ -43,7 +50,7 @@ export interface ITeacher extends Document {
   qualificationExamAttempts: number;
   lastQualificationAttempt?: Date;
   status: TeacherStatus;
-  documents: { name: string; url: string; verified?: boolean }[];
+  documents: { name: string; url: string; verified?: boolean; uploadedAt?: Date }[];
   demoVideoUrl?: string;
   batches: IBatch[];
   bio?: string;
@@ -79,6 +86,8 @@ const BatchSchema = new Schema<IBatch>({
   classLevel: String,
   isActive: { type: Boolean, default: true },
   startDate: Date,
+  enrollmentOpen: { type: Boolean, default: true },
+  enrollmentClosureType: { type: String, enum: ['teacher_only', 'one_week_after_start', 'max_students_reached'], default: 'teacher_only' },
 });
 
 const TeacherSchema = new Schema<ITeacher>(
@@ -98,14 +107,16 @@ const TeacherSchema = new Schema<ITeacher>(
     qualificationExamAttempts: { type: Number, default: 0 },
     lastQualificationAttempt: Date,
     status: { type: String, enum: ['pending', 'qualified', 'rejected', 'suspended'], default: 'pending' },
-    documents: [{ name: String, url: String, verified: Boolean }],
+    documents: [{ name: String, url: String, verified: Boolean, uploadedAt: Date }],
     demoVideoUrl: String,
     batches: [BatchSchema],
     bio: String,
     bankDetails: { accountNumber: String, ifsc: String, bankName: String },
     marketplaceOrder: { type: Number, default: 999 },
     commissionPercent: { type: Number, default: 10 },
-    signedAgreements: [{ type: String, version: String, signedAt: Date, ipAddress: String }],
+    signedAgreements: [
+      { type: { type: String }, version: String, signedAt: Date, ipAddress: String },
+    ],
     bgvVerified: { type: Boolean, default: false },
     bgvApprovedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     bgvApprovedAt: Date,

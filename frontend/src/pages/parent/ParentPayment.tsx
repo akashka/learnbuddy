@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
-import { TrustBadges } from '@/components/TrustBadges';
+import { formatCurrency } from '@shared/formatters';
 
 interface Pending {
   _id: string;
@@ -53,11 +53,10 @@ export default function ParentPayment() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-brand-800">Payment</h1>
-      <TrustBadges variant="compact" className="mb-6" />
       {pending ? (
         <div className="rounded-xl border border-brand-200 bg-white p-6">
           <p><strong>Course:</strong> {pending.subject}</p>
-          <p><strong>Amount:</strong> ₹{pending.totalAmount}</p>
+          <p><strong>Amount:</strong> {formatCurrency(pending.totalAmount ?? 0)}</p>
           <p className="mb-4 text-sm text-gray-600">
             (In production, integrate with payment gateway here)
           </p>

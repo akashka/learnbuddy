@@ -1,3 +1,4 @@
+import { Modal } from '@/components/Modal';
 
 const CHILD_DATA_COLLECTION = `
 Child Data Collection Consent
@@ -45,8 +46,8 @@ export function ConsentModal({ type, isOpen, onClose }: ConsentModalProps) {
   const content = type === 'child_data_collection' ? CHILD_DATA_COLLECTION : AI_MONITORING;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[80vh] w-full max-w-lg rounded-xl bg-white shadow-xl">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-xl">
+      <div className="max-h-[80vh] w-full overflow-hidden rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="font-semibold text-brand-800">{titles[type]}</h3>
           <button
@@ -68,6 +69,6 @@ export function ConsentModal({ type, isOpen, onClose }: ConsentModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

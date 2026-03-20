@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
 
     const items: ChecklistItem[] = [
       {
+        id: 'exam',
+        label: 'Qualification exam passed',
+        done: teacher.status === 'qualified',
+        href: '/teacher/profile',
+        cta: 'View profile',
+      },
+      {
         id: 'basic',
         label: 'Enter basic details',
         done: !!(teacher.name?.trim() && teacher.phone),

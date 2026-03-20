@@ -30,7 +30,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+// 15MB limit for JSON body - teacher registration step 4 sends base64 documents (up to 5 × 2MB)
+app.use(express.json({ limit: '15mb' }));
 
 // Stricter rate limits for auth endpoints: 5 req/min per IP (reduces brute-force and OTP abuse)
 const AUTH_PATHS = ['/api/auth/login', '/api/auth/register', '/api/registration/send-otp'];

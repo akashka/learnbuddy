@@ -38,6 +38,7 @@ import NotificationTemplateEditor from '@/pages/NotificationTemplateEditor';
 import AIReviewRequests from '@/pages/AIReviewRequests';
 import AIUsageLogs from '@/pages/AIUsageLogs';
 import AIUsageLogDetail from '@/pages/AIUsageLogDetail';
+import AIModels from '@/pages/AIModels';
 import Users from '@/pages/Users';
 import TeacherPayments from '@/pages/TeacherPayments';
 import Documents from '@/pages/Documents';
@@ -91,6 +92,7 @@ function AppRoutes() {
         <Route path="classes" element={<Classes />} />
         <Route path="classes/:id" element={<ClassSessionDetail />} />
         <Route path="teacher-payments" element={<TeacherPayments />} />
+        <Route path="disputes" element={<Navigate to="/teacher-payments" replace />} />
         <Route path="cms-pages" element={<CmsPages />} />
         <Route path="cms-pages/:slug" element={<CmsPageEditor />} />
         <Route path="website-settings" element={<WebsiteSettings />} />
@@ -103,6 +105,7 @@ function AppRoutes() {
         <Route path="security-incidents" element={<SecurityIncidents />} />
         <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="audit-logs/:id" element={<AuditLogDetail />} />
+        <Route path="ai-models" element={<AIModels />} />
         <Route path="ai-usage-logs" element={<AIUsageLogs />} />
         <Route path="ai-usage-logs/:id" element={<AIUsageLogDetail />} />
         <Route path="ai-review-requests" element={<AIReviewRequests />} />

@@ -20,8 +20,12 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const body = (await request.json()) as any;
-    const { subject, board, classLevel, topic } = body;
+    const body = (await request.json()) as Record<string, unknown>;
+    const subject = String(body.subject ?? '');
+    const board = String(body.board ?? '');
+    const classLevel = String(body.classLevel ?? '');
+    const topic = String(body.topic ?? '');
+    const includeFlashcards = true; // Always include flashcards
 
     if (!subject || !board || !classLevel || !topic) {
       return NextResponse.json({ error: 'Subject, board, classLevel and topic required' }, { status: 400 });
@@ -52,7 +56,9 @@ export async function POST(request: NextRequest) {
     const start = Date.now();
     let material;
     try {
-      material = await generateStudyMaterial(subject, topic, board, classLevel);
+      material = await generateStudyMaterial(subject, topic, board, classLevel, {
+        includeFlashcards,
+      });
     } catch (err) {
       await logAIUsage({
         operationType: 'generate_study_material',
@@ -70,7 +76,11 @@ export async function POST(request: NextRequest) {
       userId: decoded.userId,
       userRole: decoded.role,
       inputMetadata: { subject, topic, board, classLevel },
-      outputMetadata: { title: material.title, sectionCount: material.sections?.length ?? 0 },
+      outputMetadata: {
+        title: material.title,
+        sectionCount: material.sections?.length ?? 0,
+        flashcardCount: material.flashcards?.length ?? 0,
+      },
       durationMs: Date.now() - start,
       success: true,
     });
@@ -80,7 +90,12 @@ export async function POST(request: NextRequest) {
       classLevel,
       subject,
       topic,
-      content: { title: material.title, summary: material.summary, sections: material.sections },
+      content: {
+        title: material.title,
+        summary: material.summary,
+        sections: material.sections,
+        flashcards: material.flashcards,
+      },
       requestedBy: decoded.userId as any,
       requesterRole: decoded.role as 'student' | 'teacher',
     });

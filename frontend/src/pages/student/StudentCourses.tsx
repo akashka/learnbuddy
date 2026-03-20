@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatCurrency } from '@shared/formatters';
 
 interface Course {
   _id: string;
@@ -45,7 +46,7 @@ export default function StudentCourses() {
             <p className="text-sm text-gray-600">
               {c.board} • {c.classLevel} • Teacher: {c.teacher || '-'}
             </p>
-            <p className="text-sm">{t('fee')}: ₹{c.feePerMonth}/month</p>
+            <p className="text-sm">{t('fee')}: {formatCurrency(c.feePerMonth ?? 0)}/month</p>
             {c.slots && c.slots.length > 0 && (
               <p className="text-sm">
                 Slots: {c.slots.map((s) => `${s.day} ${s.startTime}-${s.endTime}`).join(', ')}

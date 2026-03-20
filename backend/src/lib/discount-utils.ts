@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { DiscountCode } from '@/lib/models/DiscountCode';
 import type { IDiscountCode } from '@/lib/models/DiscountCode';
+import { formatCurrency } from '@/lib/formatters';
 
 export interface ValidateDiscountInput {
   code: string;
@@ -59,7 +60,7 @@ export function validateDiscountDoc(
   if (doc.minAmount != null && amountBeforeCode < doc.minAmount) {
     return {
       valid: false,
-      message: `Minimum order amount of ₹${doc.minAmount} required to use this code`,
+      message: `Minimum order amount of ${formatCurrency(doc.minAmount)} required to use this code`,
     };
   }
 

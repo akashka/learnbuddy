@@ -2,10 +2,10 @@
  * AI Service - Exam evaluation
  */
 import {
-  geminiGenerate,
-  geminiGenerateJson,
-  geminiGenerateWithImages,
-} from '../providers/gemini.js';
+  aiGenerate,
+  aiGenerateJson,
+  aiGenerateWithImages,
+} from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 import { analyzeSentimentBatch, getSafeDisplayText } from './sentiment.js';
 import type { StudentExamQuestion, TeacherExamQuestion } from './types.js';
@@ -67,7 +67,7 @@ export async function evaluateStudentExam(
       const totalMarksForQ = q.marks;
       const aiEval = await withGeminiFallback(
         async () => {
-          const result = await geminiGenerateWithImages(
+          const result = await aiGenerateWithImages(
             `You are an expert teacher grading a student's drawing/diagram for an exam question.
 
 Question: ${q.question}
@@ -102,7 +102,7 @@ Return JSON only: { "marksObtained": <0 to ${totalMarksForQ}>, "feedback": "brie
       } else {
       const aiEval = await withGeminiFallback(
         async () => {
-          const result = await geminiGenerateJson<{ marksObtained: number; feedback: string }>(
+          const result = await aiGenerateJson<{ marksObtained: number; feedback: string }>(
             `You are an expert teacher grading an exam. Evaluate the student's answer like a human teacher would.
 
 Question: ${q.question}
@@ -194,7 +194,7 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
         .slice(0, 5)
         .map((q, i) => `Q: ${q.question}\nA: ${answers[i]}`)
         .join('\n\n');
-      return await geminiGenerate(
+      return await aiGenerate(
         `Student scored ${score}/${totalMarks} (${pct}%). Provide 1-2 sentence personalized feedback for a student. Be encouraging but constructive.\n\nSample Q&A:\n${qaSummary}`
       );
     },

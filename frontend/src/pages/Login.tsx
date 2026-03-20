@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { TrustBadges } from '@/components/TrustBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
-import { BRAND } from '@shared/brand';
+import { BrandLogo } from '@/components/BrandLogo';
 
-type LoginMode = 'student' | 'email' | 'otp';
+type LoginMode = 'student' | 'otp';
 
 export default function Login() {
-  const [mode, setMode] = useState<LoginMode>('otp');
-  const [email, setEmail] = useState('');
+  const [searchParams] = useSearchParams();
+  const fromRegister = searchParams.get('from') === 'register' || searchParams.get('from') === 'parent-register' || searchParams.get('from') === 'teacher-register';
+  const [mode, setMode] = useState<LoginMode>(fromRegister ? 'otp' : 'student');
   const [password, setPassword] = useState('');
   const [studentId, setStudentId] = useState('');
   const [phone, setPhone] = useState('');
@@ -19,7 +19,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loginWithStudentId, sendOtp, loginWithOtp } = useAuth();
+  const { loginWithStudentId, sendOtp, loginWithOtp } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { secondsLeft, canResend, start: startResendTimer } = useResendOtpTimer();
@@ -99,17 +99,12 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      let ok = false;
-      if (mode === 'student') {
-        ok = await loginWithStudentId(studentId.trim(), password);
-      } else {
-        ok = await login(email.trim(), password);
-      }
+      const ok = await loginWithStudentId(studentId.trim(), password);
       if (ok) {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        navigate(getRedirectByRole(user.role || 'parent'), { replace: true });
+        navigate(getRedirectByRole(user.role || 'student'), { replace: true });
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError('Invalid Student ID or password. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -117,53 +112,34 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] overflow-hidden">
-      {/* Animated background - Copy style */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-100 via-purple-50 to-pink-100" />
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-10 h-32 w-32 rounded-full bg-brand-400 blur-3xl animate-float" />
-          <div className="absolute bottom-32 right-20 h-40 w-40 rounded-full bg-purple-400 blur-3xl animate-float stagger-2" />
-          <div className="absolute top-1/2 left-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-300 blur-2xl animate-pulse-soft" />
-        </div>
-        <div className="absolute top-10 right-10 text-6xl opacity-20 animate-float">📚</div>
-        <div className="absolute bottom-20 left-10 text-5xl opacity-20 animate-float stagger-2">✨</div>
-        <div className="absolute top-1/3 right-1/4 text-4xl opacity-15 animate-float stagger-3">🎓</div>
-      </div>
-
-      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-6xl flex-col items-center justify-center gap-8 px-4 py-12 lg:flex-row lg:gap-16">
-        {/* Left: Branding & Image - Copy style */}
-        <div className="flex flex-1 flex-col items-center text-center lg:items-start lg:text-left">
+    <div className="relative flex min-h-[calc(100vh-8rem)] w-full items-center justify-center px-4 py-8 sm:py-12">
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-10 sm:flex-row sm:gap-12 lg:gap-16">
+        {/* Left: Brand logo, welcome text, image */}
+        <div className="flex flex-1 flex-col items-center lg:items-start">
           <div className="animate-slide-up opacity-0 [animation-fill-mode:forwards]">
-            <div className="mb-6 flex items-center gap-3">
-              <img src="/logo.svg" alt={BRAND.name} className="h-14 w-14 animate-bounce-subtle sm:h-16 sm:w-16" />
-              <div>
-                <h1 className="font-display text-2xl font-extrabold tracking-tight text-brand-800 sm:text-3xl">
-                  {BRAND.name}
-                </h1>
-                <p className="text-sm font-medium text-brand-600 sm:text-base">{BRAND.tagline}</p>
-              </div>
-            </div>
-            <p className="mx-auto max-w-md text-brand-700/90 lg:mx-0">
-              One-to-one online tuition for kids with AI monitoring. Safe, fun, and effective learning!
-            </p>
-          </div>
-          <div className="mt-8 hidden animate-slide-up opacity-0 [animation-delay:0.2s] [animation-fill-mode:forwards] lg:block">
-            <div className="relative overflow-hidden rounded-3xl border-4 border-brand-200 bg-white/80 p-8 shadow-2xl backdrop-blur">
-              <div className="flex items-center justify-center gap-4">
-                <span className="text-7xl">👩‍🏫</span>
-                <div className="text-left">
-                  <p className="font-bold text-brand-800">Learn with expert teachers</p>
-                  <p className="text-sm text-brand-600">AI-monitored safe classes</p>
-                </div>
-              </div>
+            <BrandLogo size="large" iconSize={112} showTagline={true} compact={false} className="mb-6 justify-center lg:justify-start" />
+            <h2 className="mb-8 text-center text-3xl font-bold text-brand-800 sm:text-4xl lg:text-left">
+              Welcome back
+            </h2>
+            <div className="flex justify-center lg:justify-start">
+              <img
+                src="/images/kids-learning.svg"
+                alt="Kids learning with LearnBuddy"
+                className="h-56 w-full max-w-sm object-contain sm:h-64 lg:h-72"
+              />
             </div>
           </div>
         </div>
 
-        {/* Right: Login Card */}
-        <div className="w-full max-w-md flex-shrink-0">
-          <div className="card animate-slide-up opacity-0 [animation-delay:0.15s] [animation-fill-mode:forwards]">
+        {/* Right: Login Card - wider, properly aligned */}
+        <div className="flex w-full max-w-lg shrink-0 justify-center lg:max-w-xl">
+          <div className="card w-full animate-slide-up px-6 py-8 opacity-0 sm:px-8 sm:py-10 [animation-delay:0.15s] [animation-fill-mode:forwards]">
+            <h3 className="mb-6 text-xl font-bold text-brand-800 sm:text-2xl">Sign in</h3>
+            {fromRegister && (
+              <div className="mb-4 rounded-xl bg-green-50 p-3 text-center text-base text-green-800">
+                You&apos;re already registered! Please login with your phone number below. 📱
+              </div>
+            )}
             <div className="mb-6 flex gap-2">
               <button
                 type="button"
@@ -188,18 +164,6 @@ export default function Login() {
                 👨‍👩‍👧 Parent / 👩‍🏫 Teacher
               </button>
             </div>
-            {(mode === 'otp' || mode === 'email') && (
-              <p className="-mt-4 mb-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => (mode === 'otp' ? resetMode('email') : resetMode('otp'))}
-                  className="text-sm font-medium text-brand-600 hover:underline"
-                >
-                  {mode === 'otp' ? 'Use email & password instead' : 'Back to phone (OTP)'}
-                </button>
-              </p>
-            )}
-
             {mode === 'student' && (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -244,34 +208,6 @@ export default function Login() {
                 {error && <p className="text-sm text-red-600">{error}</p>}
                 <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
                   <span className="btn-text">{loading ? 'Loading...' : t('login')}</span>
-                </button>
-              </form>
-            )}
-
-            {mode === 'email' && (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="mb-2 block font-semibold text-brand-800">{t('email')}</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block font-semibold text-brand-800">{t('password')}</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-                  />
-                </div>
-                {error && <p className="text-sm text-red-600">{error}</p>}
-                <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
-                  <span className="btn-text">{loading ? 'Signing in...' : t('login')}</span>
                 </button>
               </form>
             )}
@@ -337,14 +273,13 @@ export default function Login() {
             )}
 
             <div className="mt-6 border-t border-brand-100 pt-6">
-              <p className="text-center text-sm text-brand-700">
+              <p className="text-center text-lg text-brand-700">
                 Don&apos;t have an account?{' '}
-                <Link to="/register" className="font-bold text-brand-600 underline-offset-2 hover:underline">
+                <Link to="/register" className="font-bold text-brand-600 underline underline-offset-2 hover:underline">
                   {t('register')}
                 </Link>
               </p>
             </div>
-            <TrustBadges variant="compact" className="mt-4" />
           </div>
         </div>
       </div>

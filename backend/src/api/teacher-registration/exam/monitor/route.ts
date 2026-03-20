@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from '@/lib/next-compat';
-import { analyzeExamFrame } from '@/lib/ai';
+import { analyzeExamFrameWithAudio } from '@/lib/ai';
 import { verifyTeacherRegistrationSession } from '@/lib/teacher-registration-session';
 import { logAIUsage } from '@/lib/ai-audit';
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as any;
-    const { phone, frame } = body;
+    const { phone, frame, audio } = body;
 
     if (!phone || !frame) {
       return NextResponse.json({ error: 'phone and frame (base64 data URL) required' }, { status: 400 });
@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
     const start = Date.now();
     let result: { alert?: boolean; type?: string; message?: string };
     try {
-      result = await analyzeExamFrame(frame);
+      result = await analyzeExamFrameWithAudio(frame, audio || null);
     } catch (err) {
       await logAIUsage({
-        operationType: 'analyze_exam_frame',
+        operationType: 'analyze_exam_frame_with_audio',
         entityType: 'teacher_registration',
         inputMetadata: {},
         durationMs: Date.now() - start,
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       throw err;
     }
     await logAIUsage({
-      operationType: 'analyze_exam_frame',
+      operationType: 'analyze_exam_frame_with_audio',
       entityType: 'teacher_registration',
       inputMetadata: {},
       outputMetadata: { alert: result.alert, type: result.type },

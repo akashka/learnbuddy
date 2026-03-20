@@ -12,7 +12,8 @@ export type NotificationType =
   | 'batch_start_reminder'
   | 'payment_reminder'
   | 'ai_review_requested'
-  | 'ai_review_resolved';
+  | 'ai_review_resolved'
+  | 'dispute_updated';
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
@@ -25,7 +26,7 @@ export interface INotification extends Document {
   /** URL to navigate on CTA click */
   ctaUrl?: string;
   /** Entity type for grouping/filtering */
-  entityType?: 'enrollment' | 'class' | 'exam' | 'reschedule' | 'payment' | 'ai_review';
+  entityType?: 'enrollment' | 'class' | 'exam' | 'reschedule' | 'payment' | 'ai_review' | 'dispute';
   entityId?: string;
   /** Extra data for display */
   metadata?: Record<string, unknown>;

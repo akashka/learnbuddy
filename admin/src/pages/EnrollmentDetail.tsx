@@ -4,6 +4,7 @@ import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 import BackLink from '@/components/BackLink';
+import { formatCurrency, formatDateTime } from '@shared/formatters';
 
 type PendingEnrollment = {
   _id: string;
@@ -164,12 +165,12 @@ export default function EnrollmentDetail() {
                     <DetailRow label="Board" value={pending.board} />
                     <DetailRow label="Class" value={pending.classLevel} />
                     <DetailRow label="Batch Index" value={pending.batchIndex} />
-                    <DetailRow label="Fee/Month" value={pending.feePerMonth != null ? `₹${pending.feePerMonth}` : undefined} />
+                    <DetailRow label="Fee/Month" value={pending.feePerMonth != null ? formatCurrency(pending.feePerMonth) : undefined} />
                     <DetailRow label="Duration" value={pending.duration} />
                     <DetailRow label="Discount" value={pending.discount != null ? `${pending.discount}%` : undefined} />
-                    <DetailRow label="Total Amount" value={pending.totalAmount != null ? `₹${pending.totalAmount}` : undefined} />
+                    <DetailRow label="Total Amount" value={pending.totalAmount != null ? formatCurrency(pending.totalAmount) : undefined} />
                     <DetailRow label="Payment Status" value={pending.paymentStatus} />
-                    <DetailRow label="Created" value={pending.createdAt ? new Date(pending.createdAt).toLocaleString() : undefined} />
+                    <DetailRow label="Created" value={pending.createdAt ? formatDateTime(pending.createdAt) : undefined} />
                     {pending.studentDetails && (
                       <>
                         <DetailRow label="Student Name" value={pending.studentDetails.name} />
@@ -209,15 +210,15 @@ export default function EnrollmentDetail() {
                     <DetailRow label="Board" value={completed.board} />
                     <DetailRow label="Class" value={completed.classLevel} />
                     <DetailRow label="Batch" value={completed.batchId} />
-                    <DetailRow label="Fee/Month" value={completed.feePerMonth != null ? `₹${completed.feePerMonth}` : undefined} />
+                    <DetailRow label="Fee/Month" value={completed.feePerMonth != null ? formatCurrency(completed.feePerMonth) : undefined} />
                     <DetailRow label="Duration" value={completed.duration} />
                     <DetailRow label="Discount" value={completed.discount != null ? `${completed.discount}%` : undefined} />
-                    <DetailRow label="Total Amount" value={completed.totalAmount != null ? `₹${completed.totalAmount}` : undefined} />
+                    <DetailRow label="Total Amount" value={completed.totalAmount != null ? formatCurrency(completed.totalAmount) : undefined} />
                     <DetailRow label="Payment Status" value={completed.paymentStatus} />
                     <DetailRow label="Status" value={completed.status} />
                     <DetailRow label="Start Date" value={completed.startDate ? new Date(completed.startDate).toLocaleDateString() : undefined} />
                     <DetailRow label="End Date" value={completed.endDate ? new Date(completed.endDate).toLocaleDateString() : undefined} />
-                    <DetailRow label="Created" value={completed.createdAt ? new Date(completed.createdAt).toLocaleString() : undefined} />
+                    <DetailRow label="Created" value={completed.createdAt ? formatDateTime(completed.createdAt) : undefined} />
                     {completed.slots && completed.slots.length > 0 && (
                       <div className="col-span-2">
                         <span className="font-medium text-accent-700">Slots:</span>

@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
       classLevel: student.classLevel,
       board: student.board,
       schoolName: student.schoolName,
+      photoUrl: student.photoUrl,
     });
   } catch (error) {
     console.error('Student profile error:', error);

@@ -8,6 +8,9 @@ import {
   generateStudentExamQuestions,
   generateStudyMaterial,
   generateTeacherQualificationExam,
+  generateFlashcards,
+  generateFlashcardsFromStudyMaterial,
+  generateFlashcardsFromExamFeedback,
   mapLegacyExamMode,
 } from '../services/generation.js';
 import type { ExamType } from '../services/types.js';
@@ -68,6 +71,30 @@ router.post('/student-exam', async (req: Request, res: Response) => {
 /** POST /v1/generate/study-material */
 router.post('/study-material', async (req, res) => {
   try {
+    const { subject, topic, board, classLevel, includeFlashcards } = req.body;
+    if (!subject || !topic || !board || !classLevel) {
+      res.status(400).json({
+        error: 'Bad request',
+        message: 'subject, topic, board, and classLevel are required',
+      });
+      return;
+    }
+    const result = await generateStudyMaterial(subject, topic, board, classLevel, {
+      includeFlashcards: !!includeFlashcards,
+    });
+    res.json(result);
+  } catch (err) {
+    console.error('generateStudyMaterial error:', err);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: err instanceof Error ? err.message : 'Failed to generate study material',
+    });
+  }
+});
+
+/** POST /v1/generate/flashcards - Option A: Standalone flashcard generation */
+router.post('/flashcards', async (req, res) => {
+  try {
     const { subject, topic, board, classLevel } = req.body;
     if (!subject || !topic || !board || !classLevel) {
       res.status(400).json({
@@ -76,13 +103,63 @@ router.post('/study-material', async (req, res) => {
       });
       return;
     }
-    const result = await generateStudyMaterial(subject, topic, board, classLevel);
+    const result = await generateFlashcards(subject, topic, board, classLevel);
     res.json(result);
   } catch (err) {
-    console.error('generateStudyMaterial error:', err);
+    console.error('generateFlashcards error:', err);
     res.status(500).json({
       error: 'Internal server error',
-      message: err instanceof Error ? err.message : 'Failed to generate study material',
+      message: err instanceof Error ? err.message : 'Failed to generate flashcards',
+    });
+  }
+});
+
+/** POST /v1/generate/flashcards-from-material - Option C: From study material text */
+router.post('/flashcards-from-material', async (req, res) => {
+  try {
+    const { studyMaterialText, topic, subject } = req.body;
+    if (!studyMaterialText || !topic || !subject) {
+      res.status(400).json({
+        error: 'Bad request',
+        message: 'studyMaterialText, topic, and subject are required',
+      });
+      return;
+    }
+    const result = await generateFlashcardsFromStudyMaterial(studyMaterialText, topic, subject);
+    res.json(result);
+  } catch (err) {
+    console.error('generateFlashcardsFromStudyMaterial error:', err);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: err instanceof Error ? err.message : 'Failed to generate flashcards from material',
+    });
+  }
+});
+
+/** POST /v1/generate/flashcards-from-exam - Option D: From exam feedback */
+router.post('/flashcards-from-exam', async (req, res) => {
+  try {
+    const { feedback, questions, subject, board, classLevel } = req.body;
+    if (!feedback || !questions || !subject || !board || !classLevel) {
+      res.status(400).json({
+        error: 'Bad request',
+        message: 'feedback, questions, subject, board, and classLevel are required',
+      });
+      return;
+    }
+    const result = await generateFlashcardsFromExamFeedback(
+      feedback,
+      questions,
+      subject,
+      board,
+      classLevel
+    );
+    res.json(result);
+  } catch (err) {
+    console.error('generateFlashcardsFromExamFeedback error:', err);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: err instanceof Error ? err.message : 'Failed to generate flashcards from exam',
     });
   }
 });

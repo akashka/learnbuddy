@@ -1,7 +1,7 @@
 /**
  * Sentiment analysis - uses AI service when configured, else local Gemini, else safe fallback.
  */
-import { geminiGenerateJson, isGeminiConfigured } from '@/lib/gemini';
+import { aiGenerateJson, isAIConfigured } from '@/lib/ai-unified';
 import * as aiClient from '@/lib/ai-client';
 
 export interface SentimentResult {
@@ -29,11 +29,11 @@ function maskOffendingWords(text: string): string {
 }
 
 async function analyzeSentimentLocal(text: string): Promise<SentimentResult> {
-  if (!isGeminiConfigured()) {
+  if (!isAIConfigured()) {
     return { score: 1, safe: true, flags: [] };
   }
   try {
-    const result = await geminiGenerateJson<{
+    const result = await aiGenerateJson<{
       score: number;
       flags: string[];
       maskedText?: string;

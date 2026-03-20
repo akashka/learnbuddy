@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/adminApi';
+import { formatDateTime } from '@shared/formatters';
 
 const SERVICE_LABELS: Record<string, { label: string; icon: string }> = {
   backend: { label: 'Backend API', icon: '🖥️' },
@@ -75,7 +76,7 @@ export default function ReportTabSystemStatus() {
             {overall === 'healthy' ? '✓ All Systems Operational' : overall === 'degraded' ? '⚠ Degraded' : '? Unknown'}
           </span>
           <span className="text-sm text-accent-500">
-            Last checked: {new Date(timestamp).toLocaleString()}
+            Last checked: {formatDateTime(timestamp)}
           </span>
         </div>
         <button

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import BackLink from '@/components/BackLink';
 import { adminApi } from '@/lib/adminApi';
 import { DataState } from '@/components/DataState';
+import { formatDateTime, formatDurationMs } from '@shared/formatters';
 
 type Log = {
   _id: string;
@@ -23,6 +24,7 @@ type Log = {
 
 const OPERATION_LABELS: Record<string, string> = {
   generate_study_material: 'Study Material',
+  generate_flashcards: 'Flashcards',
   answer_doubt: 'Answer Doubt',
   generate_exam_questions: 'Exam Questions',
   evaluate_student_exam: 'Evaluate Exam',
@@ -80,7 +82,7 @@ export default function AIUsageLogDetail() {
               <dl className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <dt className="text-sm font-medium text-accent-600">Time</dt>
-                  <dd className="text-accent-800">{new Date(log.createdAt).toLocaleString()}</dd>
+                  <dd className="text-accent-800">{formatDateTime(log.createdAt)}</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-accent-600">Operation</dt>
@@ -111,7 +113,7 @@ export default function AIUsageLogDetail() {
                 <div>
                   <dt className="text-sm font-medium text-accent-600">Duration</dt>
                   <dd className="text-accent-800">
-                    {log.durationMs != null ? `${log.durationMs}ms` : '-'}
+                    {log.durationMs != null ? formatDurationMs(log.durationMs) : '-'}
                   </dd>
                 </div>
                 <div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { InlineErrorDisplay } from '@/components/InlineErrorDisplay';
-import { TrustBadges } from '@/components/TrustBadges';
+import { formatCurrency } from '@shared/formatters';
 
 interface Batch {
   name?: string;
@@ -148,14 +148,13 @@ export default function ParentCheckout() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-brand-800">Checkout</h1>
-      <TrustBadges variant="compact" className="mb-6" />
 
       <div className="mb-6 rounded-xl border border-brand-200 bg-white p-4">
         <h2 className="mb-2 font-semibold text-brand-800">Course Summary</h2>
         <p><strong>Teacher:</strong> {teacher.name}</p>
         <p><strong>Batch:</strong> {batch.name} – {batch.subject} ({batch.board} Class {batch.classLevel})</p>
         <p><strong>Duration:</strong> {months} months {discount > 0 && `(${discount}% discount)`}</p>
-        <p><strong>Subtotal:</strong> ₹{amountAfterDuration}</p>
+        <p><strong>Subtotal:</strong> {formatCurrency(amountAfterDuration)}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <input
             type="text"
@@ -167,7 +166,7 @@ export default function ParentCheckout() {
           />
           {appliedCode ? (
             <span className="flex items-center gap-2 text-green-600">
-              <span>{appliedCode.code} applied (-₹{appliedCode.discountAmount})</span>
+              <span>{appliedCode.code} applied (-{formatCurrency(appliedCode.discountAmount)})</span>
               <button type="button" onClick={handleRemoveCode} className="text-red-600 hover:underline text-sm">Remove</button>
             </span>
           ) : (
@@ -245,7 +244,7 @@ export default function ParentCheckout() {
           disabled={!allAccepted || submitting}
           className="rounded-lg bg-brand-600 px-6 py-3 text-white hover:bg-brand-700 disabled:opacity-50"
         >
-          {submitting ? 'Processing...' : `Proceed to Payment (₹${totalAmount})`}
+          {submitting ? 'Processing...' : `Proceed to Payment (${formatCurrency(totalAmount)})`}
         </button>
       </form>
     </div>

@@ -1,13 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/adminApi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
-}
-function formatNumber(n: number) {
-  return new Intl.NumberFormat('en-IN').format(n);
-}
+import { formatCurrency, formatNumber } from '@shared/formatters';
 
 export default function ReportTabOverview() {
   const [data, setData] = useState<Awaited<ReturnType<typeof adminApi.reports.overview>> | null>(null);

@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatCurrency } from '../lib/formatters';
 
 interface Batch {
   _id?: string;
@@ -40,7 +41,7 @@ export function TeacherBatchesScreen() {
         <Card key={b._id || i} style={styles.card}>
           <Text style={styles.name}>{b.name || 'Batch'}</Text>
           <Text style={styles.details}>{b.board} • {b.classLevel} • {b.subject}</Text>
-          <Text style={styles.fee}>{t('fee')}: ₹{b.feePerMonth}/month</Text>
+          <Text style={styles.fee}>{t('fee')}: {formatCurrency(b.feePerMonth ?? 0)}/month</Text>
           {b.slots && b.slots.length > 0 && (
             <Text style={styles.slots}>
               Slots: {b.slots.map((s) => `${s.day} ${s.startTime}-${s.endTime}`).join(', ')}

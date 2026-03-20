@@ -18,20 +18,9 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
+import { formatCurrency, formatNumber } from '@shared/formatters';
 
 const CHART_COLORS = ['#f59e0b', '#4f46e5', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatNumber(n: number) {
-  return new Intl.NumberFormat('en-IN').format(n);
-}
 
 function StatCard({
   title,

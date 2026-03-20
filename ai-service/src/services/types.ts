@@ -40,3 +40,8 @@ export interface TeacherExamQuestion {
   options?: string[];
   correctAnswer?: number | string;
 }
+
+export interface Flashcard {
+  front: string;
+  back: string;
+}

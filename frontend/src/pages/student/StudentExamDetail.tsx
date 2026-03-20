@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { ReadAloudButton } from '@/components/ReadAloudButton';
+import { FlashcardViewer, type Flashcard } from '@/components/FlashcardViewer';
+import { Modal } from '@/components/Modal';
+import { formatDateTime } from '@shared/formatters';
 
 interface IAIFeedback {
   good?: string[];
@@ -25,7 +28,7 @@ interface Exam {
   answers?: (number | string | { value: unknown })[];
 }
 
-export default function StudentExamDetail() {
+function StudentExamDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [exam, setExam] = useState<Exam | null>(null);
@@ -36,6 +39,9 @@ export default function StudentExamDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [flashcards, setFlashcards] = useState<Flashcard[] | null>(null);
+  const [flashcardsLoading, setFlashcardsLoading] = useState(false);
+  const [showFlashcardViewer, setShowFlashcardViewer] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -44,6 +50,27 @@ export default function StudentExamDetail() {
       .catch((e) => setError((e as Error).message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleGenerateFlashcardsFromExam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    setFlashcardsLoading(true);
+    try {
+      const res = await apiJson<{ cards: Flashcard[]; message?: string }>(
+        '/api/study/generate-flashcards-from-exam',
+        {
+          method: 'POST',
+          body: JSON.stringify({ examId: id }),
+        }
+      );
+      setFlashcards(res.cards || []);
+      setShowFlashcardViewer(true);
+    } catch (err) {
+      console.error('Failed to generate flashcards:', err);
+    } finally {
+      setFlashcardsLoading(false);
+    }
+  };
 
   const handleRequestReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +105,8 @@ export default function StudentExamDetail() {
   if (loading) return <div className="text-brand-600">Loading...</div>;
   if (error || !exam) return <div className="text-red-600">Error: {error || 'Exam not found'}</div>;
 
-  const formatDate = (d?: string) => (d ? new Date(d).toLocaleString() : '-');
   const feedback = exam.aiFeedback;
+  const hasIncorrectAnswers = (feedback?.questionFeedback || []).some((qf) => !qf.correct);
 
   const readAloudText = useMemo(() => {
     const parts: string[] = [];
@@ -121,17 +148,29 @@ export default function StudentExamDetail() {
               )}
             </div>
             <p className="mt-1 text-sm text-gray-600">
-              Attempted: {formatDate(exam.attemptedAt)} • Status: {exam.status}
+              Attempted: {formatDateTime(exam.attemptedAt)} • Status: {exam.status}
             </p>
           </div>
-          {exam.status === 'completed' && (
-            <button
-              onClick={() => setShowReviewModal(true)}
-              className="rounded-lg border border-amber-500 bg-amber-50 px-4 py-2 text-amber-800 hover:bg-amber-100"
-            >
-              Request human review
-            </button>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {exam.status === 'completed' && (
+              <button
+                onClick={() => setShowReviewModal(true)}
+                className="rounded-lg border border-amber-500 bg-amber-50 px-4 py-2 text-amber-800 hover:bg-amber-100"
+              >
+                Request human review
+              </button>
+            )}
+            {exam.status === 'completed' && hasIncorrectAnswers && (
+              <button
+                type="button"
+                onClick={handleGenerateFlashcardsFromExam}
+                disabled={flashcardsLoading}
+                className="rounded-lg border-2 border-brand-500 bg-white px-4 py-2 text-brand-600 hover:bg-brand-50 disabled:opacity-50"
+              >
+                {flashcardsLoading ? 'Generating...' : 'Generate Flashcards from Weak Areas (Option D)'}
+              </button>
+            )}
+          </div>
         </div>
 
         {feedback?.lowSentimentWarning && (
@@ -181,10 +220,23 @@ export default function StudentExamDetail() {
         )}
       </div>
 
+      {showFlashcardViewer && flashcards && flashcards.length > 0 && (
+        <div className="mt-6">
+          <FlashcardViewer
+            cards={flashcards}
+            title={`${exam.subject || 'Exam'} - Practice Weak Areas`}
+            onClose={() => setShowFlashcardViewer(false)}
+          />
+        </div>
+      )}
+
       {/* Request Review Modal */}
-      {showReviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-w-md rounded-xl bg-white p-6 shadow-lg">
+      <Modal
+        isOpen={showReviewModal}
+        onClose={() => { setShowReviewModal(false); setRemark(''); setSubmitError(''); setSubmitSuccess(false); }}
+        maxWidth="max-w-lg"
+      >
+        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-brand-800">Request Human Review</h2>
             <p className="mb-4 text-sm text-gray-600">
               If you believe the AI evaluation is incorrect, you can request a human admin to review
@@ -231,9 +283,10 @@ export default function StudentExamDetail() {
                 </div>
               </form>
             )}
-          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
+
+export default StudentExamDetail;

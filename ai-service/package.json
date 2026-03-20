@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test-providers": "tsx scripts/test-ai-providers.ts"
   },
   "dependencies": {
     "@google/genai": "^1.44.0",
@@ -18,7 +19,8 @@
     "express": "^4.21.0",
     "express-rate-limit": "^8.3.1",
     "ioredis": "^5.4.1",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "openai": "^6.32.0"
   },
   "devDependencies": {
     "@types/node": "^20",

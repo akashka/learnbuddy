@@ -1,7 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations, type Locale } from '@/lib/translations';
 
-type TranslationKeys = keyof (typeof translations)['en'];
+type TranslationKeys = keyof (typeof translations)['en'] | string;
+
+function getNested(obj: object, path: string): string | undefined {
+  const keys = path.split('.');
+  let current: unknown = obj;
+  for (const k of keys) {
+    if (current && typeof current === 'object' && k in current) {
+      current = (current as Record<string, unknown>)[k];
+    } else {
+      return undefined;
+    }
+  }
+  return typeof current === 'string' ? current : undefined;
+}
 
 interface LanguageContextType {
   locale: Locale;
@@ -26,7 +39,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (mounted) localStorage.setItem('locale', newLocale);
   };
 
-  const t = (key: TranslationKeys) => translations[locale][key] || translations.en[key] || key;
+  const t = (key: TranslationKeys): string => {
+    const keyStr = String(key);
+    if (keyStr.includes('.')) {
+      const val = getNested(translations[locale] as object, keyStr);
+      if (val) return val;
+      const enVal = getNested(translations.en as object, keyStr);
+      return enVal ?? keyStr;
+    }
+    const flat = translations[locale][key as keyof (typeof translations)['en']];
+    if (typeof flat === 'string') return flat;
+    const enFlat = translations.en[key as keyof (typeof translations)['en']];
+    return (typeof enFlat === 'string' ? enFlat : null) ?? keyStr;
+  };
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale, t }}>

@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
       name: teacher.name,
       email: (teacher.userId as { email?: string })?.email,
       phone: teacher.phone,
+      photoUrl: teacher.photoUrl,
       qualification: teacher.qualification,
       profession: teacher.profession,
       languages: teacher.languages || [],
@@ -46,10 +47,11 @@ export async function PUT(request: NextRequest) {
 
     await connectDB();
     const body = (await request.json()) as any;
-    const { name, qualification, profession, languages, experienceMonths, bio, bankDetails, demoVideoUrl } = body;
+    const { name, qualification, profession, languages, experienceMonths, bio, bankDetails, demoVideoUrl, photoUrl, documents } = body;
 
     const update: Record<string, unknown> = {};
     if (name !== undefined) update.name = name;
+    if (photoUrl !== undefined) update.photoUrl = photoUrl;
     if (qualification !== undefined) update.qualification = qualification;
     if (profession !== undefined) update.profession = profession;
     if (languages !== undefined) update.languages = languages;
@@ -57,6 +59,24 @@ export async function PUT(request: NextRequest) {
     if (bio !== undefined) update.bio = bio;
     if (bankDetails !== undefined) update.bankDetails = bankDetails;
     if (demoVideoUrl !== undefined) update.demoVideoUrl = demoVideoUrl;
+    if (documents !== undefined) {
+      const teacher = await Teacher.findOne({ userId: decoded.userId }).select('documents').lean();
+      const existing = (teacher?.documents || []) as { name?: string; url?: string; verified?: boolean; uploadedAt?: Date }[];
+      const existingByUrl = new Map(existing.map((d) => [d.url, d]));
+      const now = new Date();
+      update.documents = Array.isArray(documents)
+        ? documents.map((d: { name?: string; url?: string }) => {
+            const url = String(d.url || '');
+            const prev = existingByUrl.get(url);
+            return {
+              name: String(d.name || 'document'),
+              url,
+              ...(prev?.verified != null && { verified: prev.verified }),
+              uploadedAt: prev?.uploadedAt || now,
+            };
+          })
+        : [];
+    }
 
     await Teacher.findOneAndUpdate({ userId: decoded.userId }, { $set: update });
     return NextResponse.json({ success: true });

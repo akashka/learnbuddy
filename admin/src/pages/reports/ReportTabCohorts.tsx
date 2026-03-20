@@ -2,9 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/adminApi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
-}
+import { formatCurrency } from '@shared/formatters';
 
 export default function ReportTabCohorts() {
   const [months, setMonths] = useState(6);

@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatCurrency } from '../lib/formatters';
 
 interface Course {
   _id: string;
@@ -40,7 +41,7 @@ export function StudentCoursesScreen() {
         <Card key={c._id} style={styles.card}>
           <Text style={styles.name}>{c.subject || 'Course'}</Text>
           <Text style={styles.details}>{c.board} • {c.classLevel} • Teacher: {c.teacher || '-'}</Text>
-          <Text style={styles.fee}>{t('fee')}: ₹{c.feePerMonth}/month</Text>
+          <Text style={styles.fee}>{t('fee')}: {formatCurrency(c.feePerMonth ?? 0)}/month</Text>
           {c.slots && c.slots.length > 0 && (
             <Text style={styles.slots}>
               Slots: {c.slots.map((s) => `${s.day} ${s.startTime}-${s.endTime}`).join(', ')}

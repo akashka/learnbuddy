@@ -1,7 +1,7 @@
 /**
  * AI Service - Doubt answering
  */
-import { geminiGenerate } from '../providers/gemini.js';
+import { aiGenerate } from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 import { cacheGetOrSet, hashKey, AI_CACHE_TTL } from '../lib/cache.js';
 import { analyzeSentiment, getSafeDisplayText } from './sentiment.js';
@@ -27,7 +27,7 @@ export async function answerDoubt(
   const rawAnswer = await cacheGetOrSet(cacheKey, AI_CACHE_TTL, () =>
     withGeminiFallback(
       async () => {
-        return await geminiGenerate(
+        return await aiGenerate(
           `A student asks: "${trimmedQ}"\n\nContext: ${context.subject}, ${context.board} Class ${context.classLevel}, topic: ${context.topic}.\n\nProvide a clear, educational answer suitable for a school student. Use simple language and include examples if helpful. Format your answer with markdown: use **bold** for key terms, bullet points for lists, numbered steps when explaining procedures, and headings for distinct sections.`,
           'You are a patient and knowledgeable tutor helping Indian school students. Explain concepts clearly and encourage learning. Always use markdown formatting (bullets, numbered lists, bold for emphasis) to make answers easy to read.'
         );

@@ -4,6 +4,7 @@ import { apiJson } from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Card } from '../components/Card';
 import { colors, spacing, typography } from '../theme';
+import { formatDateTime } from '../lib/formatters';
 
 interface Session {
   _id: string;
@@ -38,7 +39,7 @@ export function ParentClassesScreen() {
   const SessionCard = ({ s }: { s: Session }) => (
     <Card key={s._id} style={styles.sessionCard}>
       <Text style={styles.sessionText}>
-        {s.subject} • {s.teacher?.name} • {s.student?.name} • {formatDate(s.scheduledAt)} ({s.status})
+        {s.subject} • {s.teacher?.name} • {s.student?.name} • {formatDateTime(s.scheduledAt)} ({s.status})
       </Text>
     </Card>
   );

@@ -4,6 +4,7 @@ import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 import BackLink from '@/components/BackLink';
+import { formatDateTime } from '@shared/formatters';
 
 type AiItem = {
   _id: string;
@@ -33,6 +34,8 @@ function getAskLabel(item: AiItem): string {
       return item.question ?? 'No question recorded';
     case 'resource':
       return `Generate study material for "${item.topic ?? 'topic'}" in ${item.subject ?? ''} (${item.board ?? ''} Class ${item.classLevel ?? ''})`;
+    case 'generate_flashcards':
+      return `Generate flashcards for "${item.topic ?? 'topic'}" in ${item.subject ?? ''} (${item.board ?? ''} Class ${item.classLevel ?? ''})`;
     case 'exam_questions':
       return `Generate exam questions for ${item.subject ?? ''} (${item.board ?? ''} Class ${item.classLevel ?? ''})${item.topics?.length ? ` - Topics: ${item.topics.join(', ')}` : ''}`;
     case 'qualification_exam':
@@ -204,7 +207,7 @@ export default function AiDataDetail() {
                     <li key={i} className="rounded-lg border border-amber-200 bg-white p-4">
                       <p className="text-amber-900">{f.whatWasWrong}</p>
                       <p className="mt-1 text-sm text-amber-700">
-                        {f.flaggedAt ? new Date(f.flaggedAt).toLocaleString() : ''}
+                        {f.flaggedAt ? formatDateTime(f.flaggedAt) : ''}
                         {f.flaggedBy && (f.flaggedBy as { name?: string }).name && ` • by ${(f.flaggedBy as { name?: string }).name}`}
                       </p>
                     </li>

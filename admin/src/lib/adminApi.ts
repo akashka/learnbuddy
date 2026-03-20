@@ -363,6 +363,25 @@ export const adminApi = {
     },
     get: (id: string) => apiJson(`${BASE}/ai-usage-logs/${id}`),
   },
+  aiModels: () =>
+    apiJson<{
+      providers: Array<{
+        id: string;
+        name: string;
+        models: string[];
+        capabilities: string[];
+        knownLimit: string;
+        configured: boolean;
+        status: 'healthy' | 'degraded' | 'unknown' | 'not_configured';
+        lastCheck: string | null;
+        latencyMs: number | null;
+        successCount: number;
+        failureCount: number;
+        lastError: string | null;
+      }>;
+      fallbackOrder: string[];
+      usage: { today: number; last7Days: number; successRateToday: number; successRateWeek: number };
+    }>(`${BASE}/ai-models`),
   aiReviewRequests: {
     list: (params?: { status?: string; entityType?: string; sort?: string; order?: string; page?: number; limit?: number }) => {
       const sp = new URLSearchParams();
@@ -420,6 +439,8 @@ export const adminApi = {
       return apiJson<{ payments: unknown[]; total: number; page: number; limit: number; totalPages: number }>(`${BASE}/teacher-payments${q ? `?${q}` : ''}`);
     },
     get: (id: string) => apiJson(`${BASE}/teacher-payments/${id}`),
+    reminders: () =>
+      apiJson<{ reminders: { teacherId: string; teacherName: string; year: number; month: number }[] }>(`${BASE}/teacher-payments/reminders`),
     calculate: (params: { teacherId: string; year: number; month: number }) => {
       const sp = new URLSearchParams();
       sp.set('teacherId', params.teacherId);
@@ -442,6 +463,23 @@ export const adminApi = {
     }) =>
       apiJson(`${BASE}/teacher-payments`, {
         method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+  disputes: {
+    list: (params?: { status?: string; raisedBy?: string; page?: number; limit?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.status) sp.set('status', params.status);
+      if (params?.raisedBy) sp.set('raisedBy', params.raisedBy);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      const q = sp.toString();
+      return apiJson<{ disputes: unknown[]; total: number; page: number; limit: number; totalPages: number }>(`${BASE}/disputes${q ? `?${q}` : ''}`);
+    },
+    get: (id: string) => apiJson(`${BASE}/disputes/${id}`),
+    update: (id: string, data: { status?: string; adminNotes?: string }) =>
+      apiJson(`${BASE}/disputes/${id}`, {
+        method: 'PATCH',
         body: JSON.stringify(data),
       }),
   },

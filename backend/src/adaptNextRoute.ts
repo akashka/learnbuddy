@@ -34,8 +34,9 @@ export function adaptNextRoute(handler: (request: Request, context?: any) => Pro
         if (contentType.includes('multipart/form-data')) {
           // Convert Node.js IncomingMessage to Web ReadableStream for Fetch API
           init.body = Readable.toWeb(expressReq) as unknown as RequestInit['body'];
-        } else if (expressReq.body) {
-          init.body = JSON.stringify(expressReq.body);
+        } else {
+          // For JSON body: use parsed body or empty object so request.json() works
+          init.body = JSON.stringify(expressReq.body ?? {});
         }
       }
 
@@ -60,6 +61,12 @@ export function adaptNextRoute(handler: (request: Request, context?: any) => Pro
       const text = await response.text();
 
       expressRes.status(response.status);
+
+      // Forward Set-Cookie headers (needed for teacher registration session after OTP verify)
+      const setCookies = response.headers.getSetCookie?.() ?? (response.headers.get('set-cookie') ? [response.headers.get('set-cookie')!] : []);
+      for (const cookie of setCookies) {
+        expressRes.append('Set-Cookie', cookie);
+      }
 
       if (response.status >= 300 && response.status < 400 && location) {
         expressRes.redirect(response.status, location);
