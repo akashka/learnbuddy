@@ -38,7 +38,7 @@ Security model, authentication, and operational practices for the LearnBuddy pla
 | Scope | Limit | Endpoints |
 |-------|-------|-----------|
 | Auth | 5 req/min per IP | `/api/auth/login`, `/api/auth/register`, `/api/auth/send-otp` |
-| General | 100 req/15 min per IP | All backend routes (except `/health`) |
+| General | 500 req/15 min per IP (configurable via `RATE_LIMIT_MAX`) | All backend routes (except `/health`) |
 | AI Service | 60 req/min per IP | All AI routes (except `/health`) |
 
 ---

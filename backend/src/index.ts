@@ -44,10 +44,11 @@ const authLimiter = rateLimit({
 });
 app.use(authLimiter);
 
-// General rate limiting: 100 req/15min per IP (skip for health)
+// General rate limiting: configurable via RATE_LIMIT_MAX (default 500 req/15min per IP)
+const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '500', 10);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => req.path === '/health',

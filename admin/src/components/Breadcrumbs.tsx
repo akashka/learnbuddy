@@ -19,6 +19,8 @@ const ROUTE_LABELS: Record<string, string> = {
   'ai-review-requests': 'AI Review Requests',
   'security-incidents': 'Security Incidents',
   'audit-logs': 'Audit Log',
+  'wishlist-activity': 'Wishlist Updates',
+  'teacher-changes': 'Teacher Changes',
   'teacher-payments': 'Teacher Payments',
   'job-positions': 'Job Positions',
   'website-settings': 'Website Settings',

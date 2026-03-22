@@ -32,6 +32,8 @@ import JobPositionEditor from '@/pages/JobPositionEditor';
 import SecurityIncidents from '@/pages/SecurityIncidents';
 import AuditLogs from '@/pages/AuditLogs';
 import AuditLogDetail from '@/pages/AuditLogDetail';
+import WishlistActivity from '@/pages/WishlistActivity';
+import TeacherChanges from '@/pages/TeacherChanges';
 import ContactSubmissions from '@/pages/ContactSubmissions';
 import NotificationTemplates from '@/pages/NotificationTemplates';
 import NotificationTemplateEditor from '@/pages/NotificationTemplateEditor';
@@ -105,6 +107,8 @@ function AppRoutes() {
         <Route path="security-incidents" element={<SecurityIncidents />} />
         <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="audit-logs/:id" element={<AuditLogDetail />} />
+        <Route path="wishlist-activity" element={<WishlistActivity />} />
+        <Route path="teacher-changes" element={<TeacherChanges />} />
         <Route path="ai-models" element={<AIModels />} />
         <Route path="ai-usage-logs" element={<AIUsageLogs />} />
         <Route path="ai-usage-logs/:id" element={<AIUsageLogDetail />} />

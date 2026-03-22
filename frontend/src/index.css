@@ -293,6 +293,64 @@ button:focus {
   }
 }
 
+/* Marketplace filter column: dedicated scrollbar */
+.marketplace-filter-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184) rgb(241 245 249);
+}
+.marketplace-filter-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.marketplace-filter-scroll::-webkit-scrollbar-track {
+  background: rgb(241 245 249);
+  border-radius: 9999px;
+}
+.marketplace-filter-scroll::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184);
+  border-radius: 9999px;
+}
+.marketplace-filter-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139);
+}
+
+/* Dual fee range: one track, two thumbs (FeeRangeSlider) */
+.fee-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.fee-range-thumb::-webkit-slider-runnable-track {
+  height: 8px;
+  background: transparent;
+  border: none;
+}
+.fee-range-thumb::-moz-range-track {
+  height: 8px;
+  background: transparent;
+  border: none;
+}
+.fee-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: var(--color-brand-600);
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  cursor: pointer;
+}
+.fee-range-thumb::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--color-brand-600);
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  cursor: pointer;
+}
+
 /* Prose overrides for CMS content */
 .prose a {
   color: var(--color-brand-600);

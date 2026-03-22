@@ -17,7 +17,9 @@
     "seed-documents": "tsx scripts/seed-documents.ts",
     "seed-staff": "tsx scripts/seed-staff.ts",
     "seed-discount-codes": "tsx scripts/seed-discount-codes.ts",
-    "seed-notification-templates": "tsx scripts/seed-notification-templates.ts"
+    "seed-notification-templates": "tsx scripts/seed-notification-templates.ts",
+    "seed-all": "tsx scripts/seed-all.ts",
+    "seed-all:clear": "tsx scripts/seed-all.ts --clear"
   },
   "dependencies": {
     "@google/genai": "^1.44.0",

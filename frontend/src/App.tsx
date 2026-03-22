@@ -13,9 +13,13 @@ import ParentRegisterStart from '@/pages/parent/ParentRegisterStart';
 import ParentRegisterForm from '@/pages/parent/ParentRegisterForm';
 import ParentDashboard from '@/pages/parent/ParentDashboard';
 import ParentMarketplace from '@/pages/parent/ParentMarketplace';
+import ParentTeacherDetail from '@/pages/parent/ParentTeacherDetail';
 import ParentStudents from '@/pages/parent/ParentStudents';
 import ParentClasses from '@/pages/parent/ParentClasses';
 import ParentProfile from '@/pages/parent/ParentProfile';
+import ParentWishlist from '@/pages/parent/ParentWishlist';
+import ParentMyCourse from '@/pages/parent/ParentMyCourse';
+import ParentMyTeachers from '@/pages/parent/ParentMyTeachers';
 import ParentPerformances from '@/pages/parent/ParentPerformances';
 import ParentCheckout from '@/pages/parent/ParentCheckout';
 import ParentPayment from '@/pages/parent/ParentPayment';
@@ -107,6 +111,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/parent/teacher/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <ParentTeacherDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/parent/students"
                 element={
                   <ProtectedRoute allowedRoles={['parent']}>
@@ -127,6 +139,30 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['parent']}>
                     <ParentProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/parent/wishlist"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <ParentWishlist />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/parent/my-course"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <ParentMyCourse />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/parent/my-teachers"
+                element={
+                  <ProtectedRoute allowedRoles={['parent']}>
+                    <ParentMyTeachers />
                   </ProtectedRoute>
                 }
               />

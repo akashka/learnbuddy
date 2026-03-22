@@ -4,6 +4,7 @@ import { apiJson } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { LocationSearch } from '@/components/LocationSearch';
+import { PolicyTermsCheckbox } from '@/components/PolicyTermsCheckbox';
 
 interface FormData {
   name: string;
@@ -16,6 +17,7 @@ export default function ParentRegisterForm() {
   const state = location.state as { phone?: string; existing?: boolean } | null;
   const phone = state?.phone || '';
   const [form, setForm] = useState<FormData>({ name: '', email: '', location: '' });
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -28,6 +30,10 @@ export default function ParentRegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!acceptedPolicy) {
+      setError('Please accept the Privacy Policy and Terms & Conditions to continue.');
+      return;
+    }
     setLoading(true);
     try {
       const res = await apiJson<{
@@ -55,9 +61,16 @@ export default function ParentRegisterForm() {
   if (!phone) return null;
 
   return (
-    <AuthPageLayout title="Create your account" subtitle="A few details to help us connect you with the right tutors" wide card={false}>
-      <div className="rounded-3xl border-2 border-brand-200 bg-white p-6 shadow-2xl sm:p-8">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-xl space-y-4">
+    <AuthPageLayout title="" subtitle="" wide card={false}>
+      <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-3xl border-2 border-brand-200 shadow-xl">
+        <div className="bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 px-6 py-6 sm:px-8 sm:py-7">
+          <h2 className="text-xl font-bold text-white sm:text-2xl">Create your account</h2>
+          <p className="mt-1.5 text-sm text-white/90 sm:text-base">
+            A few details to help us connect you with the right tutors for your child.
+          </p>
+        </div>
+        <div className="bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-2 block font-semibold text-brand-800">Full Name *</label>
             <input
@@ -86,21 +99,30 @@ export default function ParentRegisterForm() {
               type="text"
               value={phone}
               readOnly
-              className="w-full rounded-xl border-2 border-brand-100 bg-brand-50 px-4 py-3 text-gray-600"
+              className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-gray-600"
             />
           </div>
-          <LocationSearch
-            value={form.location}
-            onChange={(v) => setForm((f) => ({ ...f, location: v }))}
-            label="Location"
-            placeholder="Start typing to search (City, State or area)"
-            inputClassName="rounded-xl border-2 border-brand-200 px-4 py-3 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+          <div>
+            <label className="mb-2 block font-semibold text-brand-800">Location</label>
+            <LocationSearch
+              value={form.location}
+              onChange={(v) => setForm((f) => ({ ...f, location: v }))}
+              label=""
+              placeholder="Start typing to search (City, State or area)"
+              inputClassName="rounded-xl border-2 border-brand-200 px-4 py-3 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+          <PolicyTermsCheckbox
+            checked={acceptedPolicy}
+            onChange={setAcceptedPolicy}
+            error={error && !acceptedPolicy ? error : undefined}
           />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && acceptedPolicy && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full py-4 disabled:opacity-50">
             <span className="btn-text">{loading ? 'Creating account...' : 'Create Account'}</span>
           </button>
         </form>
+        </div>
       </div>
     </AuthPageLayout>
   );

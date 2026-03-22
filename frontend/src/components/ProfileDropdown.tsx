@@ -14,6 +14,9 @@ const PROFILE_PATH_BY_ROLE: Record<string, string> = {
 // Extra menu items by role (moved from header for easier management)
 const EXTRA_LINKS_BY_ROLE: Record<string, { label: string; path: string; icon: string }[]> = {
   parent: [
+    { label: 'My Course', path: '/parent/my-course', icon: '📚' },
+    { label: 'My Teachers', path: '/parent/my-teachers', icon: '👩‍🏫' },
+    { label: 'My Wishlist', path: '/parent/wishlist', icon: '❤️' },
     { label: 'Performances', path: '/parent/performances', icon: '📊' },
     { label: 'Review Requests', path: '/parent/review-requests', icon: '✏️' },
     { label: 'Disputes', path: '/disputes', icon: '⚖️' },

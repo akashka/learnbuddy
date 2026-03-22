@@ -330,6 +330,76 @@ export const adminApi = {
         body: JSON.stringify(data),
       }),
   },
+  teacherChanges: {
+    list: (params?: { sort?: string; order?: string; page?: number; limit?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.sort) sp.set('sort', params.sort);
+      if (params?.order) sp.set('order', params.order);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      const q = sp.toString();
+      return apiJson<{
+        items: {
+          _id: string;
+          enrollmentId: string;
+          parent: { name?: string; phone?: string; email?: string };
+          student: { name?: string; studentId?: string };
+          oldTeacher: { name?: string; phone?: string };
+          newTeacher: { name?: string; phone?: string };
+          reason: string;
+          feeDifference?: number;
+          oldFeePerMonth?: number;
+          newFeePerMonth?: number;
+          daysWithOldTeacher?: number;
+          daysWithNewTeacher?: number;
+          adminRemarks?: string;
+          createdAt: string;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>(`${BASE}/teacher-changes${q ? `?${q}` : ''}`);
+    },
+    updateRemarks: (id: string, adminRemarks: string) =>
+      apiJson(`${BASE}/teacher-changes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ adminRemarks }),
+      }),
+  },
+  wishlistActivity: {
+    list: (params?: { action?: string; parentId?: string; teacherId?: string; sort?: string; order?: string; page?: number; limit?: number; from?: string; to?: string }) => {
+      const sp = new URLSearchParams();
+      if (params?.action) sp.set('action', params.action);
+      if (params?.parentId) sp.set('parentId', params.parentId);
+      if (params?.teacherId) sp.set('teacherId', params.teacherId);
+      if (params?.sort) sp.set('sort', params.sort);
+      if (params?.order) sp.set('order', params.order);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      if (params?.from) sp.set('from', params.from);
+      if (params?.to) sp.set('to', params.to);
+      const q = sp.toString();
+      return apiJson<{
+        items: {
+          _id: string;
+          parentId: string;
+          teacherId: string;
+          action: 'add' | 'remove';
+          createdAt: string;
+          parentName?: string;
+          parentPhone?: string;
+          parentEmail?: string;
+          teacherName?: string;
+          teacherPhone?: string;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>(`${BASE}/wishlist-activity${q ? `?${q}` : ''}`);
+    },
+  },
   auditLogs: {
     list: (params?: { action?: string; resourceType?: string; actorId?: string; success?: string; sort?: string; order?: string; page?: number; limit?: number; from?: string; to?: string }) => {
       const sp = new URLSearchParams();

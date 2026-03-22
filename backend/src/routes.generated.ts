@@ -78,6 +78,8 @@ import { GET as GET__api_admin_stats } from './api/admin/stats/route.js';
 import { GET as GET__api_admin_students_id, PATCH as PATCH__api_admin_students_id } from './api/admin/students/[id]/route.js';
 import { GET as GET__api_admin_students_export } from './api/admin/students/export/route.js';
 import { GET as GET__api_admin_students } from './api/admin/students/route.js';
+import { PATCH as PATCH__api_admin_teacherchanges_id } from './api/admin/teacher-changes/[id]/route.js';
+import { GET as GET__api_admin_teacherchanges } from './api/admin/teacher-changes/route.js';
 import { GET as GET__api_admin_teacherpayments_id } from './api/admin/teacher-payments/[id]/route.js';
 import { GET as GET__api_admin_teacherpayments_calculate } from './api/admin/teacher-payments/calculate/route.js';
 import { GET as GET__api_admin_teacherpayments_export } from './api/admin/teacher-payments/export/route.js';
@@ -92,6 +94,7 @@ import { PATCH as PATCH__api_admin_topics_id, DELETE as DELETE__api_admin_topics
 import { GET as GET__api_admin_topics, POST as POST__api_admin_topics } from './api/admin/topics/route.js';
 import { POST as POST__api_admin_users_update } from './api/admin/users/update/route.js';
 import { GET as GET__api_admin_websitesettings, PUT as PUT__api_admin_websitesettings } from './api/admin/website-settings/route.js';
+import { GET as GET__api_admin_wishlistactivity } from './api/admin/wishlist-activity/route.js';
 import { POST as POST__api_ai_monitortoken } from './api/ai/monitor-token/route.js';
 import { GET as GET__api_aireview_id } from './api/ai-review/[id]/route.js';
 import { GET as GET__api_aireview, POST as POST__api_aireview } from './api/ai-review/route.js';
@@ -121,6 +124,7 @@ import { GET as GET__api_notifications_unreadcount } from './api/notifications/u
 import { POST as POST__api_parent_checkout } from './api/parent/checkout/route.js';
 import { GET as GET__api_parent_classes } from './api/parent/classes/route.js';
 import { POST as POST__api_parent_discount_validate } from './api/parent/discount/validate/route.js';
+import { GET as GET__api_parent_mycourse } from './api/parent/my-course/route.js';
 import { GET as GET__api_parent_myteachers } from './api/parent/my-teachers/route.js';
 import { GET as GET__api_parent_onboardingstatus } from './api/parent/onboarding-status/route.js';
 import { POST as POST__api_parent_payment_complete } from './api/parent/payment/complete/route.js';
@@ -311,6 +315,8 @@ export function registerRoutes(app: Express) {
   app.get('/api/admin/students/export', authMiddleware, adaptNextRoute(GET__api_admin_students_export));
   app.get('/api/admin/students/:id', authMiddleware, adaptNextRoute(GET__api_admin_students_id));
   app.patch('/api/admin/students/:id', authMiddleware, adaptNextRoute(PATCH__api_admin_students_id));
+  app.get('/api/admin/teacher-changes', authMiddleware, adaptNextRoute(GET__api_admin_teacherchanges));
+  app.patch('/api/admin/teacher-changes/:id', authMiddleware, adaptNextRoute(PATCH__api_admin_teacherchanges_id));
   app.get('/api/admin/teacher-payments', authMiddleware, adaptNextRoute(GET__api_admin_teacherpayments));
   app.post('/api/admin/teacher-payments', authMiddleware, adaptNextRoute(POST__api_admin_teacherpayments));
   app.get('/api/admin/teacher-payments/calculate', authMiddleware, adaptNextRoute(GET__api_admin_teacherpayments_calculate));
@@ -329,6 +335,7 @@ export function registerRoutes(app: Express) {
   app.post('/api/admin/users/update', authMiddleware, adaptNextRoute(POST__api_admin_users_update));
   app.get('/api/admin/website-settings', authMiddleware, adaptNextRoute(GET__api_admin_websitesettings));
   app.put('/api/admin/website-settings', authMiddleware, adaptNextRoute(PUT__api_admin_websitesettings));
+  app.get('/api/admin/wishlist-activity', authMiddleware, adaptNextRoute(GET__api_admin_wishlistactivity));
   app.get('/api/ai-review', authMiddleware, adaptNextRoute(GET__api_aireview));
   app.post('/api/ai-review', authMiddleware, adaptNextRoute(POST__api_aireview));
   app.get('/api/ai-review/:id', authMiddleware, adaptNextRoute(GET__api_aireview_id));
@@ -365,6 +372,7 @@ export function registerRoutes(app: Express) {
   app.post('/api/parent/checkout', authMiddleware, adaptNextRoute(POST__api_parent_checkout));
   app.get('/api/parent/classes', authMiddleware, adaptNextRoute(GET__api_parent_classes));
   app.post('/api/parent/discount/validate', authMiddleware, adaptNextRoute(POST__api_parent_discount_validate));
+  app.get('/api/parent/my-course', authMiddleware, adaptNextRoute(GET__api_parent_mycourse));
   app.get('/api/parent/my-teachers', authMiddleware, adaptNextRoute(GET__api_parent_myteachers));
   app.get('/api/parent/onboarding-status', authMiddleware, adaptNextRoute(GET__api_parent_onboardingstatus));
   app.post('/api/parent/payment/complete', authMiddleware, adaptNextRoute(POST__api_parent_payment_complete));

@@ -131,9 +131,10 @@ export function ParentRegisterStartScreen() {
         <Input
           label="Phone Number"
           value={phone}
-          onChangeText={setPhone}
+          onChangeText={(v) => setPhone(v.replace(/\D/g, '').slice(0, 10))}
           placeholder="10-digit mobile number"
           keyboardType="phone-pad"
+          maxLength={10}
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <Button title={loading ? 'Sending OTP...' : 'Send OTP'} onPress={handleSubmitPhone} loading={loading} />

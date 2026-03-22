@@ -356,7 +356,7 @@ Each application has its own `package.json` and can deploy independently:
 ## Security
 
 - **Auth:** JWT with `authMiddleware`, token blacklist in Redis.
-- **Rate limiting:** 5 req/min auth; 100 req/15min general; 60 req/min AI.
+- **Rate limiting:** 5 req/min auth; 500 req/15min general (configurable); 60 req/min AI.
 - **CORS:** Explicit origin list per service.
 - **AI Service:** `X-API-Key` or `Authorization: Bearer <JWT>`.
 - **Content safety:** Sentiment layer screens all user and AI content; rejects or masks inappropriate material.

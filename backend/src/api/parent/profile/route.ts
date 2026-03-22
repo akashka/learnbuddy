@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
       emailVerifiedAt: userId?.emailVerifiedAt,
       phone: parent.phone,
       location: parent.location,
+      photoUrl: parent.photoUrl,
     });
   } catch (error) {
     console.error('Profile get error:', error);
@@ -41,11 +42,12 @@ export async function PUT(request: NextRequest) {
 
     await connectDB();
     const body = (await request.json()) as any;
-    const { name, location, email } = body;
+    const { name, location, email, photoUrl } = body;
 
     const update: Record<string, unknown> = {};
     if (name !== undefined) update.name = name;
     if (location !== undefined) update.location = location;
+    if (photoUrl !== undefined) update.photoUrl = photoUrl;
 
     await Parent.findOneAndUpdate(
       { userId: decoded.userId },

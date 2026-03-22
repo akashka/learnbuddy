@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const enrollments = await Enrollment.find({
       studentId: { $in: parent.children },
       paymentStatus: 'completed',
+      status: 'active',
     })
       .populate('teacherId', 'name photoUrl qualification subjects classes board')
       .populate('studentId', 'name')
@@ -38,15 +39,38 @@ export async function GET(request: NextRequest) {
 
     const reviewMap = Object.fromEntries(reviews.map((r) => [String(r.teacherId), r]));
 
-    const teacherEnrollmentsMap = new Map<string, { subject: string; classLevel: string; studentName?: string }[]>();
+    type CourseEntry = {
+      enrollmentId: string;
+      subject: string;
+      board: string;
+      classLevel: string;
+      studentName?: string;
+      studentId: string;
+      feePerMonth: number;
+      teacherChangeCount: number;
+      canSwitch: boolean;
+    };
+
+    const teacherEnrollmentsMap = new Map<string, CourseEntry[]>();
+    const MAX_TEACHER_CHANGES = 2;
     for (const e of enrollments) {
       const tid = String((e.teacherId as { _id?: unknown })?._id);
       if (!tid) continue;
       const existing = teacherEnrollmentsMap.get(tid) || [];
       const studentName = (e.studentId as { name?: string })?.name;
-      if (!existing.some((x) => x.subject === e.subject && x.classLevel === e.classLevel)) {
-        existing.push({ subject: e.subject || '', classLevel: e.classLevel || '', studentName });
-      }
+      const studentId = String((e.studentId as { _id?: unknown })?._id);
+      const changeCount = (e as { teacherChangeCount?: number }).teacherChangeCount ?? 0;
+      existing.push({
+        enrollmentId: String(e._id),
+        subject: e.subject || '',
+        board: e.board || '',
+        classLevel: e.classLevel || '',
+        studentName,
+        studentId,
+        feePerMonth: e.feePerMonth ?? 0,
+        teacherChangeCount: changeCount,
+        canSwitch: changeCount < MAX_TEACHER_CHANGES,
+      });
       teacherEnrollmentsMap.set(tid, existing);
     }
 

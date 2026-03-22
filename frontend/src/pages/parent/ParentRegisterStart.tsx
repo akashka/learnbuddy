@@ -149,10 +149,11 @@ export default function ParentRegisterStart() {
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
             className="w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             placeholder="10-digit mobile number"
             required
+            maxLength={10}
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}

@@ -13,14 +13,14 @@ export function PolicyModal({ isOpen, onClose, title, children }: PolicyModalPro
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl">
       <div className="flex max-h-[85vh] w-full flex-col overflow-hidden rounded-2xl border-2 border-brand-200 bg-white shadow-2xl">
-        <div className="flex shrink-0 items-center justify-between border-b border-brand-100 px-6 py-4">
-          <h2 id="policy-modal-title" className="text-xl font-bold text-brand-800">
+        <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 px-6 py-4">
+          <h2 id="policy-modal-title" className="text-xl font-bold text-white">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 transition hover:bg-brand-50 hover:text-brand-700"
+            className="rounded-lg p-2 text-white/90 transition hover:bg-white/20 hover:text-white"
             aria-label="Close"
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@ export function PolicyModal({ isOpen, onClose, title, children }: PolicyModalPro
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {children}
         </div>
-        <div className="shrink-0 border-t border-brand-100 px-6 py-4">
+        <div className="shrink-0 border-t border-brand-100 bg-gradient-to-b from-white to-brand-50/30 px-6 py-4">
           <button
             type="button"
             onClick={onClose}

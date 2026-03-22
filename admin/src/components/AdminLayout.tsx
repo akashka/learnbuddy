@@ -30,6 +30,8 @@ const ALL_NAV_ITEMS = [
   { to: '/ai-review-requests', label: 'AI Review Requests', icon: '🔍' },
   { to: '/security-incidents', label: 'Security Incidents', icon: '🔒' },
   { to: '/audit-logs', label: 'Audit Log', icon: '📜' },
+  { to: '/wishlist-activity', label: 'Wishlist Updates', icon: '📌' },
+  { to: '/teacher-changes', label: 'Teacher Changes', icon: '🔄' },
   { to: '/job-positions', label: 'Job Positions', icon: '💼' },
   { to: '/documents', label: 'Documents', icon: '📁' },
   { to: '/contact-submissions', label: 'Contact Submissions', icon: '📬' },

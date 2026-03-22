@@ -12,6 +12,14 @@ interface Profile {
   location?: string;
 }
 
+interface ChecklistItem {
+  id: string;
+  label: string;
+  done: boolean;
+  href: string;
+  cta: string;
+}
+
 type PendingItem = {
   _id: string;
   type: 'pending_mapping' | 'payment_failed';
@@ -37,11 +45,13 @@ const PARENT_MENU = [
   { href: '/parent/performances', icon: '📊', title: 'Performances', desc: 'Kids exam & class performance' },
   { href: '/parent/classes', icon: '📅', title: 'Classes', desc: 'Old class videos, upcoming schedules' },
   { href: '/parent/payments', icon: '💰', title: 'Payments', desc: 'History, upcoming renewals' },
-  { href: '/parent/profile', icon: '👤', title: 'Profile', desc: 'View & edit profile' },
+  { href: '/parent/profile', icon: '👤', title: 'Profile', desc: 'View & edit your profile' },
+  { href: '/parent/settings', icon: '⚙️', title: 'Settings', desc: 'Language, notifications & preferences' },
 ];
 
 export default function ParentDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [pendingMappings, setPendingMappings] = useState<PendingItem[]>([]);
   const [paymentFailed, setPaymentFailed] = useState<PendingItem[]>([]);
   const [upcoming, setUpcoming] = useState<UpcomingItem[]>([]);
@@ -55,6 +65,7 @@ export default function ParentDashboard() {
     setLoading(true);
     Promise.all([
       apiJson<Profile>('/api/parent/profile'),
+      apiJson<{ checklist: ChecklistItem[] }>('/api/parent/onboarding-status').catch(() => ({ checklist: [] })),
       apiJson<{ pendingMappings: PendingItem[]; paymentFailed: PendingItem[] }>('/api/parent/pending-mappings').catch(() => ({
         pendingMappings: [],
         paymentFailed: [],
@@ -62,8 +73,9 @@ export default function ParentDashboard() {
       apiJson<{ upcoming: UpcomingItem[] }>('/api/parent/payments').catch(() => ({ upcoming: [] })),
       apiJson<{ disputes: DisputeSummary }>('/api/disputes').catch(() => ({ disputes: [] })),
     ])
-      .then(([p, pm, pay, disp]) => {
+      .then(([p, onboarding, pm, pay, disp]) => {
         setProfile(p);
+        setChecklist(onboarding.checklist || []);
         setPendingMappings(pm.pendingMappings || []);
         setPaymentFailed(pm.paymentFailed || []);
         setUpcoming(pay.upcoming || []);
@@ -92,8 +104,40 @@ export default function ParentDashboard() {
       <PageHeader
         icon="👨‍👩‍👧‍👦"
         title={`${t('welcome')}, ${profile?.name || t('parent')}!`}
-        subtitle="Manage your family's learning"
+        subtitle="Manage your kids' learning"
       />
+
+      {checklist.length > 0 && !checklist.every((i) => i.done) && (
+        <div className="mb-6 w-full max-w-4xl sm:mb-8">
+          <div className="relative overflow-hidden rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 shadow-lg">
+            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-accent-200/25 blur-xl" />
+            <h2 className="relative mb-4 flex items-center gap-2 text-lg font-bold text-brand-800">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-violet-100 text-xl">📋</span>
+              Getting Started
+            </h2>
+            <ul className="relative space-y-3">
+              {checklist.map((item) => (
+                <li key={item.id} className="flex items-center gap-3 rounded-xl border border-brand-100 bg-white/80 p-3">
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      item.done ? 'bg-green-100 text-green-700' : 'bg-brand-100 text-brand-600'
+                    }`}
+                  >
+                    {item.done ? '✓' : '○'}
+                  </span>
+                  <span className="flex-1 font-medium text-brand-800">{item.label}</span>
+                  <Link
+                    to={item.href}
+                    className="rounded-lg bg-brand-100 px-3 py-1.5 text-sm font-medium text-brand-700 transition hover:bg-brand-200"
+                  >
+                    {item.cta}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {(pendingMappings.length > 0 || paymentFailed.length > 0) && (
         <div className="mb-6 w-full max-w-4xl space-y-6 sm:mb-8">

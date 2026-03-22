@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { Parent } from '@/lib/models/Parent';
 import { ParentWishlist } from '@/lib/models/ParentWishlist';
+import { WishlistActivity } from '@/lib/models/WishlistActivity';
 import { getAuthFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -48,6 +49,12 @@ export async function POST(request: NextRequest) {
       { upsert: true, new: true }
     );
 
+    await WishlistActivity.create({
+      parentId: parent._id,
+      teacherId,
+      action: 'add',
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Wishlist add error:', error);
@@ -71,6 +78,12 @@ export async function DELETE(request: NextRequest) {
     if (!teacherId) return NextResponse.json({ error: 'teacherId required' }, { status: 400 });
 
     await ParentWishlist.deleteOne({ parentId: parent._id, teacherId });
+
+    await WishlistActivity.create({
+      parentId: parent._id,
+      teacherId,
+      action: 'remove',
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

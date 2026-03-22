@@ -24,6 +24,8 @@ export interface IEnrollment extends Document {
   discountCode?: string;
   discountCodeId?: mongoose.Types.ObjectId;
   discountCodeAmount?: number;
+  /** Number of teacher switches used (max 2 per enrollment) */
+  teacherChangeCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +51,7 @@ const EnrollmentSchema = new Schema<IEnrollment>(
     discountCode: String,
     discountCodeId: { type: Schema.Types.ObjectId, ref: 'DiscountCode' },
     discountCodeAmount: Number,
+    teacherChangeCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

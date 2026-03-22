@@ -13,7 +13,8 @@ export type NotificationType =
   | 'payment_reminder'
   | 'ai_review_requested'
   | 'ai_review_resolved'
-  | 'dispute_updated';
+  | 'dispute_updated'
+  | 'review_reminder';
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
@@ -40,7 +41,8 @@ const NotificationSchema = new Schema<INotification>(
     type: { type: String, enum: [
       'course_purchased', 'reschedule_request', 'reschedule_confirmed', 'reschedule_rejected',
       'class_cancelled', 'exam_completed', 'ai_content_generated', 'class_reminder_15min',
-      'batch_start_reminder', 'payment_reminder', 'ai_review_requested', 'ai_review_resolved'
+      'batch_start_reminder', 'payment_reminder', 'ai_review_requested', 'ai_review_resolved',
+      'dispute_updated', 'review_reminder'
     ], required: true },
     title: { type: String, required: true },
     message: { type: String, required: true },

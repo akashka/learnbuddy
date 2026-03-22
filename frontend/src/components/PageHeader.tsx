@@ -7,12 +7,28 @@ interface PageHeaderProps {
   title: string;
   subtitle?: React.ReactNode;
   action?: React.ReactNode;
+  /** Merged onto the outer wrapper (e.g. `!mb-0` when sticky) */
+  className?: string;
+  /** `storefront` = tighter, neutral frame (e.g. marketplace) */
+  variant?: 'default' | 'storefront';
 }
 
-export function PageHeader({ icon, title, subtitle, action }: PageHeaderProps) {
+export function PageHeader({
+  icon,
+  title,
+  subtitle,
+  action,
+  className = '',
+  variant = 'default',
+}: PageHeaderProps) {
+  const frame =
+    variant === 'storefront'
+      ? 'mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-900/5'
+      : 'mb-6 overflow-hidden rounded-2xl border-2 border-brand-200 bg-white shadow-lg';
+  const innerPad = variant === 'storefront' ? 'px-5 py-5 sm:px-7 sm:py-6' : 'px-6 py-6 sm:px-8 sm:py-8';
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border-2 border-brand-200 bg-white shadow-lg">
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 px-6 py-6 sm:px-8 sm:py-8">
+    <div className={`${frame} ${className}`}>
+      <div className={`relative overflow-hidden bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 ${innerPad}`}>
         <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-white/10" />
         <div className="absolute bottom-0 right-16 h-24 w-24 rounded-full bg-white/5" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

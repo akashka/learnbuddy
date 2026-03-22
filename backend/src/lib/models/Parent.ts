@@ -5,6 +5,7 @@ export interface IParent extends Document {
   name: string;
   phone: string;
   location?: string;
+  photoUrl?: string;
   children: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ const ParentSchema = new Schema<IParent>(
     name: String,
     phone: String,
     location: String,
+    photoUrl: String,
     children: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
   },
   { timestamps: true }
