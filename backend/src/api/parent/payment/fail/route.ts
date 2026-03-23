@@ -28,6 +28,14 @@ export async function POST(request: NextRequest) {
     });
     if (!pending) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    if (pending.paymentStatus === 'completed') {
+      return NextResponse.json({ error: 'Cannot mark a completed payment as failed.' }, { status: 400 });
+    }
+
+    if (pending.paymentStatus === 'failed') {
+      return NextResponse.json({ success: true, alreadyFailed: true });
+    }
+
     await PendingEnrollment.findByIdAndUpdate(pendingId, {
       paymentStatus: 'failed',
     });

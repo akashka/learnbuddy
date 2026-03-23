@@ -15,6 +15,8 @@ const TEACHER_COLUMNS = [
   { key: 'name', label: 'Name' },
   { key: 'email', label: 'Email' },
   { key: 'phone', label: 'Phone' },
+  { key: 'gender', label: 'Gender' },
+  { key: 'dateOfBirth', label: 'Date of Birth' },
   { key: 'status', label: 'Status' },
   { key: 'bgv', label: 'BGV' },
   { key: 'board', label: 'Board' },
@@ -23,7 +25,7 @@ const TEACHER_COLUMNS = [
   { key: 'actions', label: 'Actions' },
 ] as const;
 
-type Teacher = { _id: string; name?: string; phone?: string; status?: string; board?: string; batchCount?: number; totalStudents?: number; userId?: { email?: string }; bgvVerified?: boolean };
+type Teacher = { _id: string; name?: string; phone?: string; gender?: string; dateOfBirth?: string | Date; status?: string; board?: string; batchCount?: number; totalStudents?: number; userId?: { email?: string }; bgvVerified?: boolean };
 
 function BGVCell({ teacher, onApproved }: { teacher: Teacher; onApproved: () => void }) {
   const toast = useToast();
@@ -171,6 +173,8 @@ export default function Teachers() {
                 { key: 'name', label: 'Name' },
                 { key: 'email', label: 'Email' },
                 { key: 'phone', label: 'Phone' },
+                { key: 'gender', label: 'Gender' },
+                { key: 'dateOfBirth', label: 'Date of Birth' },
                 { key: 'status', label: 'Status' },
                 { key: 'board', label: 'Board' },
                 { key: 'bgvVerified', label: 'BGV Verified' },
@@ -231,6 +235,8 @@ export default function Teachers() {
                     {col('name') && <th className="px-4 py-2 text-left">Name</th>}
                     {col('email') && <th className="px-4 py-2 text-left">Email</th>}
                     {col('phone') && <th className="px-4 py-2 text-left">Phone</th>}
+                    {col('gender') && <th className="px-4 py-2 text-left">Gender</th>}
+                    {col('dateOfBirth') && <th className="px-4 py-2 text-left">Date of Birth</th>}
                     {col('status') && <th className="px-4 py-2 text-left">Status</th>}
                     {col('bgv') && <th className="px-4 py-2 text-left">BGV</th>}
                     {col('board') && <th className="px-4 py-2 text-left">Board</th>}
@@ -253,6 +259,16 @@ export default function Teachers() {
                       {col('name') && <td className="px-4 py-2">{t.name ?? '-'}</td>}
                       {col('email') && <td className="px-4 py-2">{(t.userId as { email?: string })?.email ?? '-'}</td>}
                       {col('phone') && <td className="px-4 py-2">{t.phone ?? '-'}</td>}
+                      {col('gender') && <td className="px-4 py-2">{t.gender ?? '-'}</td>}
+                      {col('dateOfBirth') && (
+                        <td className="px-4 py-2">
+                          {t.dateOfBirth
+                            ? typeof t.dateOfBirth === 'string'
+                              ? t.dateOfBirth.slice(0, 10)
+                              : new Date(t.dateOfBirth).toISOString().slice(0, 10)
+                            : '-'}
+                        </td>
+                      )}
                       {col('status') && <td className="px-4 py-2">{t.status ?? '-'}</td>}
                       {col('bgv') && (
                         <td className="px-4 py-2">
@@ -267,13 +283,27 @@ export default function Teachers() {
                         </td>
                       )}
                       {col('board') && <td className="px-4 py-2">{t.board ?? '-'}</td>}
-                      {col('batches') && <td className="px-4 py-2">{t.batchCount ?? 0}</td>}
+                      {col('batches') && (
+                        <td className="px-4 py-2">
+                          <Link
+                            to={`/teachers/${t._id}#batches`}
+                            className={(t.batchCount ?? 0) > 0 ? 'text-accent-600 hover:underline' : 'text-accent-400'}
+                          >
+                            {t.batchCount ?? 0}
+                          </Link>
+                        </td>
+                      )}
                       {col('students') && <td className="px-4 py-2">{t.totalStudents ?? 0}</td>}
                       {col('actions') && (
                         <td className="px-4 py-2">
-                          <Link to={`/teachers/${t._id}`} className="text-accent-600 hover:underline">
-                            View
-                          </Link>
+                          <span className="flex gap-2">
+                            <Link to={`/teachers/${t._id}`} className="text-accent-600 hover:underline">
+                              View
+                            </Link>
+                            <Link to={`/teachers/${t._id}#batches`} className="text-accent-600 hover:underline">
+                              Batches
+                            </Link>
+                          </span>
                         </td>
                       )}
                     </tr>

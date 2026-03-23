@@ -44,3 +44,10 @@ export async function fetchPageContent(page: string): Promise<PageContentRespons
 }
 
 export { API_BASE };
+
+/** Absolute URL for student/teacher photos stored as relative paths on the API. */
+export function resolveMediaUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('data:') || url.startsWith('http')) return url;
+  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+}

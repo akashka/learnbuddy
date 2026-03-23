@@ -20,12 +20,12 @@ interface ChecklistItem {
   cta: string;
 }
 
-type PendingItem = {
+type PaymentFailedItem = {
   _id: string;
-  type: 'pending_mapping' | 'payment_failed';
   subject?: string;
   classLevel?: string;
   teacherName?: string;
+  totalAmount?: number;
 };
 
 type UpcomingItem = {
@@ -52,8 +52,7 @@ const PARENT_MENU = [
 export default function ParentDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
-  const [pendingMappings, setPendingMappings] = useState<PendingItem[]>([]);
-  const [paymentFailed, setPaymentFailed] = useState<PendingItem[]>([]);
+  const [paymentFailed, setPaymentFailed] = useState<PaymentFailedItem[]>([]);
   const [upcoming, setUpcoming] = useState<UpcomingItem[]>([]);
   const [disputes, setDisputes] = useState<DisputeSummary>([]);
   const [loading, setLoading] = useState(true);
@@ -66,8 +65,7 @@ export default function ParentDashboard() {
     Promise.all([
       apiJson<Profile>('/api/parent/profile'),
       apiJson<{ checklist: ChecklistItem[] }>('/api/parent/onboarding-status').catch(() => ({ checklist: [] })),
-      apiJson<{ pendingMappings: PendingItem[]; paymentFailed: PendingItem[] }>('/api/parent/pending-mappings').catch(() => ({
-        pendingMappings: [],
+      apiJson<{ paymentFailed: PaymentFailedItem[] }>('/api/parent/pending-mappings').catch(() => ({
         paymentFailed: [],
       })),
       apiJson<{ upcoming: UpcomingItem[] }>('/api/parent/payments').catch(() => ({ upcoming: [] })),
@@ -76,7 +74,6 @@ export default function ParentDashboard() {
       .then(([p, onboarding, pm, pay, disp]) => {
         setProfile(p);
         setChecklist(onboarding.checklist || []);
-        setPendingMappings(pm.pendingMappings || []);
         setPaymentFailed(pm.paymentFailed || []);
         setUpcoming(pay.upcoming || []);
         setDisputes(disp.disputes || []);
@@ -107,6 +104,37 @@ export default function ParentDashboard() {
         subtitle="Manage your kids' learning"
       />
 
+      {paymentFailed.length > 0 && (
+        <div className="mb-6 w-full rounded-2xl border-2 border-red-300 bg-gradient-to-r from-red-600 to-rose-600 p-4 text-white shadow-lg sm:mb-8 sm:p-5">
+          <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 flex-1 items-start gap-3">
+              <span className="text-2xl shrink-0" aria-hidden>
+                💳
+              </span>
+              <div className="min-w-0">
+                <p className="font-bold text-white">
+                  {paymentFailed.length === 1 ? 'Payment failed — retry to keep your seat' : `${paymentFailed.length} payments need retry`}
+                </p>
+                <p className="text-sm text-red-100">
+                  Complete payment from the link below so your booking isn’t lost.
+                </p>
+              </div>
+            </div>
+            <div className="flex w-full flex-wrap gap-2 lg:w-auto lg:shrink-0 lg:justify-end">
+              {paymentFailed.map((p) => (
+                <Link
+                  key={p._id}
+                  to={`/parent/payment?pendingId=${p._id}`}
+                  className="inline-flex flex-1 items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-red-700 shadow-md transition hover:bg-red-50 sm:flex-none"
+                >
+                  Retry{p.subject ? `: ${p.subject}` : ''}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {checklist.length > 0 && !checklist.every((i) => i.done) && (
         <div className="mb-6 w-full max-w-4xl sm:mb-8">
           <div className="relative overflow-hidden rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 shadow-lg">
@@ -136,75 +164,6 @@ export default function ParentDashboard() {
               ))}
             </ul>
           </div>
-        </div>
-      )}
-
-      {(pendingMappings.length > 0 || paymentFailed.length > 0) && (
-        <div className="mb-6 w-full max-w-4xl space-y-6 sm:mb-8">
-          {pendingMappings.length > 0 && (
-            <div className="relative overflow-hidden rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 shadow-lg">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-accent-200/25 blur-xl" />
-              <h2 className="relative mb-2 flex items-center gap-2 text-lg font-bold text-amber-900">
-                <span className="text-2xl">🔔</span> Action Required
-              </h2>
-              <p className="mb-4 text-amber-800">
-                Payment successful! Your seat is reserved. Complete student mapping to get started with the course.
-              </p>
-              <div className="space-y-3">
-                {pendingMappings.map((p) => (
-                  <div
-                    key={p._id}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-amber-200 bg-white p-4"
-                  >
-                    <div>
-                      <p className="font-semibold text-brand-900">
-                        {p.subject} • Class {p.classLevel}
-                      </p>
-                      <p className="text-sm text-gray-600">Teacher: {p.teacherName ?? '-'}</p>
-                    </div>
-                    <Link
-                      to={`/parent/students?pendingId=${p._id}`}
-                      className="rounded-xl bg-amber-500 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-amber-600 hover:shadow-lg"
-                    >
-                      Map Student & Get Started
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {paymentFailed.length > 0 && (
-            <div className="relative overflow-hidden rounded-2xl border-2 border-red-200 bg-red-50 p-6 shadow-lg">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-red-200/30 blur-xl" />
-              <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-red-900">
-                <span className="text-2xl">⚠️</span> Payment Failed
-              </h2>
-              <p className="mb-4 text-red-800">
-                Your seat was reserved for 15 minutes. Please try payment again to secure your spot.
-              </p>
-              <div className="space-y-3">
-                {paymentFailed.map((p) => (
-                  <div
-                    key={p._id}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-red-200 bg-white p-4"
-                  >
-                    <div>
-                      <p className="font-semibold text-brand-900">
-                        {p.subject} • Class {p.classLevel}
-                      </p>
-                      <p className="text-sm text-gray-600">Teacher: {p.teacherName ?? '-'}</p>
-                    </div>
-                    <Link
-                      to={`/parent/payment?pendingId=${p._id}`}
-                      className="rounded-xl bg-red-500 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-red-600 hover:shadow-lg"
-                    >
-                      Try Payment Again
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 

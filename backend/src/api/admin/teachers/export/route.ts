@@ -9,6 +9,8 @@ const ALL_FIELDS = [
   { key: 'name', label: 'Name' },
   { key: 'email', label: 'Email' },
   { key: 'phone', label: 'Phone' },
+  { key: 'gender', label: 'Gender' },
+  { key: 'dateOfBirth', label: 'Date of Birth' },
   { key: 'status', label: 'Status' },
   { key: 'board', label: 'Board' },
   { key: 'bgvVerified', label: 'BGV Verified' },
@@ -62,9 +64,11 @@ export async function GET(request: NextRequest) {
     const rows = teachers.map((t) => {
       const tid = String((t as { _id: unknown })._id);
       const batches = (t as { batches?: unknown[] }).batches || [];
+      const dob = (t as { dateOfBirth?: Date }).dateOfBirth;
       const flat = {
         ...t,
         email: (t.userId as { email?: string })?.email ?? '',
+        dateOfBirth: dob ? new Date(dob).toISOString().slice(0, 10) : '',
         batchCount: batches.length,
         totalStudents: countMap[tid] || 0,
         bgvVerified: (t as { bgvVerified?: boolean }).bgvVerified ?? false,

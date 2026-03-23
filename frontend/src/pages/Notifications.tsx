@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAutoSelectSingleOption } from '@/hooks/useAutoSelectSingleOption';
 import { Link } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatCurrency } from '@shared/formatters';
 import { InlineErrorDisplay } from '@/components/InlineErrorDisplay';
 import { PageHeader } from '@/components/PageHeader';
 import { FilterSidebar } from '@/components/FilterSidebar';
@@ -61,8 +63,18 @@ function getTypeLabel(type: string): string {
 type FilterStatus = 'all' | 'unread' | 'read';
 type SortBy = 'newest' | 'oldest' | 'unread_first';
 
+type PaymentRetryItem = {
+  _id: string;
+  subject?: string;
+  classLevel?: string;
+  teacherName?: string;
+  totalAmount?: number;
+};
+
 export default function Notifications() {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [paymentRetry, setPaymentRetry] = useState<PaymentRetryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | string | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
@@ -83,6 +95,16 @@ export default function Notifications() {
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
+
+  useEffect(() => {
+    if (user?.role !== 'parent') {
+      setPaymentRetry([]);
+      return;
+    }
+    apiJson<{ paymentFailed: PaymentRetryItem[] }>('/api/parent/pending-mappings')
+      .then((r) => setPaymentRetry(r.paymentFailed || []))
+      .catch(() => setPaymentRetry([]));
+  }, [user?.role]);
 
   const markAsRead = (id: string) => {
     apiJson('/api/notifications/mark-read', {
@@ -166,6 +188,40 @@ export default function Notifications() {
           </div>
         }
       />
+
+      {paymentRetry.length > 0 && (
+        <div className="mb-6 w-full rounded-2xl border-2 border-red-300 bg-gradient-to-br from-red-50 to-rose-50 p-5 shadow-md sm:p-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-red-900">
+            <span aria-hidden>💳</span> Retry payment
+          </h2>
+          <p className="mt-1 text-sm text-red-800">
+            These bookings didn’t complete payment. Open the payment page to try again.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {paymentRetry.map((p) => (
+              <li key={p._id}>
+                <Link
+                  to={`/parent/payment?pendingId=${p._id}`}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-white p-4 shadow-sm transition hover:border-red-300 hover:shadow"
+                >
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {p.subject ?? 'Course'} · Class {p.classLevel ?? '—'}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {p.teacherName ?? 'Teacher'}
+                      {typeof p.totalAmount === 'number' && (
+                        <span className="ml-2 font-medium text-red-700">· {formatCurrency(p.totalAmount)}</span>
+                      )}
+                    </p>
+                  </div>
+                  <span className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white">Retry payment →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Layout: Filters + Content */}
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">

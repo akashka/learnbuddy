@@ -5,8 +5,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  /** Optional - prevents close on backdrop click */
+  /** Backdrop click closes modal (default: false — use explicit Close/Cancel) */
   closeOnBackdrop?: boolean;
+  /** Escape key closes modal (default: false — use explicit Close/Cancel) */
+  closeOnEscape?: boolean;
   /** Optional - custom class for the overlay */
   overlayClassName?: string;
   /** Optional - max width class, default max-w-lg */
@@ -21,23 +23,24 @@ export function Modal({
   isOpen,
   onClose,
   children,
-  closeOnBackdrop = true,
+  closeOnBackdrop = false,
+  closeOnEscape = false,
   overlayClassName = 'bg-black/60 backdrop-blur-sm',
   maxWidth = 'max-w-lg',
 }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && closeOnEscape) onClose();
     };
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      if (closeOnEscape) document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     }
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeOnEscape]);
 
   if (!isOpen) return null;
 

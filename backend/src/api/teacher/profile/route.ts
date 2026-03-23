@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
       email: (teacher.userId as { email?: string })?.email,
       phone: teacher.phone,
       photoUrl: teacher.photoUrl,
+      gender: teacher.gender,
+      dateOfBirth: teacher.dateOfBirth ? (teacher.dateOfBirth as Date).toISOString().slice(0, 10) : undefined,
       qualification: teacher.qualification,
       profession: teacher.profession,
       languages: teacher.languages || [],
@@ -47,11 +49,13 @@ export async function PUT(request: NextRequest) {
 
     await connectDB();
     const body = (await request.json()) as any;
-    const { name, qualification, profession, languages, experienceMonths, bio, bankDetails, demoVideoUrl, photoUrl, documents } = body;
+    const { name, qualification, profession, languages, experienceMonths, bio, bankDetails, demoVideoUrl, photoUrl, documents, gender, dateOfBirth } = body;
 
     const update: Record<string, unknown> = {};
     if (name !== undefined) update.name = name;
     if (photoUrl !== undefined) update.photoUrl = photoUrl;
+    if (gender !== undefined) update.gender = gender;
+    if (dateOfBirth !== undefined) update.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : undefined;
     if (qualification !== undefined) update.qualification = qualification;
     if (profession !== undefined) update.profession = profession;
     if (languages !== undefined) update.languages = languages;

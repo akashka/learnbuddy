@@ -58,6 +58,19 @@ export async function GET(request: NextRequest) {
       .lean();
     pendingReqs.forEach((r) => pendingRescheduleMap.set(String(r.sessionId), String(r._id)));
 
+    const studentMongoIdsFromSession = (s: Record<string, unknown>): string[] => {
+      const out: string[] = [];
+      const single = s.studentId as { _id?: unknown } | null;
+      if (single && single._id != null) out.push(String(single._id));
+      const multi = s.studentIds as { _id?: unknown }[] | null;
+      if (Array.isArray(multi)) {
+        multi.forEach((st) => {
+          if (st && st._id != null) out.push(String(st._id));
+        });
+      }
+      return [...new Set(out)];
+    };
+
     const formatSession = (s: Record<string, unknown>) => {
       const students = (s.studentIds as { name?: string }[] | null) || (s.studentId ? [s.studentId as { name?: string }] : []);
       const studentNames = students.map((st) => st?.name).filter(Boolean).join(', ') || 'Student(s)';
@@ -68,6 +81,7 @@ export async function GET(request: NextRequest) {
         status: s.status,
         recordingUrl: s.recordingUrl,
         student: { name: studentNames },
+        studentMongoIds: studentMongoIdsFromSession(s),
         teacher: s.teacherId ? { name: (s.teacherId as { name?: string }).name } : null,
         subject: (s.subject as string) || (s.enrollmentId as { subject?: string })?.subject,
         batchId: s.batchId,

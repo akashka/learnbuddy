@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { Teacher } from '@/lib/models/Teacher';
 import { TeacherReview } from '@/lib/models/TeacherReview';
+import { getBatchOccupiedSeatCount, shouldHideBatchFromParents } from '@/lib/batch-seat-utils';
 
 export async function GET(
   request: NextRequest,
@@ -31,7 +32,34 @@ export async function GET(
     const avgRating = avgResult[0]?.avg ? Math.round(avgResult[0].avg * 10) / 10 : null;
     const reviewCount = avgResult[0]?.count || 0;
 
-    const batches = (teacher.batches || []).filter((b: { isActive?: boolean }) => b.isActive !== false);
+    const rawBatches = teacher.batches || [];
+    const batches = await Promise.all(
+      rawBatches.map(async (b: Record<string, unknown>, index: number) => {
+        const batchName = String(b.name || '');
+        const maxStudents = typeof b.maxStudents === 'number' ? b.maxStudents : 3;
+        let enrolledCount = 0;
+        if (batchName) {
+          enrolledCount = await getBatchOccupiedSeatCount(teacher._id, index, batchName);
+        }
+        const hideFromParents = shouldHideBatchFromParents(
+          {
+            isActive: b.isActive as boolean | undefined,
+            enrollmentOpen: b.enrollmentOpen as boolean | undefined,
+            startDate: b.startDate as Date | string | undefined,
+            maxStudents,
+          },
+          enrolledCount,
+          maxStudents
+        );
+        return {
+          ...b,
+          batchIndex: index,
+          enrolledCount,
+          maxStudents,
+          hideFromParents,
+        };
+      })
+    );
 
     return NextResponse.json({
       ...teacher,

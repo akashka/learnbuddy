@@ -13,6 +13,7 @@ interface Step1Props {
 export default function TeacherStep1({ phone, onNext, initialData, onSave }: Step1Props) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [age, setAge] = useState('');
   const [location, setLocation] = useState('');
@@ -25,6 +26,7 @@ export default function TeacherStep1({ phone, onNext, initialData, onSave }: Ste
     if (s && (s.name || s.email)) {
       setName(String(s.name ?? ''));
       setEmail(String(s.email ?? ''));
+      setGender(String(s.gender ?? ''));
       setDateOfBirth(String(s.dateOfBirth ?? ''));
       setAge(String(s.age ?? ''));
       setLocation(String(s.location ?? ''));
@@ -40,6 +42,7 @@ export default function TeacherStep1({ phone, onNext, initialData, onSave }: Ste
           const step1 = data.data.step1 as Record<string, string | boolean>;
           setName(String(step1.name ?? ''));
           setEmail(String(step1.email ?? ''));
+          setGender(String(step1.gender ?? ''));
           setDateOfBirth(String(step1.dateOfBirth ?? ''));
           setAge(String(step1.age ?? ''));
           setLocation(String(step1.location ?? ''));
@@ -76,6 +79,7 @@ export default function TeacherStep1({ phone, onNext, initialData, onSave }: Ste
         name,
         email,
         phone,
+        gender: gender || undefined,
         dateOfBirth: dateOfBirth || undefined,
         age: age ? parseInt(age) : undefined,
         location: location || undefined,
@@ -85,6 +89,7 @@ export default function TeacherStep1({ phone, onNext, initialData, onSave }: Ste
         name,
         email,
         phone,
+        gender: gender || undefined,
         dateOfBirth: dateOfBirth || undefined,
         age: age ? parseInt(age) : undefined,
         location: location || undefined,
@@ -123,6 +128,20 @@ export default function TeacherStep1({ phone, onNext, initialData, onSave }: Ste
         <div>
           <label className="mb-2 block font-semibold text-brand-800">Phone</label>
           <input type="text" value={phone} readOnly className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3" />
+        </div>
+        <div>
+          <label className="mb-2 block font-semibold text-brand-800">Gender</label>
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+          >
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div>

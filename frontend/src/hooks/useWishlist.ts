@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { apiJson } from '@/lib/api';
 
 interface WishlistResponse {
@@ -51,8 +51,11 @@ export function useWishlist() {
     [teacherIds]
   );
 
+  /** Stable array identity when Set contents are unchanged — avoids infinite loops in consumers that depend on `teacherIds` (e.g. marketplace fetch in ParentWishlist). */
+  const teacherIdsArray = useMemo(() => Array.from(teacherIds), [teacherIds]);
+
   return {
-    teacherIds: Array.from(teacherIds),
+    teacherIds: teacherIdsArray,
     isInWishlist,
     addToWishlist,
     removeFromWishlist,

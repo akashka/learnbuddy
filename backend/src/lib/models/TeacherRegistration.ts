@@ -10,6 +10,7 @@ export interface IStep1Data {
   password?: string;
   dateOfBirth?: string;
   age?: number;
+  gender?: string;
   location?: string;
   locationLat?: number;
   locationLng?: number;

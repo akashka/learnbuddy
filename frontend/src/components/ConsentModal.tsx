@@ -36,35 +36,34 @@ interface ConsentModalProps {
 }
 
 const titles: Record<string, string> = {
-  child_data_collection: 'Child Data Collection',
-  ai_monitoring: 'AI Monitoring',
+  child_data_collection: 'Child data collection',
+  ai_monitoring: 'AI monitoring',
 };
 
 export function ConsentModal({ type, isOpen, onClose }: ConsentModalProps) {
-  if (!isOpen) return null;
-
   const content = type === 'child_data_collection' ? CHILD_DATA_COLLECTION : AI_MONITORING;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-xl">
-      <div className="max-h-[80vh] w-full overflow-hidden rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h3 className="font-semibold text-brand-800">{titles[type]}</h3>
+      <div className="flex max-h-[min(88vh,720px)] w-full flex-col overflow-hidden rounded-2xl border-2 border-brand-200 bg-white shadow-2xl">
+        <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 px-5 py-4 sm:px-6">
+          <h3 className="pr-4 text-lg font-bold text-white">{titles[type]}</h3>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="shrink-0 rounded-lg p-2 text-white/90 transition hover:bg-white/20"
+            aria-label="Close"
           >
-            ✕
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        <div className="max-h-96 overflow-y-auto whitespace-pre-wrap px-4 py-4 text-sm text-gray-700">
-          {content}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">{content}</p>
         </div>
-        <div className="border-t px-4 py-3">
-          <button
-            onClick={onClose}
-            className="w-full rounded-lg bg-brand-600 py-2 text-white hover:bg-brand-700"
-          >
+        <div className="shrink-0 border-t border-brand-100 bg-gradient-to-b from-white to-brand-50/30 px-5 py-4 sm:px-6">
+          <button type="button" onClick={onClose} className="btn-primary w-full">
             I understand
           </button>
         </div>

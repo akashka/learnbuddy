@@ -180,6 +180,8 @@ interface Profile {
   email?: string;
   phone?: string;
   photoUrl?: string;
+  gender?: string;
+  dateOfBirth?: string;
   qualification?: string;
   profession?: string;
   languages?: string[];
@@ -211,6 +213,16 @@ function formatExperience(months?: number): string {
   return `${years} year${years === 1 ? '' : 's'} ${rem} month${rem === 1 ? '' : 's'}`;
 }
 
+function formatAge(dateOfBirth?: string): string {
+  if (!dateOfBirth) return '—';
+  const dob = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return `${age} years`;
+}
+
 export default function TeacherProfile() {
   const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -221,6 +233,8 @@ export default function TeacherProfile() {
   const [form, setForm] = useState({
     name: '',
     photoUrl: '',
+    gender: '',
+    dateOfBirth: '',
     qualification: '',
     profession: '',
     selectedLanguages: [] as string[],
@@ -242,6 +256,8 @@ export default function TeacherProfile() {
         setForm({
           name: p.name || '',
           photoUrl: p.photoUrl || '',
+          gender: p.gender || '',
+          dateOfBirth: p.dateOfBirth || '',
           qualification: p.qualification || '',
           profession: p.profession || '',
           selectedLanguages: p.languages || [],
@@ -281,6 +297,8 @@ export default function TeacherProfile() {
         body: JSON.stringify({
           name: form.name.trim() || undefined,
           photoUrl: form.photoUrl.trim() || undefined,
+          gender: form.gender.trim() || undefined,
+          dateOfBirth: form.dateOfBirth.trim() || undefined,
           qualification: form.qualification.trim() || undefined,
           profession: form.profession.trim() || undefined,
           languages: form.selectedLanguages.length ? form.selectedLanguages : undefined,
@@ -385,6 +403,8 @@ export default function TeacherProfile() {
       setForm({
         name: profile.name || '',
         photoUrl: profile.photoUrl || '',
+        gender: profile.gender || '',
+        dateOfBirth: profile.dateOfBirth || '',
         qualification: profile.qualification || '',
         profession: profile.profession || '',
         selectedLanguages: profile.languages || [],
@@ -495,6 +515,35 @@ export default function TeacherProfile() {
                           className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
                         />
                         <p className="mt-1 text-xs text-gray-500">Phone cannot be changed</p>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Gender
+                        </label>
+                        <select
+                          value={form.gender}
+                          onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        >
+                          <option value="">—</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                          <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Date of Birth
+                        </label>
+                        <input
+                          type="date"
+                          value={form.dateOfBirth}
+                          onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        />
                       </div>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -641,6 +690,20 @@ export default function TeacherProfile() {
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
                         <p className="text-brand-800">{formatPhone(profile?.phone)}</p>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <p className="text-sm text-gray-500">Gender</p>
+                        <p className="text-brand-800">{profile?.gender || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Date of Birth</p>
+                        <p className="text-brand-800">
+                          {profile?.dateOfBirth
+                            ? `${profile.dateOfBirth} (${formatAge(profile.dateOfBirth)})`
+                            : '-'}
+                        </p>
                       </div>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">

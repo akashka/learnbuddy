@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
         subject: p.subject,
         classLevel: p.classLevel,
         teacherName: teacher?.name,
+        totalAmount: p.totalAmount,
       };
     });
 

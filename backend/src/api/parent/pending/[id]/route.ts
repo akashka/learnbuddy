@@ -1,8 +1,12 @@
+import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { PendingEnrollment } from '@/lib/models/PendingEnrollment';
 import { Parent } from '@/lib/models/Parent';
+import { Enrollment } from '@/lib/models/Enrollment';
+import { Student } from '@/lib/models/Student';
 import { getAuthFromRequest } from '@/lib/auth';
+import { getBatchOccupiedSeatCount } from '@/lib/batch-seat-utils';
 
 /** GET - Get single pending enrollment for parent (for payment page) */
 export async function GET(
@@ -30,14 +34,57 @@ export async function GET(
 
     if (!pending) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const teacher = pending.teacherId as { name?: string; batches?: { subject?: string }[] } | null;
+    const teacher = pending.teacherId as {
+      _id?: unknown;
+      name?: string;
+      batches?: { name?: string; subject?: string; maxStudents?: number }[];
+    } | null;
+    const batchIdx = pending.batchIndex ?? 0;
+    const batch = teacher?.batches?.[batchIdx];
+    const teacherOid = teacher?._id as mongoose.Types.ObjectId | undefined;
+    const batchNameForSeat = batch?.name || '';
+    const batchMaxStudents = typeof batch?.maxStudents === 'number' ? batch.maxStudents : 3;
+    let batchEnrolledCount = 0;
+    if (teacherOid && batchNameForSeat) {
+      batchEnrolledCount = await getBatchOccupiedSeatCount(teacherOid, batchIdx, batchNameForSeat);
+    }
+
+    let enrollmentId: string | undefined;
+    let studentMongoId: string | undefined;
+    let studentDisplayId: string | undefined;
+    if (pending.convertedToEnrollmentId) {
+      const enr = await Enrollment.findById(pending.convertedToEnrollmentId).lean();
+      if (enr?.studentId) {
+        enrollmentId = String(enr._id);
+        studentMongoId = String(enr.studentId);
+        const stu = await Student.findById(enr.studentId).lean();
+        studentDisplayId = stu?.studentId || studentMongoId;
+      }
+    }
 
     return NextResponse.json({
       _id: pending._id,
       subject: pending.subject,
       totalAmount: pending.totalAmount,
       paymentStatus: pending.paymentStatus,
+      paymentId: pending.paymentId,
+      enrollmentId,
+      studentMongoId,
+      studentDisplayId,
       teacherName: teacher?.name,
+      batchName: batch?.name,
+      batchEnrolledCount,
+      batchMaxStudents,
+      board: pending.board,
+      classLevel: pending.classLevel,
+      duration: pending.duration,
+      feePerMonth: pending.feePerMonth,
+      discount: pending.discount,
+      discountCode: pending.discountCode,
+      discountCodeAmount: pending.discountCodeAmount,
+      slots: pending.slots,
+      createdAt: pending.createdAt,
+      updatedAt: pending.updatedAt,
     });
   } catch (error) {
     console.error('Pending get error:', error);

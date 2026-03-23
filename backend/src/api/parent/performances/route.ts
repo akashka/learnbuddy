@@ -21,15 +21,19 @@ export async function GET(request: NextRequest) {
       .limit(50)
       .lean();
 
-    const formatted = performances.map((p) => ({
+    const formatted = performances.map((p) => {
+      const st = p.studentId as { _id?: unknown; name?: string } | null;
+      return {
       _id: p._id,
-      student: (p.studentId as { name?: string }) || null,
+      studentMongoId: st && st._id != null ? String(st._id) : undefined,
+      student: st ? { name: st.name } : null,
       subject: p.subject,
       type: (p as { examType?: string }).examType,
       score: p.score,
       totalMarks: p.totalMarks,
       date: (p as { attemptedAt?: Date; createdAt?: Date }).attemptedAt || (p as { attemptedAt?: Date; createdAt?: Date }).createdAt,
-    }));
+    };
+    });
 
     return NextResponse.json({ performances: formatted });
   } catch (error) {

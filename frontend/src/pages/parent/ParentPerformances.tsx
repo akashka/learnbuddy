@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
+import { LearnerFilterChips } from '@/components/LearnerFilterChips';
+import { useParentLearnerOptions } from '@/hooks/useParentLearnerOptions';
 
 interface Performance {
   _id: string;
   student?: { name?: string };
+  studentMongoId?: string;
   subject?: string;
   type?: string;
   score?: number;
@@ -13,6 +16,10 @@ interface Performance {
 }
 
 export default function ParentPerformances() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterStudentId = searchParams.get('studentId') || '';
+  const { options: learnerOptions } = useParentLearnerOptions();
+
   const [performances, setPerformances] = useState<Performance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,6 +31,20 @@ export default function ParentPerformances() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(() => {
+    if (!filterStudentId) return performances;
+    return performances.filter((p) => p.studentMongoId === filterStudentId);
+  }, [performances, filterStudentId]);
+
+  const setStudentFilter = (studentId: string | null) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (studentId) next.set('studentId', studentId);
+      else next.delete('studentId');
+      return next;
+    });
+  };
+
   if (loading) return <div className="text-brand-600">Loading...</div>;
   if (error) return <div className="text-red-600">Error: {error}</div>;
 
@@ -31,9 +52,17 @@ export default function ParentPerformances() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-brand-800">Children&apos;s Exam Performances</h1>
+      <h1 className="mb-4 text-2xl font-bold text-brand-800">Children&apos;s Exam Performances</h1>
+      {learnerOptions.length > 0 && (
+        <LearnerFilterChips
+          className="mb-6"
+          options={learnerOptions}
+          selectedId={filterStudentId}
+          onChange={setStudentFilter}
+        />
+      )}
       <div className="space-y-4">
-        {performances.map((p) => (
+        {filtered.map((p) => (
           <Link
             key={p._id}
             to={`/parent/exam/${p._id}`}
@@ -48,7 +77,11 @@ export default function ParentPerformances() {
           </Link>
         ))}
       </div>
-      {performances.length === 0 && <p className="text-gray-600">No exam performances yet.</p>}
+      {filtered.length === 0 && (
+        <p className="text-gray-600">
+          {filterStudentId ? 'No exam performances for this learner yet.' : 'No exam performances yet.'}
+        </p>
+      )}
     </div>
   );
 }

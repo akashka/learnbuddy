@@ -20,8 +20,9 @@ export async function GET(request: NextRequest) {
     const enrollments = await Enrollment.find({
       studentId: { $in: parent.children },
       paymentStatus: 'completed',
+      status: 'active',
     })
-      .populate('studentId', 'name studentId')
+      .populate('studentId', 'name studentId photoUrl')
       .populate('teacherId', 'name photoUrl userId')
       .sort({ createdAt: -1 })
       .lean();
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     const courses = enrollments.map((e) => {
       const teacher = teacherMap.get(String((e.teacherId as { _id?: unknown })?._id));
-      const student = e.studentId as { _id?: unknown; name?: string; studentId?: string };
+      const student = e.studentId as { _id?: unknown; name?: string; studentId?: string; photoUrl?: string };
       return {
         _id: e._id,
         batchId: e.batchId,
@@ -48,7 +49,9 @@ export async function GET(request: NextRequest) {
         slots: e.slots,
         startDate: e.startDate,
         endDate: e.endDate,
-        student: student ? { _id: student._id, name: student.name, studentId: student.studentId } : null,
+        student: student
+          ? { _id: student._id, name: student.name, studentId: student.studentId, photoUrl: student.photoUrl }
+          : null,
         teacher: teacher
           ? {
               _id: teacher._id,

@@ -34,6 +34,16 @@ export interface IPendingEnrollment extends Document {
   discountCode?: string;
   discountCodeId?: mongoose.Types.ObjectId;
   discountCodeAmount?: number;
+  /** Child selected at checkout (existing student) — used when mapping course after payment */
+  intendedStudentId?: mongoose.Types.ObjectId;
+  /** Optional profile collected at checkout for a new child (mapped after payment) */
+  checkoutChildProfile?: { name: string; classLevel: string; schoolName?: string };
+  /** When set, completing payment replaces this enrollment (teacher switch) */
+  replacesEnrollmentId?: mongoose.Types.ObjectId;
+  /** Snapshot of pro-rata math for teacher switch (audit / receipts) */
+  prorataBreakdown?: Record<string, unknown>;
+  /** When set, completing payment extends this enrollment (renewal / advance installment) */
+  renewalOfEnrollmentId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +73,15 @@ const PendingEnrollmentSchema = new Schema<IPendingEnrollment>(
     discountCode: String,
     discountCodeId: { type: Schema.Types.ObjectId, ref: 'DiscountCode' },
     discountCodeAmount: Number,
+    intendedStudentId: { type: Schema.Types.ObjectId, ref: 'Student' },
+    checkoutChildProfile: {
+      name: String,
+      classLevel: String,
+      schoolName: String,
+    },
+    replacesEnrollmentId: { type: Schema.Types.ObjectId, ref: 'Enrollment' },
+    prorataBreakdown: Schema.Types.Mixed,
+    renewalOfEnrollmentId: { type: Schema.Types.ObjectId, ref: 'Enrollment' },
   },
   { timestamps: true }
 );

@@ -103,11 +103,15 @@ export async function POST(request: NextRequest) {
     const score = lastAttempt?.score ?? 0;
     const aiExamPerformance = score >= 80 ? 'green' : score >= 60 ? 'yellow' : 'red';
 
+    const dateOfBirth = step1.dateOfBirth ? new Date(step1.dateOfBirth) : undefined;
+
     const teacher = await Teacher.create({
       userId,
       name: step1.name,
       phone: normalizedPhone,
       photoUrl: reg.profilePhotoUrl,
+      gender: step1.gender,
+      dateOfBirth,
       board: boards,
       classes,
       subjects,

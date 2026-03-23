@@ -36,6 +36,10 @@ export interface ITeacher extends Document {
   name: string;
   phone: string;
   photoUrl?: string;
+  /** Gender: Male, Female, Other, Prefer not to say */
+  gender?: string;
+  /** Date of birth for age display */
+  dateOfBirth?: Date;
   qualification?: string;
   /** Profession/occupation: Teacher, Engineer, Housewife, etc. */
   profession?: string;
@@ -96,6 +100,8 @@ const TeacherSchema = new Schema<ITeacher>(
     name: String,
     phone: String,
     photoUrl: String,
+    gender: String,
+    dateOfBirth: Date,
     qualification: String,
     profession: String,
     languages: [String],

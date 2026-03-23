@@ -6,7 +6,7 @@ import { getAuthFromRequest } from '@/lib/auth';
 import { cacheInvalidatePattern } from '@/lib/cache';
 
 const EDITABLE_FIELDS = [
-  'name', 'phone', 'photoUrl', 'qualification', 'profession', 'languages', 'experienceMonths', 'bio', 'demoVideoUrl',
+  'name', 'phone', 'photoUrl', 'gender', 'dateOfBirth', 'qualification', 'profession', 'languages', 'experienceMonths', 'bio', 'demoVideoUrl',
   'board', 'classes', 'subjects', 'status', 'marketplaceOrder', 'commissionPercent',
   'bankDetails', 'batches', 'documents',
 ] as const;
@@ -73,6 +73,17 @@ export async function PATCH(
         } else {
           const n = typeof body.experienceMonths === 'number' ? body.experienceMonths : parseInt(String(body.experienceMonths), 10);
           if (!isNaN(n) && n >= 0) teacher.experienceMonths = n;
+        }
+        hasUpdates = true;
+        continue;
+      }
+      if (key === 'dateOfBirth') {
+        const val = body[key];
+        if (val === '' || val === null || val === undefined) {
+          (teacher as unknown as Record<string, unknown>).dateOfBirth = undefined;
+        } else {
+          const d = val instanceof Date ? val : new Date(val);
+          if (!isNaN(d.getTime())) (teacher as unknown as Record<string, unknown>).dateOfBirth = d;
         }
         hasUpdates = true;
         continue;

@@ -68,6 +68,30 @@
   opacity: 0;
 }
 
+@keyframes drawerBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawerPanelIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-drawer-backdrop {
+  animation: drawerBackdropIn 0.25s ease-out forwards;
+}
+
+.animate-drawer-panel {
+  animation: drawerPanelIn 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -180,6 +204,25 @@
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 
+/* Parent "My Course" — soft shifting gradient on cards */
+@keyframes my-course-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.my-course-card-gradient {
+  background-image: linear-gradient(
+    135deg,
+    #eef2ff 0%,
+    #f5f3ff 28%,
+    #fdf4ff 55%,
+    #e0f2fe 85%,
+    #ede9fe 100%
+  );
+  background-size: 220% 220%;
+  animation: my-course-gradient-shift 16s ease-in-out infinite;
+}
+
 /* Kid-friendly primary button */
 .btn-primary {
   border-radius: 1rem;
@@ -276,6 +319,12 @@ button:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-drawer-backdrop,
+  .animate-drawer-panel {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
   .animate-fade-in,
   .animate-slide-up,
   .animate-float,
@@ -290,6 +339,12 @@ button:focus {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+  .my-course-card-gradient {
+    animation: none;
+  }
+  .my-course-card-gradient {
+    background-size: 100% 100%;
   }
 }
 

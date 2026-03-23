@@ -57,7 +57,7 @@ export function FilterSidebar({
   if (scrollBody) {
     const cardBase = plainSurface
       ? 'relative flex max-h-[min(100%,calc(100vh-8rem))] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-900/5'
-      : 'relative flex max-h-[min(100%,calc(100vh-8rem))] flex-col overflow-hidden rounded-2xl border-2 border-brand-100 bg-gradient-to-br from-white via-brand-50/30 to-accent-50/40 shadow-lg backdrop-blur-sm';
+      : 'relative flex max-h-[min(100%,calc(100vh-8rem))] flex-col overflow-hidden rounded-2xl border-2 border-brand-200/80 bg-white bg-gradient-to-br from-white via-brand-50/35 to-accent-100/45 shadow-lg backdrop-blur-sm';
     return (
       <aside className={`shrink-0 ${width} ${className}`}>
         <div className={`${cardBase} ${cardClassName}`}>
@@ -75,13 +75,6 @@ export function FilterSidebar({
           >
             <div className={`${gap} [&>*:first-child]:pt-4`}>{children}</div>
           </div>
-          {footer && (
-            <div
-              className={`relative shrink-0 border-t pt-5 ${plainSurface ? 'border-gray-200 bg-gray-50/50' : 'border-brand-100/80'} ${innerPad} pb-7 ${spacious ? 'sm:pb-8' : ''}`}
-            >
-              {footer}
-            </div>
-          )}
         </div>
       </aside>
     );
@@ -91,7 +84,7 @@ export function FilterSidebar({
   return (
     <aside className={`shrink-0 ${width} ${className}`}>
       <div
-        className={`relative overflow-hidden rounded-2xl border-2 border-brand-100 bg-gradient-to-br from-white via-brand-50/30 to-accent-50/40 shadow-lg backdrop-blur-sm ${legacyPad}`}
+        className={`relative overflow-hidden rounded-2xl border-2 border-brand-200/80 bg-white bg-gradient-to-br from-white via-brand-50/35 to-accent-100/45 shadow-lg backdrop-blur-sm ${legacyPad}`}
       >
         <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-accent-200/25 blur-xl" />
         <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-brand-200/20 blur-lg" />

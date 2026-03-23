@@ -59,6 +59,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    const photo = photoUrl != null ? String(photoUrl).trim() : '';
+    const idProof = idProofUrl != null ? String(idProofUrl).trim() : '';
+    if (!photo) {
+      return NextResponse.json(
+        { error: 'Student photo is required for identity verification and AI checks' },
+        { status: 400 }
+      );
+    }
+    if (!idProof) {
+      return NextResponse.json(
+        { error: 'Student ID proof image is required for verification' },
+        { status: 400 }
+      );
+    }
     if (!consentDataCollection || !consentAiMonitoring) {
       return NextResponse.json(
         { error: 'You must accept both child data collection and AI monitoring consent' },
@@ -85,8 +99,8 @@ export async function POST(request: NextRequest) {
       classLevel,
       schoolName: schoolName || undefined,
       board,
-      photoUrl: photoUrl || undefined,
-      idProofUrl: idProofUrl || undefined,
+      photoUrl: photo,
+      idProofUrl: idProof,
       enrollments: [],
     });
 
