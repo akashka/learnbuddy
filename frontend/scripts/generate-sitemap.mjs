@@ -10,7 +10,7 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-let BASE_URL = process.env.VITE_APP_WEBSITE_URL || process.env.VITE_APP_URL || 'https://app.learnbuddy.com';
+let BASE_URL = process.env.VITE_APP_WEBSITE_URL || process.env.VITE_APP_URL || 'https://app.guruchakra.com';
 for (const f of ['.env', '.env.local']) {
   const p = join(__dirname, '..', f);
   if (existsSync(p)) {
@@ -48,7 +48,7 @@ ${paths.map((path) => `  <url>
 const publicDir = join(__dirname, '..', 'public');
 writeFileSync(join(publicDir, 'sitemap.xml'), xml, 'utf8');
 
-const robotsTxt = `# LearnBuddy App - robots.txt
+const robotsTxt = `# GuruChakra App - robots.txt
 User-agent: *
 Allow: /
 

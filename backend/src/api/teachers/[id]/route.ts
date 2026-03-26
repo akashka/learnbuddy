@@ -34,7 +34,7 @@ export async function GET(
 
     const rawBatches = teacher.batches || [];
     const batches = await Promise.all(
-      rawBatches.map(async (b: Record<string, unknown>, index: number) => {
+      rawBatches.map(async (b, index: number) => {
         const batchName = String(b.name || '');
         const maxStudents = typeof b.maxStudents === 'number' ? b.maxStudents : 3;
         let enrolledCount = 0;

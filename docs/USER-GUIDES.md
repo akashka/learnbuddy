@@ -1,4 +1,4 @@
-# LearnBuddy User Guides
+# GuruChakra User Guides
 
 Step-by-step guides for parents, teachers, students, and admins.
 

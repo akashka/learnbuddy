@@ -3,7 +3,7 @@ import { Modal } from '@/components/Modal';
 const CHILD_DATA_COLLECTION = `
 Child Data Collection Consent
 
-By accepting this, you consent to LearnBuddy collecting and processing the following data for your child:
+By accepting this, you consent to GuruChakra collecting and processing the following data for your child:
 - Name, date of birth, class, board, school name
 - Photo and identity proof (if provided)
 - Academic performance data (exams, class attendance)
@@ -17,7 +17,7 @@ Data is stored securely and you may request access, correction, or deletion at a
 const AI_MONITORING = `
 AI Monitoring Consent
 
-By accepting this, you consent to LearnBuddy using AI-powered monitoring during your child's live classes and exams. This includes:
+By accepting this, you consent to GuruChakra using AI-powered monitoring during your child's live classes and exams. This includes:
 
 - Video monitoring to verify the student's presence and attention
 - Detection of inappropriate behavior (e.g., multiple persons, background noise)

@@ -1,6 +1,6 @@
 # AI Flow – Models, Usage, and Architecture
 
-This document describes how AI is used across LearnBuddy, which models power each feature, and the request flow.
+This document describes how AI is used across GuruChakra, which models power each feature, and the request flow.
 
 ---
 

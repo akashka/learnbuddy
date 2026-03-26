@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const teacherId = teacher._id;
 
     const batchesWithCount = await Promise.all(
-      batches.map(async (b: { name?: string; enrollmentOpen?: boolean; enrollmentClosureType?: EnrollmentClosureType; startDate?: Date; maxStudents?: number }) => {
+      batches.map(async (b: { name?: string; board?: string; classLevel?: string; subject?: string; enrollmentOpen?: boolean; enrollmentClosureType?: EnrollmentClosureType; startDate?: Date; maxStudents?: number }) => {
         const enrolledCount = await Enrollment.countDocuments({
           teacherId,
           batchId: b.name || '',
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       )
     );
     if (combinations.length === 0 && batchesWithCount.length > 0) {
-      combinations = batchesWithCount.map((b: { board?: string; classLevel?: string; subject?: string }) => ({
+      combinations = batchesWithCount.map((b) => ({
         board: b.board || '',
         classLevel: b.classLevel || '',
         subject: b.subject || '',

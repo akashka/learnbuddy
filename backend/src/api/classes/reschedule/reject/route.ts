@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       const initiatorUser = await User.findById(initiatorUserId).select('role email').lean();
       const ctaPathByRole: Record<string, string> = { parent: '/parent/classes', teacher: '/teacher/classes', student: '/student/classes' };
       const ctaPath = ctaPathByRole[(initiatorUser as { role?: string })?.role || ''] || '/parent/classes';
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       const ctaUrlFull = `${appUrl}${ctaPath}`;
       createNotification({
         userId: initiatorUserId,

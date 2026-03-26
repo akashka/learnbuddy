@@ -2,7 +2,7 @@
 /**
  * Generates sitemap.xml for the website.
  * Run before build: node scripts/generate-sitemap.mjs
- * Uses VITE_WEBSITE_URL from env (default: https://www.learnbuddy.com)
+ * Uses VITE_WEBSITE_URL from env (default: https://www.guruchakra.com)
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
@@ -12,7 +12,7 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load VITE_WEBSITE_URL from .env if present
-let BASE_URL = process.env.VITE_WEBSITE_URL || 'https://www.learnbuddy.com';
+let BASE_URL = process.env.VITE_WEBSITE_URL || 'https://www.guruchakra.com';
 for (const f of ['.env', '.env.local']) {
   const p = join(__dirname, '..', f);
   if (existsSync(p)) {
@@ -63,7 +63,7 @@ ${paths
 const publicDir = join(__dirname, '..', 'public');
 writeFileSync(join(publicDir, 'sitemap.xml'), xml, 'utf8');
 
-const robotsTxt = `# LearnBuddy Website - robots.txt
+const robotsTxt = `# GuruChakra Website - robots.txt
 User-agent: *
 Allow: /
 

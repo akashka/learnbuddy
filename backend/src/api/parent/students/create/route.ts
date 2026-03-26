@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(tempPassword);
 
     const user = await User.create({
-      email: `${studentId.toLowerCase()}@learnbuddy.local`,
+      email: `${studentId.toLowerCase()}@guruchakra.local`,
       password: hashedPassword,
       role: 'student',
     });

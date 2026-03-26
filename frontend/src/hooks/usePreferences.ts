@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const STORAGE_KEY = 'learnbuddy_preferences';
+const STORAGE_KEY = 'guruchakra_preferences';
 
 export type DateFormat = 'short' | 'long';
 export type NotificationChannels = {

@@ -15,7 +15,7 @@
   <circle cx="230" cy="60" r="3" fill="#4f46e5"/>
   <!-- App content -->
   <rect x="55" y="95" width="170" height="40" rx="10" fill="#4f46e5"/>
-  <text x="140" y="120" text-anchor="middle" fill="white" font-size="14" font-weight="bold">LearnBuddy</text>
+  <text x="140" y="120" text-anchor="middle" fill="white" font-size="14" font-weight="bold">GuruChakra</text>
   <rect x="55" y="155" width="170" height="80" rx="10" fill="#e0e7ff"/>
   <rect x="55" y="250" width="170" height="60" rx="10" fill="#c7d2fe"/>
   <rect x="55" y="325" width="170" height="60" rx="10" fill="#c7d2fe"/>

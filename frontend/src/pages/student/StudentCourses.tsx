@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
-import { formatCurrency } from '@shared/formatters';
 
 interface Course {
   _id: string;

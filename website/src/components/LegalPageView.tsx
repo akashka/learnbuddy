@@ -11,7 +11,7 @@ const LEGAL_CONFIG: Record<string, { floatEmojis: string[]; subtitle: string }> 
   },
   'terms-conditions': {
     floatEmojis: ['📄', '✅'],
-    subtitle: 'Terms of service and conditions for using LearnBuddy.',
+    subtitle: 'Terms of service and conditions for using GuruChakra.',
   },
 };
 

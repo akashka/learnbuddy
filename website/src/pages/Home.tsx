@@ -206,7 +206,7 @@ export default function Home() {
             <div className="animate-scale-in overflow-hidden rounded-3xl border-4 border-brand-100 bg-white shadow-2xl ring-4 ring-brand-200/30">
               <img
                 src="/images/hero-learning.png"
-                alt="Child learning online with LearnBuddy"
+                alt="Child learning online with GuruChakra"
                 className="h-64 w-full max-w-2xl object-cover object-center sm:h-80 md:h-96"
               />
             </div>
@@ -301,7 +301,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Benefits - Why LearnBuddy */}
+      {/* Benefits - Why GuruChakra */}
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-600/5 via-white to-accent-50/40 px-6 py-16 sm:px-8 sm:py-24 lg:px-10">
         <div className="absolute right-0 top-1/3 flex items-center gap-2 opacity-30">
           <IconRobot className="h-24 w-24 animate-float text-brand-500" />
@@ -313,10 +313,10 @@ export default function Home() {
         <div className="relative mx-auto max-w-[1400px]">
           <ScrollReveal variant="fade-up">
             <h2 className="font-display text-center text-3xl font-bold text-brand-900 sm:text-4xl">
-              {t('home.whyLearnBuddy')}
+              {t('home.whyGuruChakra')}
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-gray-600">
-              {t('home.whyLearnBuddySub')}
+              {t('home.whyGuruChakraSub')}
             </p>
           </ScrollReveal>
           <ScrollReveal variant="fade-up" delay={50}>
@@ -371,7 +371,7 @@ export default function Home() {
                         {t('home.offlineTuition')}
                       </th>
                       <th className="bg-gradient-to-r from-brand-100/60 to-accent-100/50 px-4 py-4 text-center font-display text-base font-bold text-brand-900 sm:px-6 sm:py-5 sm:text-lg">
-                        {t('home.learnBuddyOnline')}
+                        {t('home.guruChakraOnline')}
                       </th>
                     </tr>
                   </thead>
@@ -719,7 +719,7 @@ export default function Home() {
             <div className="animate-float overflow-hidden rounded-3xl border-4 border-gray-800 shadow-2xl">
               <img
                 src="/images/app-screenshot.png"
-                alt="LearnBuddy app on mobile"
+                alt="GuruChakra app on mobile"
                 className="h-80 w-auto object-contain sm:h-96"
               />
             </div>

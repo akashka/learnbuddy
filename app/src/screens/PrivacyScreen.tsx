@@ -82,7 +82,7 @@ export function PrivacyScreen() {
       const jsonStr = JSON.stringify(data, null, 2);
       await Share.share({
         message: jsonStr,
-        title: 'LearnBuddy Data Export',
+        title: 'GuruChakra Data Export',
       });
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to export');

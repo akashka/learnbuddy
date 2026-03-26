@@ -1,5 +1,5 @@
-# LearnBuddy App - robots.txt
+# GuruChakra App - robots.txt
 User-agent: *
 Allow: /
 
-Sitemap: https://app.learnbuddy.com/sitemap.xml
+Sitemap: https://app.guruchakra.com/sitemap.xml

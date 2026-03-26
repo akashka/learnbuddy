@@ -124,7 +124,7 @@ export default function Careers() {
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <a
-                href="mailto:careers@learnbuddy.com?subject=Application%20from%20LearnBuddy%20Website"
+                href="mailto:careers@guruchakra.com?subject=Application%20from%20GuruChakra%20Website"
                 className="btn-funky rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-brand-700"
               >
                 Email Us
@@ -190,7 +190,7 @@ export default function Careers() {
                 <p className="text-lg text-gray-600">No open positions at the moment.</p>
                 <p className="mt-2 text-sm text-gray-500">Check back soon or reach out—we&apos;d love to hear from you!</p>
                 <a
-                  href="mailto:careers@learnbuddy.com?subject=General%20Inquiry"
+                  href="mailto:careers@guruchakra.com?subject=General%20Inquiry"
                   className="btn-funky mt-6 inline-block rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700"
                 >
                   Get in Touch

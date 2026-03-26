@@ -7,7 +7,7 @@ import { getAuthFromRequest } from '@/lib/auth';
  */
 export async function PUT(_request: NextRequest) {
   try {
-    const decoded = getAuthFromRequest(request);
+    const decoded = getAuthFromRequest(_request);
     if (!decoded || decoded.role !== 'parent') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -62,7 +62,7 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
     for (const st of studentIds) if (st?.userId) userIds.push(st.userId);
     for (const p of parentIds) if (p?.userId) userIds.push(p.userId);
     const users = await User.find({ _id: { $in: userIds } }).select('_id role email').lean();
-    const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+    const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
     const seenEmails = new Set<string>();
     for (const u of users) {
       const uid = u._id;
@@ -154,7 +154,7 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
             const teacherUser = await User.findById(t.userId).select('email').lean();
             const teacherEmail = (teacherUser as { email?: string })?.email;
             if (teacherEmail) {
-              const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+              const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
               sendTemplatedEmail({
                 to: teacherEmail,
                 templateCode: 'batch_start_reminder',
@@ -220,7 +220,7 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
         const parentUser = await User.findById(parent.userId).select('email').lean();
         const parentEmail = (parentUser as { email?: string })?.email;
         if (parentEmail) {
-          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
           sendTemplatedEmail({
             to: parentEmail,
             templateCode: 'payment_reminder',
@@ -289,7 +289,7 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
         const parentUser = await User.findById(parent.userId).select('email').lean();
         const parentEmail = (parentUser as { email?: string })?.email;
         if (parentEmail) {
-          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
           sendTemplatedEmail({
             to: parentEmail,
             templateCode: 'review_reminder',

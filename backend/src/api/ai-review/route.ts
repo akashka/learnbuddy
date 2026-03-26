@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
         entityId: String(review._id),
         metadata: { entityType, entityId: String(entityId) },
       });
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       const entityTypeLabel = entityType === 'exam' ? 'an exam' : 'course material';
       for (const a of admins) {
         const adminEmail = (a as { email?: string }).email;

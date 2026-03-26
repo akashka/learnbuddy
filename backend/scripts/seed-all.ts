@@ -759,7 +759,7 @@ async function seedJobApplications(jobPositions: { _id: mongoose.Types.ObjectId 
     applications.push({
       positionId: pick(jobPositions, i)._id,
       name: generateName(i + 20000),
-      email: `applicant.seed${i}@test.learnbuddy.local`,
+      email: `applicant.seed${i}@test.guruchakra.local`,
       phone: generatePhone(300000 + i),
       resumeUrl: `https://example.com/resumes/${i}.pdf`,
       coverLetter: `Cover letter for application ${i + 1}.`,
@@ -777,7 +777,7 @@ async function seedContactSubmissions() {
   for (let i = 0; i < COUNTS.contactSubmissions; i++) {
     submissions.push({
       name: generateName(i + 30000),
-      email: `contact.seed${i}@test.learnbuddy.local`,
+      email: `contact.seed${i}@test.guruchakra.local`,
       phone: generatePhone(400000 + i),
       type: ['concern', 'suggestion', 'feedback', 'other'][i % 4],
       subject: generateContactSubject(i),
@@ -878,7 +878,7 @@ async function main() {
 
   console.log('\n✓ Enterprise seed complete.');
   console.log(`  Default password for all users: ${DEFAULT_PASSWORD}`);
-  console.log('  Sample logins: parent.seed0@test.learnbuddy.local, teacher.seed0@test.learnbuddy.local');
+  console.log('  Sample logins: parent.seed0@test.guruchakra.local, teacher.seed0@test.guruchakra.local');
   await mongoose.disconnect();
   process.exit(0);
 }

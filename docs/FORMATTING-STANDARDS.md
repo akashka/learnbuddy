@@ -1,6 +1,6 @@
 # Formatting Standards
 
-LearnBuddy uses consistent formatting across the app, web, admin, emails, and backend.
+GuruChakra uses consistent formatting across the app, web, admin, emails, and backend.
 
 ## Date & Time
 

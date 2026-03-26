@@ -11,13 +11,13 @@ import { WebsiteSettings } from '../src/lib/models/WebsiteSettings';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tuition-platform';
 
 const SEED_DATA = {
-  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.learnbuddy.app',
-  appStoreUrl: 'https://apps.apple.com/app/learnbuddy/id1234567890',
-  facebookUrl: 'https://facebook.com/learnbuddy',
-  twitterUrl: 'https://x.com/learnbuddy',
-  linkedinUrl: 'https://linkedin.com/company/learnbuddy',
-  instagramUrl: 'https://instagram.com/learnbuddy',
-  youtubeUrl: 'https://youtube.com/@learnbuddy',
+  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.guruchakra.app',
+  appStoreUrl: 'https://apps.apple.com/app/guruchakra/id1234567890',
+  facebookUrl: 'https://facebook.com/guruchakra',
+  twitterUrl: 'https://x.com/guruchakra',
+  linkedinUrl: 'https://linkedin.com/company/guruchakra',
+  instagramUrl: 'https://instagram.com/guruchakra',
+  youtubeUrl: 'https://youtube.com/@guruchakra',
   contactPhone: '+91 1800-123-4567',
   contactHours: '9 AM – 6 PM IST',
   contactDays: 'Mon – Sat',

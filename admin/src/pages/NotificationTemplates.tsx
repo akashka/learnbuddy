@@ -37,7 +37,7 @@ const CHANNELS = [
 const SMS_APPROVED_GUIDANCE = [
   'Keep under 160 chars for single SMS; use {{otp}} for OTP.',
   'Avoid promotional language for OTP/transactional messages.',
-  'Include sender identity (e.g. LearnBuddy) for DND compliance.',
+  'Include sender identity (e.g. GuruChakra) for DND compliance.',
   'Use approved transactional templates from your SMS provider.',
 ];
 

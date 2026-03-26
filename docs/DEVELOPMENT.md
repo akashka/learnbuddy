@@ -1,6 +1,6 @@
 # Development Guide
 
-Technical guide for developers working on the LearnBuddy codebase.
+Technical guide for developers working on the GuruChakra codebase.
 
 ---
 

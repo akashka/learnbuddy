@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     }
     if (targetUserIds.length > 0) {
       const subject = (session as { subject?: string }).subject || 'Class';
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role email').lean();
       const ctaPathByRole: Record<string, string> = { parent: '/parent/classes', teacher: '/teacher/classes', student: '/student/classes' };
       for (const u of users) {

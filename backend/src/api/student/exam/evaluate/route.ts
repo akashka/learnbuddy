@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         }
         if (userId) {
           const ctaPath = t.type === 'teacher' ? '/teacher/exams' : '/parent/performances';
-          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
           const ctaUrlFull = `${appUrl}${ctaPath}`;
           createNotification({
             userId: new mongoose.Types.ObjectId(userId),

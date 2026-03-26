@@ -1,6 +1,6 @@
 # AI Models Guide – Free Tier Setup
 
-LearnBuddy supports multiple AI providers with automatic fallback when one hits quota. Configure at least one provider in `backend/.env` and/or `ai-service/.env`.
+GuruChakra supports multiple AI providers with automatic fallback when one hits quota. Configure at least one provider in `backend/.env` and/or `ai-service/.env`.
 
 ## Supported Providers (all have free tiers)
 

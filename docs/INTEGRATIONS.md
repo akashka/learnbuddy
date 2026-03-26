@@ -1,6 +1,6 @@
 # Third-Party Integrations
 
-This document describes LearnBuddy's integration points with external services: payment, SMS, email, and video providers.
+This document describes GuruChakra's integration points with external services: payment, SMS, email, and video providers.
 
 ---
 
@@ -88,7 +88,7 @@ This document describes LearnBuddy's integration points with external services: 
 ### Integration Steps (SendGrid example)
 
 1. Add `@sendgrid/mail` npm package
-2. Env: `SENDGRID_API_KEY`, `EMAIL_FROM` (e.g. `noreply@learnbuddy.com`)
+2. Env: `SENDGRID_API_KEY`, `EMAIL_FROM` (e.g. `noreply@guruchakra.com`)
 3. In `send-email-verification`: use `sgMail.send()` with verification link
 4. Optional: Add `API_URL` or `BACKEND_URL` for correct link domain
 

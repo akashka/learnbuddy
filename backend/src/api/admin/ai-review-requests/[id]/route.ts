@@ -137,7 +137,7 @@ export async function PATCH(request: NextRequest) {
       const raisedByUser = await User.findById(raisedByUserId).select('role email').lean();
       const role = (raisedByUser as { role?: string })?.role;
       const ctaPath = role === 'parent' ? '/parent/review-requests' : role === 'teacher' ? '/teacher/review-requests' : '/student/review-requests';
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       const ctaUrlFull = `${appUrl}${ctaPath}`;
       const resolutionMessage = status === 'resolved_correct'
         ? 'The admin found the AI result was correct.'

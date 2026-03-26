@@ -1,5 +1,5 @@
 /**
- * Shared formatting standards for LearnBuddy.
+ * Shared formatting standards for GuruChakra.
  * Use across frontend, admin, app, website, backend, and emails.
  *
  * Standards:

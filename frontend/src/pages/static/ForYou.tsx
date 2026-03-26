@@ -25,7 +25,7 @@ export default function ForYou() {
       <section className="mb-8 w-full rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6 text-center shadow-xl sm:mb-12 sm:rounded-3xl sm:p-8 md:p-12">
         <h1 className="mb-3 text-4xl font-extrabold text-brand-900 md:text-5xl">For You</h1>
         <p className="mx-auto max-w-2xl text-xl text-gray-600">
-          Whether you&apos;re a parent, student, or teacher—LearnBuddy has something for everyone.
+          Whether you&apos;re a parent, student, or teacher—GuruChakra has something for everyone.
         </p>
       </section>
 

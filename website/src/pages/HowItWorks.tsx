@@ -42,7 +42,7 @@ export default function HowItWorks() {
   const [forStudentsSteps, setForStudentsSteps] = useState(defaultForStudentsSteps);
   const [forTeachersSteps, setForTeachersSteps] = useState(defaultForTeachersSteps);
   const [heroTitle, setHeroTitle] = useState('How It Works');
-  const [heroSubtitle, setHeroSubtitle] = useState("From finding a teacher to attending classes—here's your journey with LearnBuddy.");
+  const [heroSubtitle, setHeroSubtitle] = useState("From finding a teacher to attending classes—here's your journey with GuruChakra.");
 
   useEffect(() => {
     fetchPageContent('how-it-works')

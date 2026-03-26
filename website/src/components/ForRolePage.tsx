@@ -154,7 +154,7 @@ export function ForRolePage({ slug, links }: ForRolePageProps) {
           {/* Highlight cards */}
           <ScrollReveal variant="fade-up" delay={0}>
             <h2 className="font-display text-2xl font-bold text-brand-900 sm:text-3xl">
-              Why choose LearnBuddy
+              Why choose GuruChakra
             </h2>
           </ScrollReveal>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

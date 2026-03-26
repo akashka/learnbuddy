@@ -1,6 +1,6 @@
-# LearnBuddy Website - robots.txt
+# GuruChakra Website - robots.txt
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://www.learnbuddy.com/sitemap.xml
+Sitemap: https://www.guruchakra.com/sitemap.xml

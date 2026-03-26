@@ -1,6 +1,6 @@
 # Security
 
-Security model, authentication, and operational practices for the LearnBuddy platform.
+Security model, authentication, and operational practices for the GuruChakra platform.
 
 ---
 

@@ -75,7 +75,7 @@ export const CMS_SEED_PAGES = [
       <p>Find answers to common questions about ${BRAND.name}. Can't find what you need? <a href="/contact-us">Contact us</a>.</p>
 
       <h3>General</h3>
-      <h4>How does LearnBuddy work?</h4>
+      <h4>How does GuruChakra work?</h4>
       <p>${BRAND.name} connects parents with verified teachers for one-to-one online tuition. Parents browse the marketplace, enroll their children in batches, and students attend live classes from home. AI monitors every session for safety, and students can ask AI doubts 24/7.</p>
 
       <h4>What boards and classes do you support?</h4>
@@ -324,17 +324,17 @@ export const CMS_SEED_PAGES = [
     slug: 'refund-policy',
     title: 'Refund Policy',
     content: `
-      <h2>LearnBuddy Refund Policy</h2>
+      <h2>GuruChakra Refund Policy</h2>
       <p><strong>Effective Date:</strong> March 2025 | <strong>Version:</strong> 1.0</p>
 
       <h3>1. Tuition Fee Refunds</h3>
       <ul>
         <li><strong>Before classes start:</strong> Full refund minus a processing fee of ₹100 if you cancel within 7 days of payment and before the batch start date.</li>
-        <li><strong>After classes start:</strong> No refund for the current month. Pro-rata refund may be considered for remaining months in exceptional circumstances (e.g., medical emergency) at LearnBuddy's discretion.</li>
+        <li><strong>After classes start:</strong> No refund for the current month. Pro-rata refund may be considered for remaining months in exceptional circumstances (e.g., medical emergency) at GuruChakra's discretion.</li>
       </ul>
 
       <h3>2. How to Request a Refund</h3>
-      <p>Contact support@learnbuddy.com with your enrollment details and reason. Refund requests must be submitted within 30 days of the payment date.</p>
+      <p>Contact support@guruchakra.com with your enrollment details and reason. Refund requests must be submitted within 30 days of the payment date.</p>
 
       <h3>3. Processing Time</h3>
       <p>Approved refunds are processed within 7–10 business days to the original payment method.</p>
@@ -347,7 +347,7 @@ export const CMS_SEED_PAGES = [
     slug: 'course-ownership-rules',
     title: 'Course Ownership & Usage Rules',
     content: `
-      <h2>LearnBuddy Course Ownership & Usage Rules</h2>
+      <h2>GuruChakra Course Ownership & Usage Rules</h2>
       <p><strong>Effective Date:</strong> March 2025 | <strong>Version:</strong> 1.0</p>
 
       <h3>1. Course Access</h3>
@@ -355,7 +355,7 @@ export const CMS_SEED_PAGES = [
 
       <h3>2. Ownership</h3>
       <ul>
-        <li>LearnBuddy owns the platform, technology, and content structure. Teachers provide the teaching; you receive a license to access the service for the enrolled period.</li>
+        <li>GuruChakra owns the platform, technology, and content structure. Teachers provide the teaching; you receive a license to access the service for the enrolled period.</li>
         <li>You do not own the course content, recordings, or materials. They are for personal educational use only.</li>
       </ul>
 
@@ -367,23 +367,23 @@ export const CMS_SEED_PAGES = [
       </ul>
 
       <h3>4. Teacher Assignment</h3>
-      <p>LearnBuddy may reassign a different qualified teacher for the same subject/board/class if the original teacher becomes unavailable. You will be notified in advance.</p>
+      <p>GuruChakra may reassign a different qualified teacher for the same subject/board/class if the original teacher becomes unavailable. You will be notified in advance.</p>
     `.trim(),
   },
   {
     slug: 'teacher-commission-model',
     title: 'Teacher Commission Model Agreement',
     content: `
-      <h2>LearnBuddy Teacher Commission Model Agreement</h2>
+      <h2>GuruChakra Teacher Commission Model Agreement</h2>
       <p><strong>Effective Date:</strong> March 2025 | <strong>Version:</strong> 1.0</p>
 
       <h3>1. Introduction</h3>
-      <p>This Commission Model Agreement ("Agreement") sets forth the terms under which LearnBuddy ("Platform") charges a commission from Teachers for tuition fees collected through the Platform. By signing this Agreement, you agree to the commission structure and related terms.</p>
+      <p>This Commission Model Agreement ("Agreement") sets forth the terms under which GuruChakra ("Platform") charges a commission from Teachers for tuition fees collected through the Platform. By signing this Agreement, you agree to the commission structure and related terms.</p>
 
       <h3>2. Commission Structure</h3>
       <ul>
-        <li><strong>Default Commission:</strong> LearnBuddy charges a commission of <strong>10%</strong> on the tuition fees collected from parents for classes conducted by you.</li>
-        <li><strong>Configurable Rate:</strong> The commission percentage may be adjusted by LearnBuddy (admin) for individual teachers from time to time, based on performance, tenure, or other factors. You will be notified of any change before it takes effect.</li>
+        <li><strong>Default Commission:</strong> GuruChakra charges a commission of <strong>10%</strong> on the tuition fees collected from parents for classes conducted by you.</li>
+        <li><strong>Configurable Rate:</strong> The commission percentage may be adjusted by GuruChakra (admin) for individual teachers from time to time, based on performance, tenure, or other factors. You will be notified of any change before it takes effect.</li>
         <li><strong>Deduction:</strong> The commission is deducted from your earnings before payout. For example, if a parent pays ₹2,000 for a month's tuition and your commission rate is 10%, you receive ₹1,800 (₹2,000 − 10% = ₹1,800).</li>
       </ul>
 
@@ -394,14 +394,14 @@ export const CMS_SEED_PAGES = [
       <p>Your net earnings (tuition fees minus commission) will be paid as per the Payment Terms. Commission is calculated and deducted at the time of each payment cycle.</p>
 
       <h3>5. Acknowledgment</h3>
-      <p>By signing this Agreement, you acknowledge that you have read, understood, and agree to the commission model. You understand that the commission rate may be changed by LearnBuddy with prior notice, and continued use of the Platform constitutes acceptance of the updated rate.</p>
+      <p>By signing this Agreement, you acknowledge that you have read, understood, and agree to the commission model. You understand that the commission rate may be changed by GuruChakra with prior notice, and continued use of the Platform constitutes acceptance of the updated rate.</p>
     `.trim(),
   },
   {
     slug: 'teacher-payment-terms',
     title: 'Teacher Payment Terms',
     content: `
-      <h2>LearnBuddy Teacher Payment Terms</h2>
+      <h2>GuruChakra Teacher Payment Terms</h2>
       <p><strong>Effective Date:</strong> March 2025 | <strong>Version:</strong> 1.0</p>
 
       <h3>1. Payment Cycle</h3>
@@ -415,13 +415,13 @@ export const CMS_SEED_PAGES = [
       </ul>
 
       <h3>3. Bank Details</h3>
-      <p>You must provide valid bank account details (Account Number, IFSC, Bank Name) in your profile. LearnBuddy is not responsible for failed payouts due to incorrect or outdated bank information.</p>
+      <p>You must provide valid bank account details (Account Number, IFSC, Bank Name) in your profile. GuruChakra is not responsible for failed payouts due to incorrect or outdated bank information.</p>
 
       <h3>4. Minimum Payout</h3>
       <p>If your net earnings for a month are below ₹500, the amount may be carried forward to the next month until the minimum is reached, unless otherwise communicated.</p>
 
       <h3>5. Taxes</h3>
-      <p>You are responsible for your own tax obligations. LearnBuddy may issue Form 16 or other tax documents as required by law. Consult a tax professional for guidance.</p>
+      <p>You are responsible for your own tax obligations. GuruChakra may issue Form 16 or other tax documents as required by law. Consult a tax professional for guidance.</p>
 
       <h3>6. Disputes</h3>
       <p>Any dispute regarding payments must be raised within 30 days of the payout date. After that, the payment will be considered final.</p>
@@ -432,9 +432,9 @@ export const CMS_SEED_PAGES = [
     title: 'For Parents',
     content: `
       <h2>Find the Best Teachers for Your Child</h2>
-      <p>LearnBuddy connects you with qualified, verified teachers for one-to-one online tuition. Browse by board, class, and subject—then enroll with confidence.</p>
+      <p>GuruChakra connects you with qualified, verified teachers for one-to-one online tuition. Browse by board, class, and subject—then enroll with confidence.</p>
 
-      <h3>Why Parents Choose LearnBuddy</h3>
+      <h3>Why Parents Choose GuruChakra</h3>
       <ul>
         <li><strong>AI Monitored Classes:</strong> Every session is monitored for safety. You get peace of mind knowing your child learns in a secure environment.</li>
         <li><strong>Teachers Screened & BGV Checked:</strong> All teachers undergo background verification and AI qualification exams before joining.</li>
@@ -445,7 +445,7 @@ export const CMS_SEED_PAGES = [
 
       <h3>How It Works</h3>
       <ol>
-        <li>Download the LearnBuddy app from Play Store or App Store</li>
+        <li>Download the GuruChakra app from Play Store or App Store</li>
         <li>Register as a parent and add your child's details</li>
         <li>Browse teachers by board, class, and subject</li>
         <li>Enroll and pay securely through the app</li>
@@ -460,7 +460,7 @@ export const CMS_SEED_PAGES = [
     title: 'For Students',
     content: `
       <h2>Learn with Fun!</h2>
-      <p>LearnBuddy is your learning buddy—one-to-one classes with expert teachers, AI help anytime, and exams that are fair and fun.</p>
+      <p>GuruChakra is your learning buddy—one-to-one classes with expert teachers, AI help anytime, and exams that are fair and fun.</p>
 
       <h3>What Students Love</h3>
       <ul>
@@ -480,7 +480,7 @@ export const CMS_SEED_PAGES = [
         <li>Track your progress and improve every day</li>
       </ol>
 
-      <p><strong>Download the LearnBuddy app and start learning with fun!</strong></p>
+      <p><strong>Download the GuruChakra app and start learning with fun!</strong></p>
     `.trim(),
   },
   {
@@ -488,9 +488,9 @@ export const CMS_SEED_PAGES = [
     title: 'For Teachers',
     content: `
       <h2>Teach on Your Terms</h2>
-      <p>Join LearnBuddy as a teacher and reach students across India. Set your schedule, earn fairly, and focus on what you love—teaching.</p>
+      <p>Join GuruChakra as a teacher and reach students across India. Set your schedule, earn fairly, and focus on what you love—teaching.</p>
 
-      <h3>Why Teachers Join LearnBuddy</h3>
+      <h3>Why Teachers Join GuruChakra</h3>
       <ul>
         <li><strong>Verified & Trusted:</strong> Our BGV check and AI qualification exam build trust with parents. Students come to you ready to learn.</li>
         <li><strong>Fair Commission:</strong> Transparent 10% commission. You keep most of what you earn. Payouts on time, every month.</li>
@@ -501,21 +501,21 @@ export const CMS_SEED_PAGES = [
 
       <h3>How to Get Started</h3>
       <ol>
-        <li>Download the LearnBuddy app from Play Store or App Store</li>
+        <li>Download the GuruChakra app from Play Store or App Store</li>
         <li>Register as a teacher and complete your profile</li>
         <li>Pass the AI qualification exam</li>
         <li>Complete BGV verification</li>
         <li>Create batches and start teaching</li>
       </ol>
 
-      <p><strong>Join thousands of teachers on LearnBuddy. Download the app and apply today.</strong></p>
+      <p><strong>Join thousands of teachers on GuruChakra. Download the app and apply today.</strong></p>
     `.trim(),
   },
   {
     slug: 'features',
     title: 'Features',
     content: `
-      <h2>LearnBuddy Features</h2>
+      <h2>GuruChakra Features</h2>
       <p>Everything you need for safe, effective, and fun learning—powered by AI and built for trust.</p>
 
       <h3>Safety & Compliance</h3>
@@ -545,12 +545,12 @@ export const CMS_SEED_PAGES = [
     slug: 'how-it-works',
     title: 'How It Works',
     content: `
-      <h2>How LearnBuddy Works</h2>
-      <p>From finding a teacher to attending classes—here's your journey with LearnBuddy.</p>
+      <h2>How GuruChakra Works</h2>
+      <p>From finding a teacher to attending classes—here's your journey with GuruChakra.</p>
 
       <h3>For Parents</h3>
       <ol>
-        <li><strong>Download the App:</strong> Get LearnBuddy from Play Store or App Store</li>
+        <li><strong>Download the App:</strong> Get GuruChakra from Play Store or App Store</li>
         <li><strong>Register:</strong> Sign up as a parent and add your child's details (board, class, subject)</li>
         <li><strong>Find a Teacher:</strong> Browse the marketplace. Filter by board, class, subject. Read reviews.</li>
         <li><strong>Enroll:</strong> Choose a batch, pay securely, and your child is enrolled</li>
@@ -579,11 +579,11 @@ export const CMS_SEED_PAGES = [
     slug: 'teacher-conduct-rules',
     title: 'Teacher Code of Conduct',
     content: `
-      <h2>LearnBuddy Teacher Code of Conduct</h2>
+      <h2>GuruChakra Teacher Code of Conduct</h2>
       <p><strong>Effective Date:</strong> March 2025 | <strong>Version:</strong> 1.0</p>
 
       <h3>1. Professional Conduct</h3>
-      <p>As a Teacher on LearnBuddy, you agree to:</p>
+      <p>As a Teacher on GuruChakra, you agree to:</p>
       <ul>
         <li>Conduct classes professionally, punctually, and with respect for students and parents.</li>
         <li>Maintain a safe, inclusive, and supportive learning environment.</li>
@@ -592,19 +592,19 @@ export const CMS_SEED_PAGES = [
 
       <h3>2. Platform Rules</h3>
       <ul>
-        <li><strong>No Off-Platform Payments:</strong> All tuition fees must be collected through LearnBuddy. Do not solicit or accept direct payments from parents for Platform classes.</li>
+        <li><strong>No Off-Platform Payments:</strong> All tuition fees must be collected through GuruChakra. Do not solicit or accept direct payments from parents for Platform classes.</li>
         <li><strong>No Misrepresentation:</strong> Provide accurate information about your qualifications, experience, and availability.</li>
         <li><strong>AI Monitoring:</strong> Cooperate with AI monitoring during classes. Do not attempt to bypass or disable monitoring.</li>
       </ul>
 
       <h3>3. Student Safety</h3>
-      <p>You must ensure student safety at all times. Report any concerns regarding student welfare to LearnBuddy support immediately. Do not share personal contact details with students without parent consent.</p>
+      <p>You must ensure student safety at all times. Report any concerns regarding student welfare to GuruChakra support immediately. Do not share personal contact details with students without parent consent.</p>
 
       <h3>4. Consequences of Violation</h3>
       <p>Violation of this Code may result in warnings, suspension, or permanent removal from the Platform. Serious violations may be reported to relevant authorities.</p>
 
       <h3>5. Acknowledgment</h3>
-      <p>By signing this document, you agree to abide by this Code of Conduct. You understand that LearnBuddy reserves the right to update these rules and that continued use of the Platform constitutes acceptance of any updates.</p>
+      <p>By signing this document, you agree to abide by this Code of Conduct. You understand that GuruChakra reserves the right to update these rules and that continued use of the Platform constitutes acceptance of any updates.</p>
     `.trim(),
   },
 ];

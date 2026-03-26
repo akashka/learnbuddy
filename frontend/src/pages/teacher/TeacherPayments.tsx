@@ -202,7 +202,7 @@ export default function TeacherPayments() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `learnbuddy-payments-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `guruchakra-payments-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -533,7 +533,7 @@ export default function TeacherPayments() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-brand-800">AI Income Insights</h2>
-                  <p className="text-sm text-gray-600">Strategic suggestions from LearnBuddy AI to maximize your earnings</p>
+                  <p className="text-sm text-gray-600">Strategic suggestions from GuruChakra AI to maximize your earnings</p>
                 </div>
               </div>
               <div className="space-y-4">

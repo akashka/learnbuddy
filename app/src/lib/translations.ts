@@ -1,6 +1,6 @@
 export const translations = {
   en: {
-    appName: 'LearnBuddy',
+    appName: 'GuruChakra',
     tagline: 'Learn with fun.',
     login: 'Login',
     register: 'Register',

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="learnbuddy-payments-${new Date().toISOString().slice(0, 10)}.json"`,
+        'Content-Disposition': `attachment; filename="guruchakra-payments-${new Date().toISOString().slice(0, 10)}.json"`,
       },
     });
   } catch (error) {

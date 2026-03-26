@@ -41,7 +41,7 @@ export default function ContactUs() {
     }
   };
 
-  const contactEmail = company?.contact?.email ?? 'support@learnbuddy.com';
+  const contactEmail = company?.contact?.email ?? 'support@guruchakra.com';
   const responseTime = company?.contact?.responseTime ?? 'Typically within 24 hours';
 
   return (

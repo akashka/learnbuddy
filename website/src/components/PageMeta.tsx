@@ -6,7 +6,7 @@
 import { useEffect } from 'react';
 import { BRAND } from '@shared/brand';
 
-const WEBSITE_URL = import.meta.env.VITE_WEBSITE_URL || 'https://www.learnbuddy.com';
+const WEBSITE_URL = import.meta.env.VITE_WEBSITE_URL || 'https://www.guruchakra.com';
 const DEFAULT_OG_IMAGE = `${WEBSITE_URL}/images/hero-learning.png`;
 
 export interface PageMetaProps {

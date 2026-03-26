@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       const studentName = (student as { name?: string })?.name || 'Your child';
       const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role email').lean();
       const ctaPathByRole: Record<string, string> = { parent: '/parent/students', teacher: '/teacher/batches' };
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       for (const u of users) {
         const ctaPath = ctaPathByRole[(u as { role?: string }).role || ''] || '/parent/students';
         createNotification({

@@ -1,12 +1,12 @@
 # AI Fairness & Bias Mitigation
 
-This document outlines LearnBuddy's approach to AI fairness, bias mitigation, and audit processes—especially for children's data under DPDP Act 2023.
+This document outlines GuruChakra's approach to AI fairness, bias mitigation, and audit processes—especially for children's data under DPDP Act 2023.
 
 ---
 
 ## Overview
 
-LearnBuddy uses AI for:
+GuruChakra uses AI for:
 
 - **Exam generation** — Student and teacher qualification exams
 - **Exam evaluation** — Grading student answers (MCQ, short answer, drawing)

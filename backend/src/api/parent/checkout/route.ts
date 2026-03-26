@@ -24,7 +24,7 @@ async function handleRenewalCheckout(
   request: NextRequest,
   decoded: { userId: string },
   body: Record<string, unknown>
-): Promise<NextResponse> {
+): Promise<Response> {
   const parent = await Parent.findOne({ userId: decoded.userId });
   if (!parent) return NextResponse.json({ error: 'Parent not found' }, { status: 404 });
 

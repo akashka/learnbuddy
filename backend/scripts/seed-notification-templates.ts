@@ -18,9 +18,9 @@ const EMAIL_HEADER = `
     <tr>
       <td align="center">
         <div style="display: inline-block; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 12px;">
-          <img src="{{logoUrl}}" alt="LearnBuddy" width="56" height="56" style="display: block; border-radius: 12px;" />
+          <img src="{{logoUrl}}" alt="GuruChakra" width="56" height="56" style="display: block; border-radius: 12px;" />
         </div>
-        <h1 style="margin: 0 0 4px 0; font-family: 'Outfit', 'DM Sans', -apple-system, sans-serif; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🌟 LearnBuddy</h1>
+        <h1 style="margin: 0 0 4px 0; font-family: 'Outfit', 'DM Sans', -apple-system, sans-serif; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🌟 GuruChakra</h1>
         <p style="margin: 0; font-size: 15px; color: rgba(255,255,255,0.95); font-weight: 600;">Where learning is an adventure!</p>
       </td>
     </tr>
@@ -32,15 +32,15 @@ const EMAIL_HEADER = `
 const EMAIL_FOOTER = `
 <div style="background: linear-gradient(180deg, #fef9e7 0%, #f8fafc 100%); padding: 32px; text-align: center; border-top: 2px solid #e2e8f0;">
   <p style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">
-    <a href="{{appUrl}}" style="color: #667eea; text-decoration: none; font-weight: 600;">✨ Open LearnBuddy</a>
+    <a href="{{appUrl}}" style="color: #667eea; text-decoration: none; font-weight: 600;">✨ Open GuruChakra</a>
     &nbsp;•&nbsp;
     <a href="{{appUrl}}/contact" style="color: #667eea; text-decoration: none; font-weight: 600;">Contact Us</a>
   </p>
   <p style="margin: 0 0 8px 0; font-size: 12px; color: #94a3b8;">
-    Mon–Sat, 9 AM – 6 PM IST &nbsp;|&nbsp; support@learnbuddy.com
+    Mon–Sat, 9 AM – 6 PM IST &nbsp;|&nbsp; support@guruchakra.com
   </p>
   <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-    © {{year}} LearnBuddy. Every child deserves a learning buddy. 💛
+    © {{year}} GuruChakra. Every child deserves a learning buddy. 💛
   </p>
 </div>
 `;
@@ -55,7 +55,7 @@ const TEMPLATES = [
     name: 'Login OTP',
     description: 'OTP sent when parent/teacher logs in with phone',
     isActive: true,
-    body: "Hey! Your LearnBuddy login code is {{otp}}. It's valid for 5 min. Don't share it with anyone! 🎓",
+    body: "Hey! Your GuruChakra login code is {{otp}}. It's valid for 5 min. Don't share it with anyone! 🎓",
     approvedWordings: [
       'Your OTP is {{otp}}. Valid for 5 minutes.',
       '{{otp}} is your verification code. Do not share.',
@@ -69,7 +69,7 @@ const TEMPLATES = [
     name: 'Registration OTP',
     description: 'OTP for parent/teacher registration',
     isActive: true,
-    body: "Welcome to LearnBuddy! 🎉 Your verification code is {{otp}}. Valid for 5 min. Let's get you started!",
+    body: "Welcome to GuruChakra! 🎉 Your verification code is {{otp}}. Valid for 5 min. Let's get you started!",
     approvedWordings: [
       'Your OTP is {{otp}}. Valid for 5 minutes.',
       '{{otp}} is your verification code for registration.',
@@ -82,7 +82,7 @@ const TEMPLATES = [
     name: 'Account Deletion OTP',
     description: 'OTP to confirm account deletion request',
     isActive: true,
-    body: "Your LearnBuddy account deletion code is {{otp}}. Valid for 5 min. If you didn't request this, please ignore.",
+    body: "Your GuruChakra account deletion code is {{otp}}. Valid for 5 min. If you didn't request this, please ignore.",
     approvedWordings: [
       'Your OTP is {{otp}}. Valid for 5 minutes.',
       '{{otp}} is your verification code for account deletion.',
@@ -100,7 +100,7 @@ const TEMPLATES = [
     description: 'Auto-reply when user submits contact form',
     isActive: true,
     subject: "We got your message, {{name}}! 🙌",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -116,7 +116,7 @@ const TEMPLATES = [
     </div>
     <p style="margin: 0; font-size: 15px; color: #64748b;">
       Cheers,<br/>
-      <strong style="color: #4f46e5;">The LearnBuddy Team</strong>
+      <strong style="color: #4f46e5;">The GuruChakra Team</strong>
     </p>
   </div>
 </div>
@@ -131,7 +131,7 @@ const TEMPLATES = [
     description: 'Sent 15 minutes before class',
     isActive: true,
     subject: "⏰ {{subject}} class in 15 minutes—let's go!",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -150,7 +150,7 @@ const TEMPLATES = [
       </a>
     </div>
     <p style="margin: 0; font-size: 14px; color: #94a3b8;">
-      See you in class! — LearnBuddy
+      See you in class! — GuruChakra
     </p>
   </div>
 </div>
@@ -165,7 +165,7 @@ const TEMPLATES = [
     description: 'Enrollment ending in 7 days',
     isActive: true,
     subject: "📅 Quick heads-up: {{studentName}}'s tuition renews soon",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -200,8 +200,8 @@ const TEMPLATES = [
     name: 'Welcome Email (Parent)',
     description: 'Sent after parent registration completes',
     isActive: true,
-    subject: "Welcome to LearnBuddy, {{name}}! 🎉",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    subject: "Welcome to GuruChakra, {{name}}! 🎉",
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -209,10 +209,10 @@ const TEMPLATES = [
     <div style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; border: 1px solid #c7d2fe;">
       <p style="margin: 0 0 8px 0; font-size: 48px; text-align: center;">🎓</p>
       <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #3730a3; text-align: center;">
-        You're in! Welcome to LearnBuddy
+        You're in! Welcome to GuruChakra
       </h2>
       <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #475569;">
-        Hi {{name}}, we're thrilled to have you! You've just joined thousands of parents who trust LearnBuddy for their child's learning journey.
+        Hi {{name}}, we're thrilled to have you! You've just joined thousands of parents who trust GuruChakra for their child's learning journey.
       </p>
       <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #475569;">
         <strong>What's next?</strong> Add your child's profile, browse expert teachers, and book your first class. It's that simple! ✨
@@ -236,8 +236,8 @@ const TEMPLATES = [
     name: 'Welcome Email (Teacher)',
     description: 'Sent after teacher registration completes',
     isActive: true,
-    subject: "Welcome to the LearnBuddy family, {{name}}! 🌟",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    subject: "Welcome to the GuruChakra family, {{name}}! 🌟",
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -245,7 +245,7 @@ const TEMPLATES = [
     <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; border: 1px solid #fcd34d;">
       <p style="margin: 0 0 8px 0; font-size: 48px; text-align: center;">👩‍🏫</p>
       <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #92400e; text-align: center;">
-        You're officially a LearnBuddy teacher!
+        You're officially a GuruChakra teacher!
       </h2>
       <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #78350f;">
         Hi {{name}}, congratulations! You've joined our community of expert educators who are shaping young minds—one class at a time.
@@ -273,7 +273,7 @@ const TEMPLATES = [
     description: 'Verification link sent to parent/teacher',
     isActive: true,
     subject: "Verify your email — you're almost there! ✉️",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -302,7 +302,7 @@ const TEMPLATES = [
     description: 'Teacher: batch starts tomorrow',
     isActive: true,
     subject: "Tomorrow's the day! Your {{subject}} batch starts 🎯",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -330,7 +330,7 @@ const TEMPLATES = [
     description: 'Parent: remind to review teacher',
     isActive: true,
     subject: "How was {{teacherName}}? Share your feedback 🌟",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -358,7 +358,7 @@ const TEMPLATES = [
     description: 'Someone requested class reschedule',
     isActive: true,
     subject: "Reschedule request for your {{subject}} class 📅",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -386,7 +386,7 @@ const TEMPLATES = [
     description: 'Class reschedule was accepted',
     isActive: true,
     subject: "Reschedule confirmed! New time for {{subject}} ✅",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -414,7 +414,7 @@ const TEMPLATES = [
     description: 'Reschedule request was declined',
     isActive: true,
     subject: "Reschedule unavailable for {{subject}} — try another slot 📅",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -442,7 +442,7 @@ const TEMPLATES = [
     description: 'Teacher: new student joined batch',
     isActive: true,
     subject: "New student {{studentName}} joined your {{subject}} batch! 🎉",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -470,7 +470,7 @@ const TEMPLATES = [
     description: 'Parent: exam evaluated, result available',
     isActive: true,
     subject: "{{studentName}}'s exam result is ready! 📊",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -498,7 +498,7 @@ const TEMPLATES = [
     description: 'Parent: child generated AI study material',
     isActive: true,
     subject: "{{studentName}} created study material for {{topic}}! ✨",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -526,7 +526,7 @@ const TEMPLATES = [
     description: 'Parent: child asked doubt and got AI answer',
     isActive: true,
     subject: "{{studentName}} asked a doubt in {{subject}} — got an answer! 💡",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -554,7 +554,7 @@ const TEMPLATES = [
     description: 'Parent/Teacher: dispute status changed',
     isActive: true,
     subject: "Update on your dispute — {{status}} 📋",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -582,7 +582,7 @@ const TEMPLATES = [
     description: 'Admin: user requested human review',
     isActive: true,
     subject: "New AI review request from {{role}} 🔍",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
@@ -610,7 +610,7 @@ const TEMPLATES = [
     description: 'Parent/User: admin resolved review request',
     isActive: true,
     subject: "Your AI review request has been resolved ✅",
-    logoUrl: 'https://learnbuddy.com/logo.svg',
+    logoUrl: 'https://guruchakra.com/logo.svg',
     headerHtml: EMAIL_HEADER,
     bodyHtml: `
 <div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">

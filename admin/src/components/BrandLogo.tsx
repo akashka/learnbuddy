@@ -3,8 +3,8 @@ import { BRAND } from '@shared/brand';
 
 /**
  * Brand lockup per BRAND-GUIDELINES.md:
- * - Admin: Icon + LearnBuddy + "Admin" (accent color, below)
- * - Standard: Icon + LearnBuddy + tagline (below)
+ * - Admin: Icon + GuruChakra + "Admin" (accent color, below)
+ * - Standard: Icon + GuruChakra + tagline (below)
  */
 interface BrandLogoProps {
   /** Link wrapper - omit for static display */

@@ -61,8 +61,8 @@ export async function sendTemplatedEmail(options: SendTemplatedEmailOptions): Pr
       return { sent: false, error: `Template ${templateCode} not found` };
     }
 
-    const appUrl = process.env.APP_URL || process.env.VITE_APP_WEBSITE_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
-    const logoUrl = template.logoUrl || 'https://learnbuddy.com/logo.svg';
+    const appUrl = process.env.APP_URL || process.env.VITE_APP_WEBSITE_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
+    const logoUrl = template.logoUrl || 'https://guruchakra.com/logo.svg';
     const year = String(new Date().getFullYear());
 
     const baseVars: Record<string, string> = {
@@ -80,7 +80,7 @@ export async function sendTemplatedEmail(options: SendTemplatedEmailOptions): Pr
 
     const client = getMailgunClient();
     const domain = process.env.MAILGUN_DOMAIN;
-    const fromEmail = process.env.EMAIL_FROM || `LearnBuddy <hello@${domain || 'learnbuddy.com'}>`;
+    const fromEmail = process.env.EMAIL_FROM || `GuruChakra <hello@${domain || 'guruchakra.com'}>`;
 
     if (!client || !domain) {
       if (process.env.NODE_ENV === 'development') {

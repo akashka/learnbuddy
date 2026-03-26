@@ -1,23 +1,23 @@
 {
   "expo": {
-    "name": "LearnBuddy",
-    "slug": "learnbuddy",
+    "name": "GuruChakra",
+    "slug": "guruchakra",
     "version": "1.0.0",
     "orientation": "default",
-    "scheme": "learnbuddy",
+    "scheme": "guruchakra",
     "userInterfaceStyle": "automatic",
     "splash": {
       "backgroundColor": "#6366f1"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.learnbuddy.app"
+      "bundleIdentifier": "com.guruchakra.app"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#6366f1"
       },
-      "package": "com.learnbuddy.app"
+      "package": "com.guruchakra.app"
     },
     "plugins": [
       "expo-asset"

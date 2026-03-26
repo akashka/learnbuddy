@@ -1,4 +1,4 @@
-# Tuition Platform (LearnBuddy)
+# Tuition Platform (GuruChakra)
 
 Multi-project layout: backend, admin, frontend, website, AI service, and app – each deployed independently.
 

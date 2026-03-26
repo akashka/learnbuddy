@@ -1,12 +1,12 @@
-# LearnBuddy Product Overview
+# GuruChakra Product Overview
 
-A business-oriented description of the LearnBuddy tuition platform: what it does, who uses it, and how it creates value.
+A business-oriented description of the GuruChakra tuition platform: what it does, who uses it, and how it creates value.
 
 ---
 
-## What Is LearnBuddy?
+## What Is GuruChakra?
 
-LearnBuddy is an online tuition marketplace that connects parents with qualified teachers for their children. Parents browse teachers by board, class, and subject; enroll students in batches; and manage classes. Teachers create batches, conduct live classes, and earn through the platform. Students attend classes, take AI-generated exams, and use AI-powered study materials.
+GuruChakra is an online tuition marketplace that connects parents with qualified teachers for their children. Parents browse teachers by board, class, and subject; enroll students in batches; and manage classes. Teachers create batches, conduct live classes, and earn through the platform. Students attend classes, take AI-generated exams, and use AI-powered study materials.
 
 The platform differentiates through **AI integration**: exam generation, evaluation, classroom monitoring, doubt answering, and study material generation—all powered by AI to reduce teacher workload and improve learning outcomes.
 

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   return photonSuggest(q.trim());
 }
 
-async function hereSuggest(q: string): Promise<NextResponse> {
+async function hereSuggest(q: string): Promise<Response> {
   try {
     const url = new URL(HERE_AUTOSUGGEST_URL);
     url.searchParams.set('q', q);
@@ -59,7 +59,7 @@ async function hereSuggest(q: string): Promise<NextResponse> {
   }
 }
 
-async function photonSuggest(q: string): Promise<NextResponse> {
+async function photonSuggest(q: string): Promise<Response> {
   try {
     const url = new URL(PHOTON_URL);
     url.searchParams.set('q', q);
@@ -69,7 +69,7 @@ async function photonSuggest(q: string): Promise<NextResponse> {
     url.searchParams.set('lang', 'en');
 
     const res = await fetch(url.toString(), {
-      headers: { 'User-Agent': 'LearnBuddy-Tuition-Platform/1.0' },
+      headers: { 'User-Agent': 'GuruChakra-Tuition-Platform/1.0' },
     });
     const text = await res.text();
 

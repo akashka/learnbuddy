@@ -3,7 +3,7 @@ import { BRAND } from '@shared/brand';
 
 /**
  * Brand lockup per BRAND-GUIDELINES.md:
- * - Icon + wordmark (LearnBuddy)
+ * - Icon + wordmark (GuruChakra)
  * - Tagline (Learn with fun.) below the wordmark
  */
 interface BrandLogoProps {

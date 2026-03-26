@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
       const studentId = generateStudentId();
       const user = await User.create({
-        email: `${studentId.toLowerCase()}@learnbuddy.local`,
+        email: `${studentId.toLowerCase()}@guruchakra.local`,
         password: await hashPassword('Temp' + Math.random().toString(36).slice(-8)),
         role: 'student',
       });
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
         const teacherUser = await User.findById(teacherDoc.userId).select('email').lean();
         const teacherEmail = (teacherUser as { email?: string })?.email;
         if (teacherEmail) {
-          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
           sendTemplatedEmail({
             to: teacherEmail,
             templateCode: 'course_purchased',
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
       if (!studentDoc) {
         const newStudentId = generateStudentId();
         const user = await User.create({
-          email: `${newStudentId.toLowerCase()}@learnbuddy.local`,
+          email: `${newStudentId.toLowerCase()}@guruchakra.local`,
           password: await hashPassword('Temp' + Math.random().toString(36).slice(-8)),
           role: 'student',
         });

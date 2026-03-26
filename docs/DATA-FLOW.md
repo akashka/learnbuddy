@@ -1,6 +1,6 @@
 # Data Flow
 
-This document describes how data moves through the LearnBuddy platform—from user actions to backend processing, AI calls, and storage.
+This document describes how data moves through the GuruChakra platform—from user actions to backend processing, AI calls, and storage.
 
 ---
 

@@ -8,7 +8,7 @@ import { PageMeta } from './PageMeta';
 import { SEO_PAGES } from '@/lib/seo';
 
 const DEFAULT_META = {
-  title: 'LearnBuddy - Learn with Fun!',
+  title: 'GuruChakra - Learn with Fun!',
   description: 'One-to-one online tuition for kids with AI monitoring. Find qualified teachers, AI-powered learning, DPDP compliant.',
 };
 

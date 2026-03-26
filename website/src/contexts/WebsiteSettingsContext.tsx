@@ -2,8 +2,8 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { fetchWebsiteSettings, type WebsiteSettingsData } from '@/lib/api';
 
 const DEFAULTS: WebsiteSettingsData = {
-  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.learnbuddy.app',
-  appStoreUrl: 'https://apps.apple.com/app/learnbuddy/id000000000',
+  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.guruchakra.app',
+  appStoreUrl: 'https://apps.apple.com/app/guruchakra/id000000000',
   facebookUrl: '',
   twitterUrl: '',
   linkedinUrl: '',

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the LearnBuddy API and product are documented here.
+All notable changes to the GuruChakra API and product are documented here.
 
 ---
 

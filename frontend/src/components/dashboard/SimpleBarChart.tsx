@@ -7,6 +7,7 @@ interface ChartItem {
 interface SimpleBarChartProps {
   data: ChartItem[];
   maxValue?: number;
+  height?: number;
 }
 
 export function SimpleBarChart({ data, maxValue }: SimpleBarChartProps) {

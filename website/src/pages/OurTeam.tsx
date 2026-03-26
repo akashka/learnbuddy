@@ -97,7 +97,7 @@ export default function OurTeam() {
               Our Team
             </h1>
             <p className="mt-3 text-xl text-gray-600">
-              The people behind LearnBuddy—passionate about making quality education accessible to every child.
+              The people behind GuruChakra—passionate about making quality education accessible to every child.
             </p>
             {team.length > 0 && !loading && (
               <p className="mt-4 text-lg font-medium text-brand-600">

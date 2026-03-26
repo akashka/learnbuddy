@@ -51,7 +51,7 @@ export function ForYouScreen() {
       <View style={styles.hero}>
         <Text style={styles.heroTitle}>For You</Text>
         <Text style={styles.heroSub}>
-          Whether you&apos;re a parent, student, or teacher—LearnBuddy has something for everyone.
+          Whether you&apos;re a parent, student, or teacher—GuruChakra has something for everyone.
         </Text>
       </View>
 

@@ -1,6 +1,6 @@
 # Mailgun Setup Guide
 
-LearnBuddy uses **Mailgun** for sending transactional emails (verification links, reminders, notifications, etc.).
+GuruChakra uses **Mailgun** for sending transactional emails (verification links, reminders, notifications, etc.).
 
 ## What You Need from Mailgun
 
@@ -16,10 +16,10 @@ LearnBuddy uses **Mailgun** for sending transactional emails (verification links
 
 ### 3. Get Your Domain
 - **Sandbox (testing):** Mailgun gives you a sandbox domain like `sandboxXXXXXXXX.mailgun.org` — use this for development
-- **Production:** Add and verify your own domain (e.g. `mg.learnbuddy.com`) via DNS records (SPF, DKIM) in the Mailgun dashboard
+- **Production:** Add and verify your own domain (e.g. `mg.guruchakra.com`) via DNS records (SPF, DKIM) in the Mailgun dashboard
 
 ### 4. From Email
-- Must be from your verified domain (e.g. `LearnBuddy <hello@mg.learnbuddy.com>`)
+- Must be from your verified domain (e.g. `GuruChakra <hello@mg.guruchakra.com>`)
 - For sandbox: only authorized recipients can receive (add test emails in Mailgun dashboard)
 
 ## Environment Variables
@@ -30,8 +30,8 @@ Add these to your `backend/.env`:
 # Mailgun (transactional email)
 MAILGUN_API_KEY=key-your-private-api-key-here
 MAILGUN_DOMAIN=sandboxXXX.mailgun.org
-EMAIL_FROM=LearnBuddy <hello@your-domain.mailgun.org>
-APP_URL=https://learnbuddy.com
+EMAIL_FROM=GuruChakra <hello@your-domain.mailgun.org>
+APP_URL=https://guruchakra.com
 ```
 
 ### Optional

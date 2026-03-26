@@ -1,12 +1,12 @@
-# LearnBuddy Architecture
+# GuruChakra Architecture
 
-This document describes the architecture of the LearnBuddy tuition platform—a multi-application system where parents find teachers, students attend live classes, and AI assists with exams, study materials, and classroom monitoring. **Content safety** is enforced via a **Sentiment Layer** that screens user input before AI processing and AI output before delivery.
+This document describes the architecture of the GuruChakra tuition platform—a multi-application system where parents find teachers, students attend live classes, and AI assists with exams, study materials, and classroom monitoring. **Content safety** is enforced via a **Sentiment Layer** that screens user input before AI processing and AI output before delivery.
 
 ---
 
 ## System Overview
 
-LearnBuddy is built as a **monorepo** with six deployable applications. Each application can run and deploy independently. The backend API is the central hub; all clients talk to it. The AI service is a separate microservice that the backend calls for heavy AI workloads. A **Sentiment & Content Safety Layer** wraps all AI interactions—screening user-generated content before it reaches AI and screening AI-generated content before it reaches users.
+GuruChakra is built as a **monorepo** with six deployable applications. Each application can run and deploy independently. The backend API is the central hub; all clients talk to it. The AI service is a separate microservice that the backend calls for heavy AI workloads. A **Sentiment & Content Safety Layer** wraps all AI interactions—screening user-generated content before it reaches AI and screening AI-generated content before it reaches users.
 
 ![Architecture Diagram](./architecture-diagram.png)
 

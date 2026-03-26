@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       })
       .lean();
 
-    const studentIds = enrollments.map((e) => (e.studentId as { _id?: unknown })?._id ?? e.studentId).filter(Boolean);
+    const studentIds = enrollments.map((e) => (e.studentId as { _id?: unknown })?._id ?? e.studentId).filter(Boolean) as unknown[];
     const studentUserIds = enrollments
       .map((e) => {
         const s = e.studentId as { userId?: unknown };
@@ -35,15 +35,15 @@ export async function GET(request: NextRequest) {
       .filter(Boolean);
 
     const [exams, classes, smCounts] = await Promise.all([
-      StudentExam.find({ studentId: { $in: studentIds }, status: 'completed' })
+      StudentExam.find({ studentId: { $in: studentIds as any[] }, status: 'completed' })
         .select('studentId subject score totalMarks attemptedAt')
         .sort({ attemptedAt: -1 })
         .lean(),
       ClassSession.find({
         teacherId: teacher._id,
         status: 'completed',
-        $or: [{ studentId: { $in: studentIds } }, { studentIds: { $in: studentIds } }],
-      })
+        $or: [{ studentId: { $in: studentIds as any[] } }, { studentIds: { $in: studentIds as any[] } }],
+      } as any)
         .select('studentId studentIds subject scheduledAt')
         .lean(),
       AIGeneratedContent.aggregate([

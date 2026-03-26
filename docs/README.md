@@ -1,6 +1,6 @@
-# LearnBuddy Documentation
+# GuruChakra Documentation
 
-Documentation for the LearnBuddy tuition platform.
+Documentation for the GuruChakra tuition platform.
 
 ---
 
@@ -32,7 +32,7 @@ Documentation for the LearnBuddy tuition platform.
 
 | Document | Description |
 |----------|-------------|
-| [PRODUCT-OVERVIEW.md](./PRODUCT-OVERVIEW.md) | What LearnBuddy does, roles, features, value proposition |
+| [PRODUCT-OVERVIEW.md](./PRODUCT-OVERVIEW.md) | What GuruChakra does, roles, features, value proposition |
 | [BRAND-GUIDELINES.md](./BRAND-GUIDELINES.md) | Brand identity, company vision/mission/values, colors, typography, logo usage |
 | [USER-GUIDES.md](./USER-GUIDES.md) | Step-by-step guides for parents, teachers, students, admins |
 | [CHANGELOG.md](./CHANGELOG.md) | API and product changelog |

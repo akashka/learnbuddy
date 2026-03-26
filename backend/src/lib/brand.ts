@@ -1,11 +1,11 @@
 /**
- * LearnBuddy brand and company copy.
+ * GuruChakra brand and company copy.
  * Source of truth for vision, mission, values, and descriptions.
  * Use across CMS, API, and marketing. Keep in sync with docs/BRAND-GUIDELINES.md
  */
 
 export const BRAND = {
-  name: 'LearnBuddy',
+  name: 'GuruChakra',
   tagline: 'Learn with fun.',
 } as const;
 
@@ -15,11 +15,11 @@ export const COMPANY = {
   mission:
     'To make quality education accessible through one-to-one tuition, AI-powered safety, and learning that feels like fun.',
   descriptionShort:
-    'LearnBuddy is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring—safe, personalized, and fun.',
+    'GuruChakra is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring—safe, personalized, and fun.',
   descriptionMedium:
-    'LearnBuddy connects parents with qualified, verified teachers for personalized online tuition. Every class is AI-monitored for safety, and students can ask AI anytime for help—so learning is effective, engaging, and secure.',
+    'GuruChakra connects parents with qualified, verified teachers for personalized online tuition. Every class is AI-monitored for safety, and students can ask AI anytime for help—so learning is effective, engaging, and secure.',
   descriptionLong:
-    'LearnBuddy is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. We connect parents with verified educators for safe, personalized learning from home. Our AI monitors classes for safety, generates exams and study materials, and answers student doubts 24/7. We\'re DPDP compliant and built for trust—so parents can focus on their child\'s growth, not logistics.',
+    'GuruChakra is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. We connect parents with verified educators for safe, personalized learning from home. Our AI monitors classes for safety, generates exams and study materials, and answers student doubts 24/7. We\'re DPDP compliant and built for trust—so parents can focus on their child\'s growth, not logistics.',
   values: [
     {
       name: 'Trust',
@@ -55,7 +55,7 @@ export const COMPANY = {
     'Verified teachers — Background checks and AI qualification exams',
   ],
   contact: {
-    email: 'support@learnbuddy.com',
+    email: 'support@guruchakra.com',
     hours: 'Mon–Sat, 9 AM – 6 PM IST',
     responseTime: 'Typically within 24 hours',
   },

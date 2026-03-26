@@ -1,6 +1,6 @@
 # Testing Strategy
 
-This document outlines the recommended testing approach for LearnBuddy. Currently, no test framework is configured.
+This document outlines the recommended testing approach for GuruChakra. Currently, no test framework is configured.
 
 ---
 

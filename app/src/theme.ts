@@ -1,5 +1,5 @@
 /**
- * LearnBuddy App Design System
+ * GuruChakra App Design System
  * Aligned with docs/BRAND-GUIDELINES.md
  */
 
@@ -36,7 +36,7 @@ export const radius = {
   full: 9999,
 } as const;
 
-// Colors - LearnBuddy brand palette per BRAND-GUIDELINES.md
+// Colors - GuruChakra brand palette per BRAND-GUIDELINES.md
 export const colors = {
   // Primary (brand-600, brand-700, brand-800)
   primary: '#4f46e5',

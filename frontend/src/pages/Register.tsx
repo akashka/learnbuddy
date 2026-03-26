@@ -17,7 +17,7 @@ export default function Register() {
           Create your account
         </h1>
         <p className="mb-10 text-center text-base text-brand-600 sm:text-lg">
-          Choose how you&apos;d like to join LearnBuddy
+          Choose how you&apos;d like to join GuruChakra
         </p>
 
         {/* Role cards - theme-aligned */}

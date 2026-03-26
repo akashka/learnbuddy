@@ -1,5 +1,5 @@
 /**
- * Formatting standards for LearnBuddy app.
+ * Formatting standards for GuruChakra app.
  * Mirrors shared/formatters.ts - keep in sync.
  *
  * Standards: dd mmm yyyy, 12-hour time, INR currency, Indian locale.

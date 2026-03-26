@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const STORAGE_KEY = 'learnbuddy-cookie-consent';
+const STORAGE_KEY = 'guruchakra-cookie-consent';
 
 export function CookieConsent() {
   const { t } = useLanguage();

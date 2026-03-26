@@ -1,6 +1,6 @@
 # Quick Start
 
-Get LearnBuddy running locally in a few minutes.
+Get GuruChakra running locally in a few minutes.
 
 ---
 

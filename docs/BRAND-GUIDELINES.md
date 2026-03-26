@@ -1,8 +1,8 @@
-# LearnBuddy Brand Guidelines
+# GuruChakra Brand Guidelines
 
 **Version 1.0** | Last updated: March 2025
 
-This document defines the visual identity, design system, and usage rules for LearnBuddy across all touchpoints: website, web application, mobile app, and admin software. Adherence ensures a consistent, professional, and recognizable brand experience.
+This document defines the visual identity, design system, and usage rules for GuruChakra across all touchpoints: website, web application, mobile app, and admin software. Adherence ensures a consistent, professional, and recognizable brand experience.
 
 ---
 
@@ -27,7 +27,7 @@ This document defines the visual identity, design system, and usage rules for Le
 
 ### Brand Essence
 
-**LearnBuddy** is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. The brand conveys trust, warmth, learning, and fun.
+**GuruChakra** is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. The brand conveys trust, warmth, learning, and fun.
 
 ### Brand Attributes
 
@@ -78,15 +78,15 @@ We connect parents with qualified, verified teachers for personalized online tui
 
 **One sentence (elevator pitch):**
 
-> LearnBuddy is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring—safe, personalized, and fun.
+> GuruChakra is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring—safe, personalized, and fun.
 
 **Two sentences (about page / meta):**
 
-> LearnBuddy connects parents with qualified, verified teachers for personalized online tuition. Every class is AI-monitored for safety, and students can ask AI anytime for help—so learning is effective, engaging, and secure.
+> GuruChakra connects parents with qualified, verified teachers for personalized online tuition. Every class is AI-monitored for safety, and students can ask AI anytime for help—so learning is effective, engaging, and secure.
 
 **Paragraph (full about):**
 
-> LearnBuddy is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. We connect parents with verified educators for safe, personalized learning from home. Our AI monitors classes for safety, generates exams and study materials, and answers student doubts 24/7. We're DPDP compliant and built for trust—so parents can focus on their child's growth, not logistics.
+> GuruChakra is a one-to-one online tuition platform for children, combining qualified teachers with AI-powered monitoring. We connect parents with verified educators for safe, personalized learning from home. Our AI monitors classes for safety, generates exams and study materials, and answers student doubts 24/7. We're DPDP compliant and built for trust—so parents can focus on their child's growth, not logistics.
 
 ### Key Differentiators
 
@@ -100,7 +100,7 @@ We connect parents with qualified, verified teachers for personalized online tui
 
 | Channel | Value |
 |--------|-------|
-| **Email** | support@learnbuddy.com |
+| **Email** | support@guruchakra.com |
 | **Hours** | Mon–Sat, 9 AM – 6 PM IST |
 | **Response** | Typically within 24 hours |
 
@@ -110,7 +110,7 @@ We connect parents with qualified, verified teachers for personalized online tui
 
 ### Logo Concept
 
-The LearnBuddy logo is a **pencil edge and home combination** within a **blue outer circle** that serves as a shadow/depth effect. It is **not** a solid circular blue mark—the circle is a subtle shadow ring that frames the icon.
+The GuruChakra logo is a **pencil edge and home combination** within a **blue outer circle** that serves as a shadow/depth effect. It is **not** a solid circular blue mark—the circle is a subtle shadow ring that frames the icon.
 
 ### Logo Anatomy
 
@@ -127,7 +127,7 @@ The LearnBuddy logo is a **pencil edge and home combination** within a **blue ou
 | **Format** | SVG (primary), PNG @2x/@3x for raster fallbacks |
 | **Minimum size (digital)** | 32px height (icon only); 80px height (full lockup) |
 | **Minimum size (print)** | 15mm height |
-| **Clear space** | Minimum clear space = height of "L" in LearnBuddy (or icon height if icon-only) |
+| **Clear space** | Minimum clear space = height of "L" in GuruChakra (or icon height if icon-only) |
 | **Aspect ratio** | Icon: 1:1; Full lockup: flexible, maintain proportions |
 
 ### Logo Variants
@@ -173,9 +173,9 @@ The icon should combine:
 
 ## 4. Wordmark & Tagline
 
-### Wordmark: LearnBuddy
+### Wordmark: GuruChakra
 
-- **Spelling:** Single word, no space: **LearnBuddy**
+- **Spelling:** Single word, no space: **GuruChakra**
 - **Capitalization:** Title case (L, B uppercase)
 - **Color:** Same as current brand—**brand-800** (#3730a3) on light; **white** on dark
 - **Font:** Outfit Bold (display) or DM Sans Bold (fallback)
@@ -189,7 +189,7 @@ The icon should combine:
 ### Lockup Examples
 
 ```
-[Icon] LearnBuddy  Learn with fun.
+[Icon] GuruChakra  Learn with fun.
 ```
 
 - Icon + wordmark: standard header/footer
@@ -420,7 +420,7 @@ Warm amber for CTAs, highlights, and positive actions.
 | **Background** | accent-50 (amber-50) |
 | **Sidebar** | White, border-accent-200 |
 | **Active state** | bg-accent-100, text-accent-800 |
-| **Logo** | "LearnBuddy Admin" — Admin in smaller, accent color |
+| **Logo** | "GuruChakra Admin" — Admin in smaller, accent color |
 | **Purpose** | Clearly internal; avoid confusion with parent/student app |
 
 ---
@@ -509,7 +509,7 @@ Warm amber for CTAs, highlights, and positive actions.
 
 | Item | Value |
 |------|-------|
-| **Brand name** | LearnBuddy |
+| **Brand name** | GuruChakra |
 | **Tagline** | Learn with fun. |
 | **Primary** | #4f46e5 (brand-600) |
 | **Primary dark** | #3730a3 (brand-800) |

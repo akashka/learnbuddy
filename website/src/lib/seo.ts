@@ -14,7 +14,7 @@ export const SEO_PAGES = [
   {
     path: '/for-you',
     title: 'For You',
-    description: 'Whether you\'re a parent, student, or teacher—LearnBuddy has something for everyone. Find qualified teachers, track progress, or teach on your terms.',
+    description: 'Whether you\'re a parent, student, or teacher—GuruChakra has something for everyone. Find qualified teachers, track progress, or teach on your terms.',
   },
   {
     path: '/for-parents',
@@ -24,12 +24,12 @@ export const SEO_PAGES = [
   {
     path: '/for-students',
     title: 'For Students',
-    description: 'One-to-one attention, ask AI anytime, AI-moderated exams. Learn from anywhere with the LearnBuddy app. Fun, effective learning.',
+    description: 'One-to-one attention, ask AI anytime, AI-moderated exams. Learn from anywhere with the GuruChakra app. Fun, effective learning.',
   },
   {
     path: '/for-teachers',
     title: 'For Teachers',
-    description: 'Teach on your terms. Fair pay, flexible schedule, AI tools to help you teach smarter. Join qualified teachers on LearnBuddy.',
+    description: 'Teach on your terms. Fair pay, flexible schedule, AI tools to help you teach smarter. Join qualified teachers on GuruChakra.',
   },
   {
     path: '/features',
@@ -39,41 +39,41 @@ export const SEO_PAGES = [
   {
     path: '/how-it-works',
     title: 'How It Works',
-    description: 'From finding a teacher to attending classes—your journey with LearnBuddy. Four simple steps for parents, students, and teachers.',
+    description: 'From finding a teacher to attending classes—your journey with GuruChakra. Four simple steps for parents, students, and teachers.',
   },
   {
     path: '/about-us',
     title: 'About Us',
-    description: 'LearnBuddy connects parents with verified teachers for one-to-one online tuition. AI monitors every class. DPDP compliant. Learn with fun.',
+    description: 'GuruChakra connects parents with verified teachers for one-to-one online tuition. AI monitors every class. DPDP compliant. Learn with fun.',
   },
   {
     path: '/contact-us',
     title: 'Contact Us',
-    description: 'Have questions or feedback? Get in touch with LearnBuddy support. We respond typically within 24 hours.',
+    description: 'Have questions or feedback? Get in touch with GuruChakra support. We respond typically within 24 hours.',
   },
   {
     path: '/faq',
     title: 'FAQ',
-    description: 'Frequently asked questions about LearnBuddy. Parents, students, teachers—find answers on enrollment, payments, safety, and more.',
+    description: 'Frequently asked questions about GuruChakra. Parents, students, teachers—find answers on enrollment, payments, safety, and more.',
   },
   {
     path: '/careers',
     title: 'Careers',
-    description: 'Join the LearnBuddy team. Help make quality education accessible to every child. Remote-first, flexible, impactful.',
+    description: 'Join the GuruChakra team. Help make quality education accessible to every child. Remote-first, flexible, impactful.',
   },
   {
     path: '/our-team',
     title: 'Our Team',
-    description: 'Meet the people behind LearnBuddy. We\'re building the future of learning—one student at a time.',
+    description: 'Meet the people behind GuruChakra. We\'re building the future of learning—one student at a time.',
   },
   {
     path: '/privacy-policy',
     title: 'Privacy Policy',
-    description: 'How LearnBuddy collects, uses, and protects your data. DPDP compliant. Learn about your rights and our data practices.',
+    description: 'How GuruChakra collects, uses, and protects your data. DPDP compliant. Learn about your rights and our data practices.',
   },
   {
     path: '/terms-conditions',
     title: 'Terms & Conditions',
-    description: 'Terms of service for using LearnBuddy. Enrollment, payments, conduct, and more. Please read carefully.',
+    description: 'Terms of service for using GuruChakra. Enrollment, payments, conduct, and more. Please read carefully.',
   },
 ] as const;

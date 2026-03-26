@@ -108,7 +108,7 @@ export async function PATCH(
       }).catch((err) => console.error('Dispute notification error:', err));
       const userEmail = (dispute.userId as { email?: string })?.email;
       if (userEmail) {
-        const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+        const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
         sendTemplatedEmail({
           to: userEmail,
           templateCode: 'dispute_updated',

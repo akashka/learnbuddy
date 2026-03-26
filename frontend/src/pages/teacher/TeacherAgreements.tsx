@@ -26,7 +26,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
-  commission_model: 'How LearnBuddy charges commission from your tuition fees.',
+  commission_model: 'How GuruChakra charges commission from your tuition fees.',
   payment_terms: 'When and how you receive payments for your classes.',
   conduct_rules: 'Guidelines for safe, respectful teaching on the platform.',
 };
@@ -181,7 +181,7 @@ function CommissionInfoModal({
           <div>
             <h3 className="font-semibold text-brand-800">What is the commission?</h3>
             <p className="mt-1 text-gray-700">
-              LearnBuddy charges a <strong>{commissionPercent}%</strong> commission on the tuition fees you collect from students. This is deducted from your gross earnings before you receive your payout.
+              GuruChakra charges a <strong>{commissionPercent}%</strong> commission on the tuition fees you collect from students. This is deducted from your gross earnings before you receive your payout.
             </p>
           </div>
           <div>
@@ -206,7 +206,7 @@ function CommissionInfoModal({
           <div>
             <h3 className="font-semibold text-brand-800">Why do we charge commission?</h3>
             <p className="mt-1 text-gray-700">
-              The commission helps us maintain the platform, including student-teacher matching, secure payments, AI-powered class monitoring for safety, customer support, and continuous improvements to make LearnBuddy better for everyone.
+              The commission helps us maintain the platform, including student-teacher matching, secure payments, AI-powered class monitoring for safety, customer support, and continuous improvements to make GuruChakra better for everyone.
             </p>
           </div>
         </div>

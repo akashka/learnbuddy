@@ -40,7 +40,7 @@ export const WEBSITE_PAGE_CONTENT_SEED: Record<string, Record<string, unknown>> 
   },
   'for-you': {
     heroTitle: 'For You',
-    heroSubtitle: "Whether you're a parent, student, or teacher—LearnBuddy has something for everyone.",
+    heroSubtitle: "Whether you're a parent, student, or teacher—GuruChakra has something for everyone.",
     sectionTitle: 'Choose your path',
     roles: [
       { to: '/for-parents', title: 'For Parents', emoji: '👨‍👩‍👧', desc: 'Find qualified teachers, track progress, and give your child the best learning experience. AI-monitored for safety.', gradient: 'from-brand-50 via-white to-accent-50/40', border: 'border-brand-100', image: '/images/parent-student-progress.png', accent: '🎯' },
@@ -71,7 +71,7 @@ export const WEBSITE_PAGE_CONTENT_SEED: Record<string, Record<string, unknown>> 
   },
   'how-it-works': {
     heroTitle: 'How It Works',
-    heroSubtitle: "From finding a teacher to attending classes—here's your journey with LearnBuddy.",
+    heroSubtitle: "From finding a teacher to attending classes—here's your journey with GuruChakra.",
     fourSteps: [
       { step: 1, title: 'Choose', desc: 'Pick a teacher from our verified marketplace', icon: '👤' },
       { step: 2, title: 'Connect', desc: 'Book a slot and join live class from home', icon: '📱' },

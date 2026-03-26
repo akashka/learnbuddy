@@ -1,6 +1,6 @@
 # Component Connections
 
-This document details how the LearnBuddy applications connect to each other—environment variables, API contracts, and deployment considerations.
+This document details how the GuruChakra applications connect to each other—environment variables, API contracts, and deployment considerations.
 
 ---
 

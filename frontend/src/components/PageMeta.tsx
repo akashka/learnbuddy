@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { BRAND } from '@shared/brand';
 
-const APP_URL = import.meta.env.VITE_APP_WEBSITE_URL || import.meta.env.VITE_APP_URL || 'https://app.learnbuddy.com';
+const APP_URL = import.meta.env.VITE_APP_WEBSITE_URL || import.meta.env.VITE_APP_URL || 'https://app.guruchakra.com';
 const DEFAULT_OG_IMAGE = `${APP_URL}/logo.svg`;
 
 export interface PageMetaProps {

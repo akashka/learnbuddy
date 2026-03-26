@@ -124,7 +124,7 @@ export default function Login() {
             <div className="flex justify-center lg:justify-start">
               <img
                 src="/images/kids-learning.svg"
-                alt="Kids learning with LearnBuddy"
+                alt="Kids learning with GuruChakra"
                 className="h-56 w-full max-w-sm object-contain sm:h-64 lg:h-72"
               />
             </div>

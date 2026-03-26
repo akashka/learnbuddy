@@ -147,11 +147,11 @@ export function generateName(index: number): string {
 }
 
 export function generateParentEmail(index: number): string {
-  return `parent.seed${index}@test.learnbuddy.local`;
+  return `parent.seed${index}@test.guruchakra.local`;
 }
 
 export function generateTeacherEmail(index: number): string {
-  return `teacher.seed${index}@test.learnbuddy.local`;
+  return `teacher.seed${index}@test.guruchakra.local`;
 }
 
 export function generateStudentId(index: number): string {
@@ -159,7 +159,7 @@ export function generateStudentId(index: number): string {
 }
 
 export function generateStudentEmail(studentId: string): string {
-  return `${studentId.toLowerCase()}@learnbuddy.local`;
+  return `${studentId.toLowerCase()}@guruchakra.local`;
 }
 
 /** Dummy phone - format +91 9XXXXXXXXX */

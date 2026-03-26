@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     const userDoc = await User.findById(userId).lean();
     const teacherEmail = (userDoc as { email?: string })?.email || step1.email;
     if (teacherEmail) {
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       sendTemplatedEmail({
         to: teacherEmail,
         templateCode: 'welcome_teacher',

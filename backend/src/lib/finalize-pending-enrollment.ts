@@ -191,7 +191,7 @@ export async function finalizePendingEnrollment(
     const hashedPassword = await hashPassword(tempPassword);
 
     const user = await User.create({
-      email: `${newStudentId.toLowerCase()}@learnbuddy.local`,
+      email: `${newStudentId.toLowerCase()}@guruchakra.local`,
       password: hashedPassword,
       role: 'student',
     });
@@ -340,7 +340,7 @@ export async function finalizePendingEnrollment(
     const teacherUser = await User.findById(teacherDoc.userId).select('email').lean();
     const teacherEmail = (teacherUser as { email?: string })?.email;
     if (teacherEmail) {
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       sendTemplatedEmail({
         to: teacherEmail,
         templateCode: 'course_purchased',

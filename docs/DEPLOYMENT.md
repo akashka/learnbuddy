@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-This document describes how to deploy LearnBuddy to production. Each application can be deployed independently.
+This document describes how to deploy GuruChakra to production. Each application can be deployed independently.
 
 ---
 
@@ -33,7 +33,7 @@ cd backend && npm install && npm run build
 | `PORT` | No | Default 3005 |
 | `CORS_ORIGIN` | Yes | Comma-separated production client URLs |
 | `REDIS_URL` | Yes | Redis for BullMQ, cache, token blacklist |
-| `AI_SERVICE_URL` | No | AI service base URL (e.g. `https://ai.learnbuddy.com`) |
+| `AI_SERVICE_URL` | No | AI service base URL (e.g. `https://ai.guruchakra.com`) |
 | `AI_SERVICE_API_KEY` | No | Must match AI service |
 | `AI_MONITOR_JWT_SECRET` | No | Defaults to `JWT_SECRET` |
 | `CRON_SECRET` | Yes | Secret for cron endpoints |
@@ -83,7 +83,7 @@ cd ai-service && npm install && npm run build
 **Build:**
 ```bash
 cd frontend && npm install
-VITE_API_BASE_URL=https://api.learnbuddy.com npm run build
+VITE_API_BASE_URL=https://api.guruchakra.com npm run build
 ```
 
 **Environment variables (build time):**
@@ -104,7 +104,7 @@ VITE_API_BASE_URL=https://api.learnbuddy.com npm run build
 **Build:**
 ```bash
 cd admin && npm install
-VITE_API_BASE_URL=https://api.learnbuddy.com npm run build
+VITE_API_BASE_URL=https://api.guruchakra.com npm run build
 ```
 
 **Deploy:**
@@ -117,7 +117,7 @@ VITE_API_BASE_URL=https://api.learnbuddy.com npm run build
 **Build:**
 ```bash
 cd website && npm install
-VITE_APP_URL=https://app.learnbuddy.com VITE_ADMIN_URL=https://admin.learnbuddy.com npm run build
+VITE_APP_URL=https://app.guruchakra.com VITE_ADMIN_URL=https://admin.guruchakra.com npm run build
 ```
 
 **Environment variables (build time):**
@@ -137,7 +137,7 @@ VITE_APP_URL=https://app.learnbuddy.com VITE_ADMIN_URL=https://admin.learnbuddy.
 **Build:**
 ```bash
 cd app && npm install
-EXPO_PUBLIC_API_BASE_URL=https://api.learnbuddy.com eas build --platform all
+EXPO_PUBLIC_API_BASE_URL=https://api.guruchakra.com eas build --platform all
 ```
 
 **Deploy:**

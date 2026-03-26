@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         location: profileData.location,
         children: [],
       });
-      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://guruchakra.com';
       sendTemplatedEmail({
         to: email,
         templateCode: 'welcome_parent',
