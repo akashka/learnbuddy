@@ -47,7 +47,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 export default function TeacherPayments() {
   const toast = useToast();
-  const [tab, setTab] = useState<'make' | 'history' | 'reminders' | 'disputes'>('make');
+  const [tab, setTab] = useState<'make' | 'history' | 'reminders' | 'disputes' | 'requests'>('make');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [teacherId, setTeacherId] = useState('');
   const [year, setYear] = useState(new Date().getFullYear());
@@ -69,6 +69,11 @@ export default function TeacherPayments() {
 
   const [remindersLoading, setRemindersLoading] = useState(false);
   const [reminders, setReminders] = useState<{ teacherId: string; teacherName: string; year: number; month: number }[]>([]);
+
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requests, setRequests] = useState<{ requests: { _id: string; teacherId: { _id: string; name: string }; amount: number; reason: string; status: string; adminNotes?: string; createdAt: string }[]; pagination: { total: number; page: number; totalPages: number } } | null>(null);
+  const [requestsPage, setRequestsPage] = useState(1);
+  const [requestsStatus, setRequestsStatus] = useState('pending');
 
   const [receiptId, setReceiptId] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Payment | null>(null);
@@ -115,6 +120,32 @@ export default function TeacherPayments() {
       .catch(() => setReminders([]))
       .finally(() => setRemindersLoading(false));
   }, [tab]);
+
+  useEffect(() => {
+    if (tab !== 'requests') return;
+    setRequestsLoading(true);
+    adminApi.paymentRequests
+      .list({ status: requestsStatus || undefined, page: requestsPage, limit: 20 })
+      .then((d) => setRequests(d as any))
+      .catch(() => setRequests(null))
+      .finally(() => setRequestsLoading(false));
+  }, [tab, requestsPage, requestsStatus]);
+
+  const handleResolveRequest = (id: string, status: 'accepted' | 'rejected') => {
+    const notes = prompt(`Enter optional admin notes for ${status}ing this request:`, '');
+    if (notes === null) return; // User cancelled prompt
+    
+    adminApi.paymentRequests.resolve(id, { status, adminNotes: notes })
+      .then(() => {
+        toast.success(`Request ${status} successfully`);
+        // Refresh requests log
+        setRequestsLoading(true);
+        adminApi.paymentRequests.list({ status: requestsStatus || undefined, page: requestsPage, limit: 20 })
+          .then((d) => setRequests(d as any))
+          .finally(() => setRequestsLoading(false));
+      })
+      .catch((e) => toast.error(e instanceof Error ? e.message : `Failed to ${status} request`));
+  };
 
   const handleCalculate = () => {
     if (!teacherId) return;
@@ -191,6 +222,13 @@ export default function TeacherPayments() {
           className={`border-b-2 px-4 py-2 text-sm font-medium ${tab === 'reminders' ? 'border-accent-600 text-accent-800' : 'border-transparent text-accent-600 hover:text-accent-800'}`}
         >
           Reminders
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('requests')}
+          className={`border-b-2 px-4 py-2 text-sm font-medium ${tab === 'requests' ? 'border-accent-600 text-accent-800' : 'border-transparent text-accent-600 hover:text-accent-800'}`}
+        >
+          Requests
         </button>
         <button
           type="button"
@@ -391,6 +429,111 @@ export default function TeacherPayments() {
               </div>
             ) : (
               <p className="text-accent-600">No pending payment reminders.</p>
+            )}
+          </DataState>
+        </div>
+      )}
+
+      {tab === 'requests' && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-end gap-4">
+            <div>
+              <label className="mb-1 block text-xs text-accent-600">Status</label>
+              <select value={requestsStatus} onChange={(e) => { setRequestsStatus(e.target.value); setRequestsPage(1); }} className="rounded-lg border border-accent-200 px-3 py-2 text-sm">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+          <DataState loading={requestsLoading} error={null}>
+            {requests && (
+              <>
+                <div className="overflow-x-auto rounded-lg border border-accent-200 bg-white">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-accent-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Teacher</th>
+                        <th className="px-4 py-2 text-right">Amount</th>
+                        <th className="px-4 py-2 text-left">Reason</th>
+                        <th className="px-4 py-2 text-left">Date</th>
+                        <th className="px-4 py-2 text-left">Status</th>
+                        <th className="px-4 py-2 text-left">Notes</th>
+                        <th className="px-4 py-2 text-left">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {requests.requests.map((r) => (
+                        <tr key={r._id} className="border-t border-accent-100">
+                          <td className="px-4 py-2">
+                            <Link to={`/teachers/${r.teacherId._id}`} className="text-accent-600 hover:underline">
+                              {r.teacherId.name}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-2 text-right font-medium">₹{r.amount.toFixed(2)}</td>
+                          <td className="px-4 py-2 max-w-sm truncate" title={r.reason}>{r.reason}</td>
+                          <td className="px-4 py-2">{new Date(r.createdAt).toLocaleDateString()}</td>
+                          <td className="px-4 py-2">
+                            <span className={`rounded px-2 py-0.5 ${r.status === 'accepted' ? 'bg-green-100 text-green-800' : r.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-gray-600 text-xs">{r.adminNotes || '-'}</td>
+                          <td className="px-4 py-2">
+                            {r.status === 'pending' && (
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleResolveRequest(r._id, 'accepted')}
+                                  className="rounded text-green-600 hover:underline"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleResolveRequest(r._id, 'rejected')}
+                                  className="rounded text-red-600 hover:underline"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                            {r.status === 'accepted' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTeacherId(r.teacherId._id);
+                                  setYear(new Date().getFullYear());
+                                  setMonth(new Date().getMonth() + 1);
+                                  setTab('make');
+                                }}
+                                className="rounded text-accent-600 hover:underline"
+                              >
+                                Make Payment
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {requests.requests.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No payment requests</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {requests.pagination.totalPages > 1 && (
+                  <div className="mt-4 flex gap-2">
+                    <button disabled={requestsPage <= 1} onClick={() => setRequestsPage((p) => p - 1)} className="rounded-lg border border-accent-200 px-4 py-2 text-sm disabled:opacity-50"
+                    >Previous</button>
+                    <span className="py-2 text-sm">Page {requestsPage} of {requests.pagination.totalPages} ({requests.pagination.total} total)</span>
+                    <button disabled={requestsPage >= requests.pagination.totalPages} onClick={() => setRequestsPage((p) => p + 1)} className="rounded-lg border border-accent-200 px-4 py-2 text-sm disabled:opacity-50"
+                    >Next</button>
+                  </div>
+                )}
+              </>
             )}
           </DataState>
         </div>

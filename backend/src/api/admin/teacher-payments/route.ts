@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
+import mongoose from 'mongoose';
 import { TeacherPayment } from '@/lib/models/TeacherPayment';
 import { getAuthFromRequest } from '@/lib/auth';
 
@@ -99,6 +100,26 @@ export async function POST(request: NextRequest) {
       tdsPercent: tdsPercent != null ? Number(tdsPercent) : undefined,
       breakdown: Array.isArray(breakdown) ? breakdown : undefined,
     });
+
+    if (payment.status === 'paid') {
+      const now = new Date();
+      const periodStr = `${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getFullYear()}`;
+      
+      const transaction = await mongoose.models.TeacherEarningTransaction.create({
+        teacherId,
+        type: 'payment',
+        amount: Number(amount),
+        description: `Payout reference: ${payment._id}`,
+        referenceId: payment._id,
+        referenceModel: 'TeacherPayment',
+        periodStr
+      });
+
+      // Update the payment record to hold a reference to this transaction if needed
+      await TeacherPayment.findByIdAndUpdate(payment._id, {
+        $push: { earningTransactionIds: transaction._id }
+      });
+    }
 
     const populated = await TeacherPayment.findById(payment._id).populate('teacherId', 'name').lean();
     return NextResponse.json(populated);

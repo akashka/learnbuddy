@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatDate } from '@shared/formatters';
 import { PageHeader } from '@/components/PageHeader';
 import { ContentCard } from '@/components/ContentCard';
-import { InlineErrorDisplay } from '@/components/InlineErrorDisplay';
 import { Modal } from '@/components/Modal';
 
 interface Dispute {
@@ -66,9 +65,6 @@ export default function Disputes() {
   if (!user || (user.role !== 'parent' && user.role !== 'teacher')) {
     return null;
   }
-
-  const profilePath = user.role === 'parent' ? '/parent/profile' : '/teacher/profile';
-  const backPath = user.role === 'parent' ? '/parent/dashboard' : '/teacher/payments';
 
   if (loading && disputes.length === 0) {
     return (

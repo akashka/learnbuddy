@@ -1,7 +1,9 @@
+import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { PendingEnrollment } from '@/lib/models/PendingEnrollment';
 import { Enrollment } from '@/lib/models/Enrollment';
+import { Teacher } from '@/lib/models/Teacher';
 import { Parent } from '@/lib/models/Parent';
 import { getAuthFromRequest } from '@/lib/auth';
 import { finalizePendingEnrollment } from '@/lib/finalize-pending-enrollment';
@@ -30,35 +32,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This enrollment is already paid.' }, { status: 400 });
     }
 
-    const teacher = pending.teacherId as { name?: string; batches?: { name?: string; maxStudents?: number; subject?: string }[] };
-    const batch = teacher?.batches?.[pending.batchIndex];
-    if (batch) {
-      const maxStudents = batch.maxStudents ?? 3;
-      const enrolledCount = await Enrollment.countDocuments({
-        teacherId: pending.teacherId,
-        batchId: batch.name,
-        status: 'active',
-      });
-      const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
-      const blockedCount = await PendingEnrollment.countDocuments({
-        teacherId: pending.teacherId,
-        batchIndex: pending.batchIndex,
-        _id: { $ne: pendingId },
-        $or: [
-          { paymentStatus: 'completed', convertedToEnrollmentId: null },
-          { paymentStatus: 'pending', createdAt: { $gte: fifteenMinAgo } },
-        ],
-      });
-      if (enrolledCount + blockedCount >= maxStudents) {
-        return NextResponse.json({ error: 'Batch is full. Seat was taken while you were completing payment.' }, { status: 400 });
-      }
-    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    let paymentId: string;
 
-    const paymentId = `pay_${Date.now()}`;
-    await PendingEnrollment.findByIdAndUpdate(pendingId, {
-      paymentStatus: 'completed',
-      paymentId,
-    });
+    try {
+      const teacherObj = pending.teacherId as { _id?: any; name?: string; batches?: { name?: string; maxStudents?: number; subject?: string }[] };
+      const teacherId = teacherObj._id || pending.teacherId;
+
+      await Teacher.findOneAndUpdate(
+        { _id: teacherId },
+        { $set: { updatedAt: new Date() } },
+        { session, new: true }
+      );
+
+      const batch = teacherObj?.batches?.[pending.batchIndex];
+      if (batch) {
+        const maxStudents = batch.maxStudents ?? 3;
+        const enrolledCount = await Enrollment.countDocuments({
+          teacherId: teacherId,
+          batchId: batch.name,
+          status: 'active',
+        }).session(session);
+        const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
+        const blockedCount = await PendingEnrollment.countDocuments({
+          teacherId: teacherId,
+          batchIndex: pending.batchIndex,
+          _id: { $ne: pendingId },
+          $or: [
+            { paymentStatus: 'completed', convertedToEnrollmentId: null },
+            { paymentStatus: 'pending', createdAt: { $gte: fifteenMinAgo } },
+          ],
+        }).session(session);
+        if (enrolledCount + blockedCount >= maxStudents) {
+          await session.abortTransaction();
+          session.endSession();
+          return NextResponse.json({ error: 'Batch is full. Seat was taken while you were completing payment.' }, { status: 400 });
+        }
+      }
+
+      paymentId = `pay_${Date.now()}`;
+      await PendingEnrollment.findByIdAndUpdate(pendingId, {
+        paymentStatus: 'completed',
+        paymentId,
+      }, { session });
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      console.error('Transaction error in payment complete:', err);
+      return NextResponse.json({ error: 'Failed to reserve seat due to concurrent transactions.' }, { status: 500 });
+    } finally {
+      session.endSession();
+    }
 
     let finalizeResult: Awaited<ReturnType<typeof finalizePendingEnrollment>>;
     try {

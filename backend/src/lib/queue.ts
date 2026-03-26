@@ -6,6 +6,8 @@
 import { Queue, Worker, type Job } from 'bullmq';
 import { generateClassSchedules } from './generate-class-schedules.js';
 import { runCronNotifications } from './jobs/cron-notifications.js';
+import { runCronDashboardMetrics } from './jobs/cron-dashboard-metrics.js';
+import { processEnrollmentConfirmation } from './jobs/enrollment-confirmation.js';
 
 const REDIS_URL = process.env.REDIS_URL || '';
 const QUEUE_PREFIX = 'tp:';
@@ -51,6 +53,8 @@ let worker: Worker | null = null;
 export const JOB_NAMES = {
   GENERATE_SCHEDULES: 'generate-schedules',
   CRON_NOTIFICATIONS: 'cron-notifications',
+  CRON_DASHBOARD_METRICS: 'cron-dashboard-metrics',
+  ENROLLMENT_CONFIRMATION: 'enrollment-confirmation',
 } as const;
 
 export function getQueue(): Queue | null {
@@ -89,13 +93,14 @@ export async function setupRepeatJobs(): Promise<void> {
   try {
     const repeatable = await q.getRepeatableJobs();
     for (const job of repeatable) {
-      if (job.name === JOB_NAMES.GENERATE_SCHEDULES || job.name === JOB_NAMES.CRON_NOTIFICATIONS) {
+      if (job.name === JOB_NAMES.GENERATE_SCHEDULES || job.name === JOB_NAMES.CRON_NOTIFICATIONS || job.name === JOB_NAMES.CRON_DASHBOARD_METRICS) {
         await q.removeRepeatableByKey(job.key);
       }
     }
     await q.add(JOB_NAMES.GENERATE_SCHEDULES, {}, { repeat: { pattern: '0 * * * *' } });
     await q.add(JOB_NAMES.CRON_NOTIFICATIONS, {}, { repeat: { pattern: '*/15 * * * *' } });
-    console.log('[Queue] Repeat jobs: generate-schedules (hourly), cron-notifications (every 15 min)');
+    await q.add(JOB_NAMES.CRON_DASHBOARD_METRICS, {}, { repeat: { pattern: '0 2 * * *' } });
+    console.log('[Queue] Repeat jobs: generate-schedules (hourly), cron-notifications (every 15 min), dashboard-metrics (daily 2am)');
   } catch (err) {
     console.error('[Queue] Failed to setup repeat jobs:', err);
   }
@@ -112,6 +117,10 @@ export function startWorker(): void {
           return generateClassSchedules();
         case JOB_NAMES.CRON_NOTIFICATIONS:
           return runCronNotifications();
+        case JOB_NAMES.CRON_DASHBOARD_METRICS:
+          return runCronDashboardMetrics();
+        case JOB_NAMES.ENROLLMENT_CONFIRMATION:
+          return processEnrollmentConfirmation(job.data as { enrollmentId: string });
         default:
           throw new Error(`Unknown job: ${job.name}`);
       }

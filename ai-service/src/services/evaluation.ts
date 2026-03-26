@@ -5,6 +5,7 @@ import {
   aiGenerate,
   aiGenerateJson,
   aiGenerateWithImages,
+  aiTranscribeAudio,
 } from '../providers/unified.js';
 import { withGeminiFallback } from './utils.js';
 import { analyzeSentimentBatch, getSafeDisplayText } from './sentiment.js';
@@ -31,9 +32,53 @@ function answersMatchNumeric(expected: string, student: string): boolean {
   return Math.abs(expNum - stuNum) < 0.01;
 }
 
+interface StudentAnswerObject {
+  value?: number | string;
+  photoUrl?: string;
+  audioTranscript?: string;
+}
+
+function pickAnswerParts(ans: unknown): {
+  mcqIndex: number | undefined;
+  rawText: string;
+  imageDataUrl: string | null;
+  audioDataUrl: string | null;
+  presetTranscript: string | null;
+} {
+  if (ans === null || ans === undefined) {
+    return { mcqIndex: undefined, rawText: '', imageDataUrl: null, audioDataUrl: null, presetTranscript: null };
+  }
+  if (typeof ans === 'number') {
+    return { mcqIndex: ans, rawText: '', imageDataUrl: null, audioDataUrl: null, presetTranscript: null };
+  }
+  if (typeof ans === 'string') {
+    if (ans.startsWith('data:image')) return { mcqIndex: undefined, rawText: '', imageDataUrl: ans, audioDataUrl: null, presetTranscript: null };
+    if (ans.startsWith('data:audio')) return { mcqIndex: undefined, rawText: '', imageDataUrl: null, audioDataUrl: ans, presetTranscript: null };
+    return { mcqIndex: undefined, rawText: ans, imageDataUrl: null, audioDataUrl: null, presetTranscript: null };
+  }
+  if (typeof ans === 'object' && ans !== null) {
+    const o = ans as StudentAnswerObject;
+    const presetTranscript =
+      typeof o.audioTranscript === 'string' && o.audioTranscript.trim() ? o.audioTranscript.trim() : null;
+    const mcqIndex = typeof o.value === 'number' ? o.value : undefined;
+    const photo = o.photoUrl && String(o.photoUrl).startsWith('data:image') ? String(o.photoUrl) : null;
+    if (photo) {
+      return { mcqIndex, rawText: '', imageDataUrl: photo, audioDataUrl: null, presetTranscript };
+    }
+    if (typeof o.value === 'string') {
+      if (o.value.startsWith('data:image')) return { mcqIndex, rawText: '', imageDataUrl: o.value, audioDataUrl: null, presetTranscript };
+      if (o.value.startsWith('data:audio')) return { mcqIndex, rawText: '', imageDataUrl: null, audioDataUrl: o.value, presetTranscript };
+    }
+    const rawText =
+      o.value !== undefined && o.value !== null && typeof o.value !== 'number' ? String(o.value) : '';
+    return { mcqIndex, rawText, imageDataUrl: null, audioDataUrl: null, presetTranscript };
+  }
+  return { mcqIndex: undefined, rawText: String(ans), imageDataUrl: null, audioDataUrl: null, presetTranscript: null };
+}
+
 export async function evaluateStudentExam(
   questions: StudentExamQuestion[],
-  answers: (number | string | { value?: number | string })[]
+  answers: (number | string | { value?: number | string; photoUrl?: string; audioTranscript?: string })[]
 ): Promise<{ score: number; feedback: { good: string[]; bad: string[]; overall: string; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[]; questionDetails?: QuestionResultDetail[]; lowSentimentWarning?: boolean } }> {
   let score = 0;
   const questionFeedback: { questionIndex: number; correct: boolean; feedback: string }[] = [];
@@ -42,7 +87,17 @@ export async function evaluateStudentExam(
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
     const ans = answers[i];
-    const val = typeof ans === 'object' && ans !== null && 'value' in ans ? ans.value : ans;
+    const parts = pickAnswerParts(ans);
+    let val: number | string = parts.mcqIndex !== undefined ? parts.mcqIndex : parts.rawText;
+    if (parts.presetTranscript) {
+      val = parts.presetTranscript;
+    } else if (parts.audioDataUrl) {
+      const transcribed = await withGeminiFallback(() => aiTranscribeAudio(parts.audioDataUrl!), '');
+      val = transcribed || '';
+    }
+    const imageDataUrl =
+      parts.imageDataUrl || (typeof val === 'string' && val.startsWith('data:image') ? val : null);
+    const isImageAnswer = !!imageDataUrl;
     let correct = false;
     let feedbackText = '';
     let marksObtained = 0;
@@ -54,8 +109,6 @@ export async function evaluateStudentExam(
       ? q.options[val] ?? String(val ?? 'Not answered')
       : String(val ?? 'Not answered');
 
-    const isImageAnswer = val && String(val).startsWith('data:image');
-
     if (q.type === 'mcq' && typeof val === 'number' && val === q.correctAnswer) {
       correct = true;
       marksObtained = q.marks;
@@ -63,7 +116,7 @@ export async function evaluateStudentExam(
       feedbackText = 'Correct';
     } else if (q.type === 'mcq') {
       feedbackText = `Correct answer: ${displayCorrectAnswer}`;
-    } else if (isImageAnswer) {
+    } else if (isImageAnswer && imageDataUrl) {
       const totalMarksForQ = q.marks;
       const aiEval = await withGeminiFallback(
         async () => {
@@ -76,7 +129,7 @@ Total marks: ${totalMarksForQ}
 
 Evaluate the student's drawing. Award partial marks for: correct elements, partial accuracy, right concept with minor errors.
 Return JSON only: { "marksObtained": <0 to ${totalMarksForQ}>, "feedback": "brief feedback on what was correct/incorrect in the drawing" }`,
-            [String(val)]
+            [String(imageDataUrl)]
           );
           const jsonMatch = result.match(/\{[\s\S]*\}/);
           if (jsonMatch?.[0]) {
@@ -137,11 +190,15 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
     }
 
     questionFeedback.push({ questionIndex: i, correct, feedback: feedbackText });
-    let userAnswerForDisplay: string | number = isImageAnswer
-      ? '[Drawing/Image submitted]'
-      : (typeof val === 'object' && val !== null && 'value' in val
-          ? ((val as { value?: number | string }).value ?? '')
-          : (val ?? '')) as string | number;
+    let userAnswerForDisplay: string | number;
+    if (isImageAnswer) {
+      userAnswerForDisplay = '[Drawing/Image submitted]';
+    } else if (parts.audioDataUrl) {
+      userAnswerForDisplay =
+        typeof val === 'string' && val.trim() ? val.trim() : '[Spoken answer]';
+    } else {
+      userAnswerForDisplay = (val ?? '') as string | number;
+    }
     questionDetails.push({
       questionIndex: i,
       question: q.question,
@@ -157,7 +214,14 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
 
   // Sentiment check for text answers - mask inappropriate content in display
   const textAnswerIndices = questionDetails
-    .map((d, i) => (typeof d.userAnswer === 'string' && d.userAnswer !== '[Drawing/Image submitted]' ? i : -1))
+    .map((d, i) =>
+      typeof d.userAnswer === 'string' &&
+      d.userAnswer !== '[Drawing/Image submitted]' &&
+      d.userAnswer !== '[Spoken answer]' &&
+      d.userAnswer.length > 2
+        ? i
+        : -1
+    )
     .filter((i) => i >= 0);
   if (textAnswerIndices.length > 0) {
     const textAnswers = textAnswerIndices.map((i) => String(questionDetails[i].userAnswer));

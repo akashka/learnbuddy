@@ -146,7 +146,7 @@ export default function StudyMaterialBook({
   const [isOpening, setIsOpening] = useState(false);
   const [spread, setSpread] = useState(0); // 0 = pages 0,1; 1 = pages 2,3; etc.
   const [isFlipping, setIsFlipping] = useState(false);
-  const [flipDirection, setFlipDirection] = useState<'next' | 'prev'>('next');
+
   const [dragState, setDragState] = useState<{ startX: number; currentX: number } | null>(null);
   const [textSizeIdx, setTextSizeIdx] = useState(1); // 0=small, 1=medium, 2=large
   const [flipCompleting, setFlipCompleting] = useState<'next' | 'prev' | null>(null);
@@ -184,7 +184,6 @@ export default function StudyMaterialBook({
 
   const goPrev = useCallback(() => {
     if (spread <= 0) return;
-    setFlipDirection('prev');
     setIsFlipping(true);
     setTimeout(() => {
       setSpread((s) => s - 1);
@@ -194,7 +193,6 @@ export default function StudyMaterialBook({
 
   const goNext = useCallback(() => {
     if (spread >= totalSpreads - 1) return;
-    setFlipDirection('next');
     setIsFlipping(true);
     setTimeout(() => {
       setSpread((s) => s + 1);

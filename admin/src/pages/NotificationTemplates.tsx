@@ -95,6 +95,11 @@ export default function NotificationTemplates() {
           <p className="mt-1 text-sm text-accent-700">
             Manage SMS, email, and in-app notification content. Edit, activate, or create new templates.
           </p>
+          {activeTab === 'email' && (
+            <p className="mt-2 text-xs text-accent-600">
+              📧 Emails are sent via Mailgun. Configure <code className="rounded bg-accent-100 px-1 py-0.5">MAILGUN_API_KEY</code> and <code className="rounded bg-accent-100 px-1 py-0.5">MAILGUN_DOMAIN</code> in backend .env — see <code className="rounded bg-accent-100 px-1 py-0.5">docs/MAILGUN_SETUP.md</code>
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-accent-700">

@@ -4,6 +4,7 @@ import connectDB from '@/lib/db';
 import { User } from '@/lib/models/User';
 import { EmailVerificationToken } from '@/lib/models/EmailVerificationToken';
 import { getAuthFromRequest } from '@/lib/auth';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).lean();
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     if (user.emailVerifiedAt) {
       return NextResponse.json({ success: true, message: 'Email already verified' });
@@ -25,11 +26,22 @@ export async function POST(request: NextRequest) {
     await EmailVerificationToken.deleteMany({ userId: user._id });
     await EmailVerificationToken.create({ userId: user._id, token, expiresAt });
 
-    const apiUrl = process.env.API_URL || process.env.BACKEND_URL || 'http://localhost:3000';
+    const apiUrl = process.env.API_URL || process.env.BACKEND_URL || 'http://localhost:3005';
     const verifyLink = `${apiUrl}/api/auth/verify-email?token=${token}`;
 
-    // TODO: Integrate email service (SendGrid, SES, etc.) - until then log link
-    console.log(`[Email Verification] Link for ${user.email}: ${verifyLink}`);
+    const email = (user as { email?: string }).email;
+    const name = (user as { email?: string }).email?.split('@')[0] || 'there';
+    if (email) {
+      sendTemplatedEmail({
+        to: email,
+        templateCode: 'email_verification',
+        variables: { name, verifyUrl: verifyLink },
+      }).catch((err) => console.error('[Email Verification] Send failed:', err));
+    }
+
+    if (process.env.NODE_ENV === 'development' && !email) {
+      console.log(`[Email Verification] No email for user, link: ${verifyLink}`);
+    }
 
     return NextResponse.json({
       success: true,

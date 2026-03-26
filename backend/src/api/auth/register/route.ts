@@ -4,6 +4,7 @@ import { User } from '@/lib/models/User';
 import { Teacher } from '@/lib/models/Teacher';
 import { Parent } from '@/lib/models/Parent';
 import { hashPassword, generateToken } from '@/lib/auth';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,6 +49,15 @@ export async function POST(request: NextRequest) {
         location: profileData.location,
         children: [],
       });
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      sendTemplatedEmail({
+        to: email,
+        templateCode: 'welcome_parent',
+        variables: {
+          name: profileData.name || email.split('@')[0],
+          ctaUrl: `${appUrl}/parent/dashboard`,
+        },
+      }).catch((err) => console.error('Welcome email error:', err));
     }
 
     const token = generateToken(user._id.toString(), user.role);

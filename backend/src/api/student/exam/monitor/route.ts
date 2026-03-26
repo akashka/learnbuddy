@@ -84,12 +84,28 @@ export async function POST(request: NextRequest) {
         timestamp: new Date(),
       };
     }
-    if (Object.keys(pushOps).length > 0) {
-      await StudentExam.findByIdAndUpdate(examId, {
-        ...(result.alert && { $inc: { warnings: 1 } }),
-        $push: pushOps,
-      });
-    }
+    const evidenceNote = [result.message, transcriptToStore].filter(Boolean).join(' — ').slice(0, 500);
+    const evidenceEntry: { timestamp: Date; alert: boolean; note?: string; frameSnapshot?: string } = {
+      timestamp: new Date(),
+      alert: !!result.alert,
+      ...(evidenceNote ? { note: evidenceNote } : {}),
+      ...(result.alert && typeof frame === 'string' && frame.length > 0
+        ? { frameSnapshot: frame.slice(0, 120_000) }
+        : {}),
+    };
+
+    const pushUpdate: Record<string, unknown> = {
+      monitoringEvidence: {
+        $each: [evidenceEntry],
+        $slice: -40,
+      },
+      ...pushOps,
+    };
+
+    await StudentExam.findByIdAndUpdate(examId, {
+      ...(result.alert ? { $inc: { warnings: 1 } } : {}),
+      $push: pushUpdate,
+    });
 
     const respTranscript = resultWithTranscript.transcriptDisplay ?? resultWithTranscript.transcript;
     return NextResponse.json({

@@ -6,9 +6,11 @@ import { StudentExam } from '@/lib/models/StudentExam';
 import { Enrollment } from '@/lib/models/Enrollment';
 import { Teacher } from '@/lib/models/Teacher';
 import { Parent } from '@/lib/models/Parent';
+import { User } from '@/lib/models/User';
 import { evaluateStudentExam, type StudentExamQuestion } from '@/lib/ai';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 import { logAIUsage } from '@/lib/ai-audit';
 
 export async function POST(request: NextRequest) {
@@ -34,10 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Exam not pending evaluation' }, { status: 400 });
     }
 
-    const normalizedAnswers = (exam.answers || []).map((a: unknown) => {
-      if (typeof a === 'object' && a !== null && 'value' in a) return (a as { value: number | string }).value;
-      return a;
-    });
+    const answersForEval = (exam.answers || []) as Parameters<typeof evaluateStudentExam>[1];
 
     const start = Date.now();
     let score: number;
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
     try {
       const result = await evaluateStudentExam(
         exam.questions as StudentExamQuestion[],
-        normalizedAnswers
+        answersForEval
       );
       score = result.score;
       feedback = result.feedback;
@@ -106,18 +105,37 @@ export async function POST(request: NextRequest) {
           userId = parent?.userId ? String(parent.userId) : null;
         }
         if (userId) {
-          const ctaUrl = t.type === 'teacher' ? '/teacher/exams' : '/parent/performances';
+          const ctaPath = t.type === 'teacher' ? '/teacher/exams' : '/parent/performances';
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          const ctaUrlFull = `${appUrl}${ctaPath}`;
           createNotification({
             userId: new mongoose.Types.ObjectId(userId),
             type: 'exam_completed',
             title: 'Exam result ready!',
             message: scoreMsg,
             ctaLabel: 'View Results',
-            ctaUrl,
+            ctaUrl: ctaPath,
             entityType: 'exam',
             entityId: String(examId),
             metadata: { score: finalScore, totalMarks: exam.totalMarks, subject: exam.subject },
           }).catch((err) => console.error('Notification error:', err));
+          if (t.type === 'parent') {
+            const parentUser = await User.findById(userId).select('email').lean();
+            const parentEmail = (parentUser as { email?: string })?.email;
+            if (parentEmail) {
+              sendTemplatedEmail({
+                to: parentEmail,
+                templateCode: 'exam_completed',
+                variables: {
+                  studentName,
+                  score: String(finalScore),
+                  totalMarks: String(exam.totalMarks),
+                  subject: exam.subject,
+                  ctaUrl: ctaUrlFull,
+                },
+              }).catch((err) => console.error('Email error:', err));
+            }
+          }
         }
       }
     }

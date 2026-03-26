@@ -30,10 +30,10 @@ export default function Navbar() {
     ],
     student: [
       { label: t('home'), path: '/student/dashboard' },
-      { label: 'Courses', path: '/student/courses' },
       { label: t('myClasses'), path: '/student/classes' },
       { label: 'Study Materials', path: '/student/study' },
       { label: t('exams'), path: '/student/exams' },
+      { label: '🏆 Performance', path: '/student/performance' },
     ],
   };
 

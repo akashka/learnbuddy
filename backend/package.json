@@ -18,8 +18,10 @@
     "seed-staff": "tsx scripts/seed-staff.ts",
     "seed-discount-codes": "tsx scripts/seed-discount-codes.ts",
     "seed-notification-templates": "tsx scripts/seed-notification-templates.ts",
+    "run-dashboard-metrics": "tsx scripts/run-dashboard-metrics.ts",
     "seed-all": "tsx scripts/seed-all.ts",
-    "seed-all:clear": "tsx scripts/seed-all.ts --clear"
+    "seed-all:clear": "tsx scripts/seed-all.ts --clear",
+    "test:scheduling": "tsx scripts/test-scheduling.ts"
   },
   "dependencies": {
     "@google/genai": "^1.44.0",
@@ -33,11 +35,14 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.0",
     "express-rate-limit": "^8.3.1",
+    "form-data": "^4.0.5",
     "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
+    "mailgun.js": "^12.7.1",
     "mongoose": "^9.2.4",
     "multer": "^2.1.1",
     "openai": "^6.32.0",
+    "socket.io": "^4.8.3",
     "tsc-alias": "^1.8.10",
     "uuid": "^13.0.0",
     "zod": "^4.3.6"

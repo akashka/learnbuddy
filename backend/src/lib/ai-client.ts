@@ -70,7 +70,8 @@ export async function generateStudentExamQuestions(
   board: string,
   classLevel: string,
   examType: ExamType,
-  topics?: string[]
+  topics?: string[],
+  answerInputType?: 'typed' | 'photo' | 'audio'
 ): Promise<{ questions: StudentExamQuestion[]; timeLimit: number; totalMarks: number }> {
   return call('/v1/generate/student-exam', {
     subject,
@@ -78,6 +79,7 @@ export async function generateStudentExamQuestions(
     classLevel,
     examType,
     topics,
+    answerInputType,
   });
 }
 

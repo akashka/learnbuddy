@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { api, apiJson, API_BASE } from '@/lib/api';
+import { apiJson, API_BASE } from '@/lib/api';
 import { formatCurrency, formatDate } from '@shared/formatters';
 import { PageHeader } from '@/components/PageHeader';
 import { ContentCard } from '@/components/ContentCard';
@@ -57,6 +57,49 @@ function maskAccount(acc?: string): string {
   return '••••' + acc.slice(-4);
 }
 
+interface PassbookTransaction {
+  _id: string;
+  type: string;
+  amount: number;
+  description: string;
+  date: string;
+}
+
+interface ProRataEarnings {
+  teacherId: string;
+  currentMonth: { year: number; month: number };
+  commissionPercent: number;
+  summary: {
+    totalScheduledClasses: number;
+    totalCompletedClasses: number;
+    calculatedProRataGross: number;
+    commissionAmount: number;
+    netProRataEarning: number;
+  };
+  carryOver: number;
+  deductions: number;
+  payments: number;
+  finalEstimatedEarning: number;
+  breakdown: any[];
+}
+
+interface PaymentRequest {
+  _id: string;
+  amount: number;
+  reason: string;
+  status: string;
+  adminNotes?: string;
+  createdAt: string;
+}
+
+interface AiSuggestion {
+  key: string;
+  suggestion: string;
+  impact_score: number;
+  rationale: string;
+  action_item: string;
+}
+
 export default function TeacherPayments() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -74,6 +117,15 @@ export default function TeacherPayments() {
     message?: string;
   } | null>(null);
   const [disputes, setDisputes] = useState<DisputeItem[]>([]);
+  
+  const [passbook, setPassbook] = useState<PassbookTransaction[]>([]);
+  const [proRata, setProRata] = useState<ProRataEarnings | null>(null);
+  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
+
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [requestForm, setRequestForm] = useState({ amount: '', reason: '' });
+  const [requestSubmitting, setRequestSubmitting] = useState(false);
 
   const fetchData = useCallback(() => {
     setError(null);
@@ -81,14 +133,23 @@ export default function TeacherPayments() {
     Promise.all([
       apiJson<Profile>('/api/teacher/profile'),
       apiJson<{ payments: Payment[] }>('/api/teacher/payments'),
-      apiJson<{ batches: unknown[]; nextPaymentMonth?: { year: number; month: number; label: string }; message?: string }>('/api/teacher/payments/schedule').catch(() => null),
+      apiJson<{ batches: { batchId: string; subject: string; students: { name: string }[]; feePerMonth: number }[]; nextPaymentMonth?: { year: number; month: number; label: string }; message?: string }>('/api/teacher/payments/schedule').catch(() => null),
       apiJson<{ disputes: DisputeItem[] }>('/api/disputes').catch(() => ({ disputes: [] })),
+      apiJson<{ transactions: PassbookTransaction[] }>('/api/teacher/earnings/passbook').catch(() => ({ transactions: [] })),
+      apiJson<{ data: ProRataEarnings }>('/api/teacher/earnings/pro-rata').catch(() => ({ data: null })),
+      apiJson<{ requests: PaymentRequest[] }>('/api/teacher/payment-requests').catch(() => ({ requests: [] })),
+      apiJson<{ data: { suggestions: AiSuggestion[] } }>('/api/teacher/ai-suggestions').catch(() => ({ data: { suggestions: [] } })),
     ])
-      .then(([p, pay, sched, disp]) => {
+      .then(([p, pay, sched, disp, pass, prData, reqs, aiData]) => {
         setProfile(p);
         setPayments(pay.payments || []);
         setSchedule(sched ?? null);
         setDisputes(disp?.disputes || []);
+        setPassbook(pass?.transactions || []);
+        setProRata(prData?.data || null);
+        setPaymentRequests(reqs?.requests || []);
+        setAiSuggestions(aiData?.data?.suggestions || []);
+        
         const b = p.bankDetails;
         setBankForm({
           accountNumber: b?.accountNumber || '',
@@ -151,6 +212,29 @@ export default function TeacherPayments() {
     }
   };
 
+  const handleRequestPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!requestForm.amount || !requestForm.reason) return;
+    
+    setRequestSubmitting(true);
+    try {
+      await apiJson('/api/teacher/payment-requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: Number(requestForm.amount),
+          reason: requestForm.reason
+        })
+      });
+      setRequestModalOpen(false);
+      setRequestForm({ amount: '', reason: '' });
+      fetchData(); // Refresh list
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to request payment');
+    } finally {
+      setRequestSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4">
@@ -165,7 +249,6 @@ export default function TeacherPayments() {
   const bank = profile?.bankDetails;
   const hasBank = !!(bank?.accountNumber && bank?.ifsc && bank?.bankName);
   const pendingPayments = payments.filter((p) => p.status === 'pending');
-  const paidPayments = payments.filter((p) => p.status === 'paid');
 
   return (
     <div className="w-full animate-fade-in">
@@ -361,6 +444,118 @@ export default function TeacherPayments() {
           </ContentCard>
         )}
 
+        {/* Pro-Rata Monthly Earnings */}
+        {proRata && (
+          <ContentCard className="stagger-2">
+            <div className="p-6 sm:p-8">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-green-100 text-2xl shadow-md">
+                    📊
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-brand-800">Current Month Earnings</h2>
+                    <p className="text-sm text-gray-600">Estimated pro-rata earnings for {proRata.currentMonth.month}/{proRata.currentMonth.year}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRequestModalOpen(true)}
+                  className="rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-200"
+                >
+                  Emergency Request
+                </button>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl border border-brand-100 p-4">
+                  <p className="text-sm text-gray-500">Classes</p>
+                  <p className="mt-1 text-2xl font-bold text-brand-800">{proRata.summary.totalCompletedClasses} / {proRata.summary.totalScheduledClasses}</p>
+                </div>
+                <div className="rounded-xl border border-brand-100 p-4">
+                  <p className="text-sm text-gray-500">Commission Rate</p>
+                  <p className="mt-1 text-2xl font-bold text-brand-800">{proRata.commissionPercent}%</p>
+                </div>
+                <div className="rounded-xl border border-brand-100 p-4">
+                  <p className="text-sm text-gray-500">Pro-Rata Base</p>
+                  <p className="mt-1 text-2xl font-bold text-brand-800">₹{proRata.summary.netProRataEarning.toFixed(2)}</p>
+                </div>
+                <div className="rounded-xl border-2 border-emerald-100 bg-emerald-50/30 p-4">
+                  <p className="text-sm font-medium text-emerald-800">Final Est. Earnings</p>
+                  <p className="mt-1 text-2xl font-bold text-emerald-700">₹{proRata.finalEstimatedEarning.toFixed(2)}</p>
+                  <p className="mt-1 text-xs text-emerald-600">Includes carry-overs & deductions</p>
+                </div>
+              </div>
+            </div>
+          </ContentCard>
+        )}
+
+        {/* Emergency Payout Requests */}
+        {paymentRequests.length > 0 && (
+          <ContentCard className="stagger-2">
+            <div className="p-6 sm:p-8">
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 text-2xl shadow-md">
+                  🆘
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-brand-800">Emergency Requests</h2>
+                  <p className="text-sm text-gray-600">Your recent payout requests</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {paymentRequests.map((req) => (
+                  <div key={req._id} className="flex items-center justify-between rounded-xl border border-brand-100 p-4">
+                    <div>
+                      <p className="font-semibold text-brand-800">₹{req.amount.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600">{req.reason}</p>
+                      <p className="mt-1 text-xs text-gray-400">{new Date(req.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <span className={`rounded-xl px-3 py-1 text-xs font-semibold ${req.status === 'accepted' ? 'bg-green-100 text-green-700' : req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {req.status.toUpperCase()}
+                      </span>
+                      {req.adminNotes && <p className="mt-2 text-xs text-gray-500 text-right">Note: {req.adminNotes}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ContentCard>
+        )}
+
+        {/* AI Suggestions */}
+        {aiSuggestions.length > 0 && (
+          <ContentCard className="stagger-2">
+            <div className="p-6 sm:p-8">
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100 text-2xl shadow-md">
+                  ✨
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-brand-800">AI Income Insights</h2>
+                  <p className="text-sm text-gray-600">Strategic suggestions from LearnBuddy AI to maximize your earnings</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {aiSuggestions.map((sugo, i) => (
+                  <div key={i} className="rounded-xl border border-purple-100 bg-purple-50/30 p-4">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-purple-900">{sugo.suggestion}</h3>
+                      <span className="shrink-0 rounded-full bg-purple-100 px-2 flex items-center gap-1 py-0.5 text-xs font-medium text-purple-700">
+                        Impact: {sugo.impact_score}/10
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-purple-800/80">{sugo.rationale}</p>
+                    <div className="mt-3 inline-flex items-center gap-1 rounded bg-white px-2 py-1 text-xs font-medium text-purple-700 shadow-sm border border-purple-100">
+                      🎯 Action: {sugo.action_item}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ContentCard>
+        )}
+
         {/* Passbook / Payment history */}
         <ContentCard className="stagger-3">
           <div className="p-6 sm:p-8">
@@ -394,44 +589,83 @@ export default function TeacherPayments() {
               </div>
             ) : (
               <div className="space-y-3">
-                {payments.map((p) => (
-                  <div
-                    key={p._id}
-                    className="flex items-center justify-between rounded-xl border-2 border-brand-100 bg-white p-4 transition hover:border-brand-200 hover:shadow-md"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl ${
-                          p.status === 'paid'
-                            ? 'bg-green-100 text-green-700'
-                            : p.status === 'pending'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-red-100 text-red-700'
-                        }`}
-                      >
-                        {p.status === 'paid' ? '✓' : p.status === 'pending' ? '⏳' : '✕'}
+                {passbook.length > 0 ? (
+                  passbook.map((tx) => (
+                    <div
+                      key={tx._id}
+                      className="flex items-center justify-between rounded-xl border-2 border-brand-100 bg-white p-4 transition hover:border-brand-200 hover:shadow-md"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl ${
+                            tx.type === 'credit'
+                              ? 'bg-green-100 text-green-700'
+                              : tx.type === 'deduction'
+                                ? 'bg-red-100 text-red-700'
+                                : tx.type === 'payment'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-amber-100 text-amber-700'
+                          }`}
+                        >
+                          {tx.type === 'credit' ? 'C' : tx.type === 'deduction' ? 'D' : tx.type === 'payment' ? 'P' : 'R'}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-brand-800">
+                            {tx.description}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {formatDate(tx.date)}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-brand-800">
-                          {p.periodStart && p.periodEnd
-                            ? `${formatDate(p.periodStart)} – ${formatDate(p.periodEnd)}`
-                            : 'Payment'}
+                      <div className="text-right">
+                        <p className={`font-bold ${tx.type === 'deduction' || tx.type === 'payment' ? 'text-red-600' : 'text-green-600'}`}>
+                          {tx.type === 'deduction' || tx.type === 'payment' ? '-' : '+'}₹{tx.amount.toFixed(2)}
                         </p>
-                        <p className="text-sm text-gray-600">
-                          {formatCurrency(p.amount)} • {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
-                          {p.paidAt && ` • Paid ${formatDate(p.paidAt)}`}
-                        </p>
+                        <p className="text-xs text-gray-500 uppercase">{tx.type}</p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setViewPayment(p)}
-                      className="rounded-lg bg-brand-100 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-200"
+                  ))
+                ) : (
+                  payments.map((p) => (
+                    <div
+                      key={p._id}
+                      className="flex items-center justify-between rounded-xl border-2 border-brand-100 bg-white p-4 transition hover:border-brand-200 hover:shadow-md"
                     >
-                      Details
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl ${
+                            p.status === 'paid'
+                              ? 'bg-green-100 text-green-700'
+                              : p.status === 'pending'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-red-100 text-red-700'
+                          }`}
+                        >
+                          {p.status === 'paid' ? '✓' : p.status === 'pending' ? '⏳' : '✕'}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-brand-800">
+                            {p.periodStart && p.periodEnd
+                              ? `${formatDate(p.periodStart)} – ${formatDate(p.periodEnd)}`
+                              : 'Payment'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {formatCurrency(p.amount)} • {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                            {p.paidAt && ` • Paid ${formatDate(p.paidAt)}`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setViewPayment(p)}
+                        className="rounded-lg bg-brand-100 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-200"
+                      >
+                        Details
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -581,7 +815,7 @@ export default function TeacherPayments() {
                         className="flex justify-between rounded-lg border border-brand-100 bg-white px-3 py-2 text-sm"
                       >
                         <span>{b.studentName} • {b.subject}</span>
-                        <span className="font-medium">{formatCurrency(b.amount)}</span>
+                        <span className="font-medium">{formatCurrency(b.amount || 0)}</span>
                       </li>
                     ))}
                   </ul>
@@ -594,6 +828,56 @@ export default function TeacherPayments() {
           </div>
         </Modal>
       )}
+
+      {/* Emergency Request Modal */}
+      {requestModalOpen && (
+        <Modal isOpen onClose={() => setRequestModalOpen(false)} maxWidth="max-w-md">
+          <div className="overflow-hidden rounded-2xl border-2 border-brand-200 bg-white shadow-2xl">
+            <div className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4">
+              <h3 className="text-lg font-bold text-brand-800">Emergency Payment Request</h3>
+            </div>
+            <form onSubmit={handleRequestPayment} className="p-6 space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Amount (₹)</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  max={proRata?.finalEstimatedEarning || 100000}
+                  value={requestForm.amount}
+                  onChange={(e) => setRequestForm((f) => ({ ...f, amount: e.target.value }))}
+                  placeholder="e.g. 5000"
+                  className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                />
+                {proRata && (
+                  <p className="mt-1 text-xs text-brand-600">Available pro-rata base: ₹{proRata.finalEstimatedEarning.toFixed(2)}</p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Reason</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={requestForm.reason}
+                  onChange={(e) => setRequestForm((f) => ({ ...f, reason: e.target.value }))}
+                  placeholder="Please describe why you need an emergency payout"
+                  className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={requestSubmitting || !requestForm.amount || !requestForm.reason}
+                  className="w-full rounded-xl bg-amber-500 px-4 py-3 font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+                >
+                  {requestSubmitting ? 'Submitting...' : 'Submit Request'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+
     </div>
   );
 }

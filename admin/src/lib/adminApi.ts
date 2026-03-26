@@ -95,6 +95,11 @@ export const adminApi = {
       apiJson(`${BASE}/teachers/${id}/approve-bgv`, {
         method: 'POST',
       }),
+    proRata: (id: string, date?: string) => {
+      const sp = new URLSearchParams();
+      if (date) sp.set('date', date);
+      return apiJson<{ data: unknown }>(`${BASE}/teachers/${id}/earnings/pro-rata${sp.toString() ? `?${sp}` : ''}`);
+    },
   },
   parents: {
     list: (params?: { search?: string; sort?: string; order?: string; page?: number; limit?: number }) => {
@@ -533,6 +538,21 @@ export const adminApi = {
     }) =>
       apiJson(`${BASE}/teacher-payments`, {
         method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+  paymentRequests: {
+    list: (params?: { status?: string; page?: number; limit?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.status) sp.set('status', params.status);
+      if (params?.page) sp.set('page', String(params.page));
+      if (params?.limit) sp.set('limit', String(params.limit));
+      const q = sp.toString();
+      return apiJson<{ requests: unknown[]; pagination: { total: number; page: number; limit: number; totalPages: number } }>(`${BASE}/payment-requests${q ? `?${q}` : ''}`);
+    },
+    resolve: (id: string, data: { status: 'accepted' | 'rejected'; adminNotes?: string }) =>
+      apiJson(`${BASE}/payment-requests/${id}/resolve`, {
+        method: 'PUT',
         body: JSON.stringify(data),
       }),
   },

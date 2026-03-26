@@ -26,6 +26,7 @@ export interface ITeacherPayment extends Document {
   tdsAmount?: number;
   tdsPercent?: number;
   breakdown?: IPaymentBreakdownItem[];
+  earningTransactionIds?: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +60,7 @@ const TeacherPaymentSchema = new Schema<ITeacherPayment>(
     tdsAmount: Number,
     tdsPercent: Number,
     breakdown: [PaymentBreakdownItemSchema],
+    earningTransactionIds: [{ type: Schema.Types.ObjectId, ref: 'TeacherEarningTransaction' }],
   },
   { timestamps: true }
 );

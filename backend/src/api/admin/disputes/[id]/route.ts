@@ -4,6 +4,7 @@ import connectDB from '@/lib/db';
 import { PaymentDispute } from '@/lib/models/PaymentDispute';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 /** Admin: Get single dispute */
 export async function GET(
@@ -90,7 +91,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    const userId = dispute.userId as mongoose.Types.ObjectId;
+    const userId = (dispute.userId as { _id?: mongoose.Types.ObjectId })?._id ?? (dispute.userId as mongoose.Types.ObjectId);
     if (userId) {
       const statusLabel = status === 'resolved' ? 'Resolved' : status === 'rejected' ? 'Rejected' : status === 'in_review' ? 'In Review' : 'Updated';
       createNotification({
@@ -105,6 +106,15 @@ export async function PATCH(
         entityType: 'dispute',
         entityId: id,
       }).catch((err) => console.error('Dispute notification error:', err));
+      const userEmail = (dispute.userId as { email?: string })?.email;
+      if (userEmail) {
+        const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+        sendTemplatedEmail({
+          to: userEmail,
+          templateCode: 'dispute_updated',
+          variables: { status: statusLabel, ctaUrl: `${appUrl}/disputes` },
+        }).catch((err) => console.error('Email error:', err));
+      }
     }
 
     return NextResponse.json(dispute);

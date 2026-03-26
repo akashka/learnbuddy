@@ -26,13 +26,7 @@ const DEFAULT_CHANNELS: NotificationChannels = {
   paymentReminders: true,
 };
 
-function getDefaultTimezone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
-  } catch {
-    return 'Asia/Kolkata';
-  }
-}
+
 
 const DEFAULT: Preferences = {
   dateFormat: 'short',

@@ -3,13 +3,16 @@ import connectDB from '@/lib/db';
 import { PendingEnrollment } from '@/lib/models/PendingEnrollment';
 import { Student } from '@/lib/models/Student';
 import { Enrollment } from '@/lib/models/Enrollment';
+import { Teacher } from '@/lib/models/Teacher';
 import { incrementDiscountCodeUsage } from '@/lib/discount-utils';
 import { User } from '@/lib/models/User';
 import { Parent } from '@/lib/models/Parent';
 import { hashPassword } from '@/lib/auth';
 import { verifyDocumentPhoto } from '@/lib/ai';
-import { generateClassSchedules } from '@/lib/generate-class-schedules';
+import { addJob, JOB_NAMES } from '@/lib/queue';
 import { logAIUsage } from '@/lib/ai-audit';
+import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 /** Batch start date: min = tomorrow, max = 30 days from today */
 function getValidBatchStartDate(batchStartDate?: Date | string | null): Date {
@@ -134,7 +137,9 @@ export async function finalizePendingEnrollment(
       );
     }
 
-    generateClassSchedules().catch((err) => console.error('Schedule generation after renewal:', err));
+    addJob(JOB_NAMES.ENROLLMENT_CONFIRMATION, { enrollmentId: String(renewalOfId) }).catch((err) =>
+      console.error('Enqueue enrollment confirmation after renewal:', err)
+    );
 
     const stu = await Student.findById(enr.studentId).lean();
     return {
@@ -312,7 +317,37 @@ export async function finalizePendingEnrollment(
     );
   }
 
-  generateClassSchedules().catch((err) => console.error('Schedule generation after enrollment:', err));
+  addJob(JOB_NAMES.ENROLLMENT_CONFIRMATION, { enrollmentId: String(enrollment._id) }).catch((err) =>
+    console.error('Enqueue enrollment confirmation after enrollment:', err)
+  );
+
+  const teacherIdRef = (pending.teacherId as { _id?: mongoose.Types.ObjectId })?._id ?? pending.teacherId;
+  const teacherDoc = await Teacher.findById(teacherIdRef).select('userId').lean();
+  const studentDoc = await Student.findById(student._id).select('name').lean();
+  const studentName = studentDoc?.name || 'A student';
+  const subject = batch.subject || 'batch';
+  if (teacherDoc?.userId) {
+    createNotification({
+      userId: teacherDoc.userId as mongoose.Types.ObjectId,
+      type: 'course_purchased',
+      title: 'New student enrolled!',
+      message: `${studentName} has joined your ${subject} batch.`,
+      ctaLabel: 'View Classes',
+      ctaUrl: '/teacher/classes',
+      entityType: 'enrollment',
+      entityId: String(enrollment._id),
+    }).catch((err) => console.error('Notification error:', err));
+    const teacherUser = await User.findById(teacherDoc.userId).select('email').lean();
+    const teacherEmail = (teacherUser as { email?: string })?.email;
+    if (teacherEmail) {
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      sendTemplatedEmail({
+        to: teacherEmail,
+        templateCode: 'course_purchased',
+        variables: { studentName, subject, ctaUrl: `${appUrl}/teacher/classes` },
+      }).catch((err) => console.error('Email error:', err));
+    }
+  }
 
   return {
     enrollmentId: String(enrollment._id),

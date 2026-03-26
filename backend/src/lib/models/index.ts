@@ -21,5 +21,7 @@ import { WebsitePageContent } from './WebsitePageContent';
 import { DocumentFolder } from './DocumentFolder';
 import { Document } from './Document';
 import { DiscountCode } from './DiscountCode';
+import { TeacherPaymentRequest } from './TeacherPaymentRequest';
+import { TeacherEarningTransaction } from './TeacherEarningTransaction';
 
-export { User, Teacher, Parent, Student, Enrollment, TeacherReview, TeacherPayment, PendingEnrollment, DiscountCode, CmsPage, WebsiteSettings, JobPosition, JobApplication, ConsentLog, SecurityIncident, ContactSubmission, WebsitePageContent, DocumentFolder, Document };
+export { User, Teacher, Parent, Student, Enrollment, TeacherReview, TeacherPayment, PendingEnrollment, DiscountCode, CmsPage, WebsiteSettings, JobPosition, JobApplication, ConsentLog, SecurityIncident, ContactSubmission, WebsitePageContent, DocumentFolder, Document, TeacherPaymentRequest, TeacherEarningTransaction };

@@ -6,6 +6,7 @@ import { User } from '@/lib/models/User';
 import { verifyTeacherRegistrationSession } from '@/lib/teacher-registration-session';
 import { generateToken } from '@/lib/auth';
 import { cacheInvalidatePattern } from '@/lib/cache';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -129,6 +130,18 @@ export async function POST(request: NextRequest) {
     await cacheInvalidatePattern('marketplace:*');
 
     const userDoc = await User.findById(userId).lean();
+    const teacherEmail = (userDoc as { email?: string })?.email || step1.email;
+    if (teacherEmail) {
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      sendTemplatedEmail({
+        to: teacherEmail,
+        templateCode: 'welcome_teacher',
+        variables: {
+          name: step1.name || teacherEmail.split('@')[0],
+          ctaUrl: `${appUrl}/teacher/profile`,
+        },
+      }).catch((err) => console.error('Welcome email error:', err));
+    }
     const token = generateToken(userId.toString(), 'teacher');
 
     return NextResponse.json({

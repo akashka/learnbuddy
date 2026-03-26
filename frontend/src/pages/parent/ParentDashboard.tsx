@@ -3,81 +3,70 @@ import { Link } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { InlineErrorDisplay } from '@/components/InlineErrorDisplay';
-import { PageHeader } from '@/components/PageHeader';
+import { AccordionSection } from '@/components/dashboard/AccordionSection';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { QuickLinks } from '@/components/dashboard/QuickLinks';
+import { SmartNotifications } from '@/components/dashboard/SmartNotifications';
+import { PendingActions } from '@/components/dashboard/PendingActions';
+import { SimpleBarChart } from '@/components/dashboard/SimpleBarChart';
+import { TeacherRecommendationsCarousel } from '@/components/dashboard/TeacherRecommendationsCarousel';
 
-interface Profile {
-  name?: string;
-  email?: string;
-  phone?: string;
-  location?: string;
+interface DashboardData {
+  profile: { name?: string; email?: string };
+  checklist: { id: string; label: string; done: boolean; href: string; cta: string }[];
+  pendingActions: { type: string; title: string; message: string; href: string; count?: number }[];
+  smartNotifications: { type: string; title: string; message: string; href: string; priority?: string }[];
+  bestTeachers: {
+    teacherId: string;
+    name: string;
+    photoUrl?: string;
+    matchReason: string;
+    matchedSubjects: string[];
+  }[];
+  kids: {
+    studentMongoId: string;
+    studentId: string;
+    name: string;
+    board: string;
+    classLevel: string;
+    stats: {
+      classesDone: number;
+      examsTaken: number;
+      avgScore: number;
+      courseMaterialGenerated: number;
+      doubtsAnswered: number;
+    };
+    chartData: { label: string; value: number; color?: string }[];
+    aiInsights: { performanceSummary: string; suggestions: string[] };
+  }[];
+  stats: {
+    activeEnrollments: number;
+    totalClassesDone: number;
+    totalExamsTaken: number;
+    avgScore: number;
+    totalCourseMaterialGenerated: number;
+    totalDoubtsAnswered: number;
+  };
+  metrics?: {
+    performanceSummary?: string;
+    suggestions?: string[];
+    chartData?: { label: string; value: number; color?: string }[];
+  };
+  quickLinks: { href: string; icon: string; label: string }[];
 }
-
-interface ChecklistItem {
-  id: string;
-  label: string;
-  done: boolean;
-  href: string;
-  cta: string;
-}
-
-type PaymentFailedItem = {
-  _id: string;
-  subject?: string;
-  classLevel?: string;
-  teacherName?: string;
-  totalAmount?: number;
-};
-
-type UpcomingItem = {
-  _id: string;
-  subject?: string;
-  totalAmount?: number;
-  endDate?: string;
-  student?: { name?: string };
-  teacher?: { name?: string };
-};
-
-type DisputeSummary = { _id: string; subject: string; status: string }[];
-
-const PARENT_MENU = [
-  { href: '/parent/students', icon: '👦', title: 'Student Details', desc: 'See kids details, update them' },
-  { href: '/parent/marketplace', icon: '👩‍🏫', title: 'Teachers', desc: 'Browse marketplace, book for existing or new student' },
-  { href: '/parent/performances', icon: '📊', title: 'Performances', desc: 'Kids exam & class performance' },
-  { href: '/parent/classes', icon: '📅', title: 'Classes', desc: 'Old class videos, upcoming schedules' },
-  { href: '/parent/payments', icon: '💰', title: 'Payments', desc: 'History, upcoming renewals' },
-  { href: '/parent/profile', icon: '👤', title: 'Profile', desc: 'View & edit your profile' },
-  { href: '/parent/settings', icon: '⚙️', title: 'Settings', desc: 'Language, notifications & preferences' },
-];
 
 export default function ParentDashboard() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
-  const [paymentFailed, setPaymentFailed] = useState<PaymentFailedItem[]>([]);
-  const [upcoming, setUpcoming] = useState<UpcomingItem[]>([]);
-  const [disputes, setDisputes] = useState<DisputeSummary>([]);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | string | null>(null);
+  const [selectedKidMongoId, setSelectedKidMongoId] = useState<string>('');
   const { t } = useLanguage();
 
   const fetchData = useCallback(() => {
     setError(null);
     setLoading(true);
-    Promise.all([
-      apiJson<Profile>('/api/parent/profile'),
-      apiJson<{ checklist: ChecklistItem[] }>('/api/parent/onboarding-status').catch(() => ({ checklist: [] })),
-      apiJson<{ paymentFailed: PaymentFailedItem[] }>('/api/parent/pending-mappings').catch(() => ({
-        paymentFailed: [],
-      })),
-      apiJson<{ upcoming: UpcomingItem[] }>('/api/parent/payments').catch(() => ({ upcoming: [] })),
-      apiJson<{ disputes: DisputeSummary }>('/api/disputes').catch(() => ({ disputes: [] })),
-    ])
-      .then(([p, onboarding, pm, pay, disp]) => {
-        setProfile(p);
-        setChecklist(onboarding.checklist || []);
-        setPaymentFailed(pm.paymentFailed || []);
-        setUpcoming(pay.upcoming || []);
-        setDisputes(disp.disputes || []);
-      })
+    apiJson<DashboardData>('/api/parent/dashboard')
+      .then(setData)
       .catch((e) => setError(e instanceof Error ? e : String(e)))
       .finally(() => setLoading(false));
   }, []);
@@ -86,146 +75,183 @@ export default function ParentDashboard() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    if (!data) return;
+    if (!selectedKidMongoId && data.kids.length > 0) {
+      setSelectedKidMongoId(data.kids[0].studentMongoId);
+    }
+  }, [data, selectedKidMongoId]);
+
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-brand-600" />
-        <p className="text-sm font-medium text-gray-500">Loading...</p>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
+        <p className="text-sm font-medium text-brand-600">Loading your dashboard...</p>
       </div>
     );
   }
   if (error) return <InlineErrorDisplay error={error} onRetry={fetchData} fullPage />;
+  if (!data) return null;
+
+  const hasIncompleteTodo = data.checklist.some((c) => !c.done);
 
   return (
-    <div className="w-full animate-fade-in">
-      <PageHeader
-        icon="👨‍👩‍👧‍👦"
-        title={`${t('welcome')}, ${profile?.name || t('parent')}!`}
-        subtitle="Manage your kids' learning"
-      />
-
-      {paymentFailed.length > 0 && (
-        <div className="mb-6 w-full rounded-2xl border-2 border-red-300 bg-gradient-to-r from-red-600 to-rose-600 p-4 text-white shadow-lg sm:mb-8 sm:p-5">
-          <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex min-w-0 flex-1 items-start gap-3">
-              <span className="text-2xl shrink-0" aria-hidden>
-                💳
-              </span>
-              <div className="min-w-0">
-                <p className="font-bold text-white">
-                  {paymentFailed.length === 1 ? 'Payment failed — retry to keep your seat' : `${paymentFailed.length} payments need retry`}
-                </p>
-                <p className="text-sm text-red-100">
-                  Complete payment from the link below so your booking isn’t lost.
-                </p>
-              </div>
-            </div>
-            <div className="flex w-full flex-wrap gap-2 lg:w-auto lg:shrink-0 lg:justify-end">
-              {paymentFailed.map((p) => (
-                <Link
-                  key={p._id}
-                  to={`/parent/payment?pendingId=${p._id}`}
-                  className="inline-flex flex-1 items-center justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-red-700 shadow-md transition hover:bg-red-50 sm:flex-none"
-                >
-                  Retry{p.subject ? `: ${p.subject}` : ''}
-                </Link>
-              ))}
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-7xl animate-fade-in px-4 sm:px-6 lg:px-8" style={{ marginTop: "-2%" }}>
+      {/* Hero header - full width gradient */}
+      <div className="relative -mx-4 mb-8 overflow-hidden rounded-b-3xl bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 px-6 py-10 shadow-2xl sm:-mx-6 sm:px-8 lg:-mx-8 lg:px-12">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.08\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold text-white drop-shadow-md sm:text-4xl">
+            {t('welcome')}, {data.profile?.name || t('parent')}! 👋
+          </h1>
+          <p className="mt-2 text-lg text-white/90">Manage your kids&apos; learning journey</p>
         </div>
-      )}
+      </div>
 
-      {checklist.length > 0 && !checklist.every((i) => i.done) && (
-        <div className="mb-6 w-full max-w-4xl sm:mb-8">
-          <div className="relative overflow-hidden rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 shadow-lg">
-            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-accent-200/25 blur-xl" />
-            <h2 className="relative mb-4 flex items-center gap-2 text-lg font-bold text-brand-800">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-violet-100 text-xl">📋</span>
-              Getting Started
-            </h2>
-            <ul className="relative space-y-3">
-              {checklist.map((item) => (
-                <li key={item.id} className="flex items-center gap-3 rounded-xl border border-brand-100 bg-white/80 p-3">
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      item.done ? 'bg-green-100 text-green-700' : 'bg-brand-100 text-brand-600'
+      <div className="space-y-8">
+        {/* Pending actions - prominent */}
+        <PendingActions actions={data.pendingActions} />
+
+        {/* Smart notifications */}
+        {data.smartNotifications.length > 0 && (
+          <div className="rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-lg">
+            <SmartNotifications notifications={data.smartNotifications} />
+          </div>
+        )}
+
+        {/* To-do list - accordion */}
+        {data.checklist.length > 0 && (
+          <AccordionSection
+            title="To-do list"
+            icon="📋"
+            defaultOpen={hasIncompleteTodo}
+          >
+            <ul className="space-y-3">
+              {data.checklist.map((item) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center justify-between gap-4 rounded-xl p-4 ${item.done ? 'bg-emerald-50' : 'bg-amber-50'
                     }`}
-                  >
-                    {item.done ? '✓' : '○'}
+                >
+                  <span className="flex items-center gap-3 font-medium text-brand-800">
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-full ${item.done ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-white'}`}>
+                      {item.done ? '✓' : '○'}
+                    </span>
+                    {item.label}
                   </span>
-                  <span className="flex-1 font-medium text-brand-800">{item.label}</span>
                   <Link
                     to={item.href}
-                    className="rounded-lg bg-brand-100 px-3 py-1.5 text-sm font-medium text-brand-700 transition hover:bg-brand-200"
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${item.done ? 'bg-emerald-200 text-emerald-800 hover:bg-emerald-300' : 'bg-amber-500 text-white hover:bg-amber-600'
+                      }`}
                   >
                     {item.cta}
                   </Link>
                 </li>
               ))}
             </ul>
+          </AccordionSection>
+        )}
+
+        {/* Quick links */}
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-brand-800">
+            <span>🔗</span> Quick links
+          </h2>
+          <QuickLinks links={data.quickLinks} />
+        </div>
+
+        {/* Best teacher recommendations */}
+        {data.bestTeachers.length > 0 && (
+          <div>
+            <TeacherRecommendationsCarousel teachers={data.bestTeachers} />
+          </div>
+        )}
+
+        {/* Overall stats */}
+        <div>
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-brand-800">
+            <span>📊</span> Parent overview
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard icon="📚" label="Active enrollments" value={data.stats.activeEnrollments} gradient="from-brand-500 to-violet-600" />
+            <StatCard icon="✅" label="Classes done" value={data.stats.totalClassesDone} gradient="from-emerald-500 to-teal-600" />
+            <StatCard icon="📝" label="Exams taken" value={data.stats.totalExamsTaken} gradient="from-amber-500 to-orange-600" />
+            <StatCard icon="⭐" label="Avg score" value={data.stats.avgScore + '%'} gradient="from-rose-500 to-pink-600" subtext="Across kids" />
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+            <StatCard icon="📚" label="Course material generated" value={data.stats.totalCourseMaterialGenerated} gradient="from-indigo-500 to-blue-600" />
+            <StatCard icon="💡" label="Doubts answered" value={data.stats.totalDoubtsAnswered} gradient="from-fuchsia-500 to-pink-600" />
           </div>
         </div>
-      )}
 
-      {(upcoming.length > 0 || disputes.some((d) => d.status === 'open' || d.status === 'in_review')) && (
-        <div className="mb-6 w-full max-w-4xl space-y-6 sm:mb-8">
-          {upcoming.length > 0 && (
-            <Link
-              to="/parent/payments"
-              className="block overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-50/50 p-6 shadow-lg transition hover:border-amber-300 hover:shadow-xl"
-            >
-              <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-amber-900">
-                <span className="text-2xl">📅</span> Upcoming renewals
-              </h2>
-              <p className="mb-4 text-amber-800">
-                {upcoming.length} enrollment{upcoming.length !== 1 ? 's' : ''} ending soon. Plan your renewals.
-              </p>
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700">
-                View payments <span aria-hidden>→</span>
-              </span>
-            </Link>
-          )}
-          {disputes.some((d) => d.status === 'open' || d.status === 'in_review') && (
-            <Link
-              to="/disputes"
-              className="block overflow-hidden rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50 via-white to-violet-50/50 p-6 shadow-lg transition hover:border-brand-300 hover:shadow-xl"
-            >
-              <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-brand-900">
-                <span className="text-2xl">⚖️</span> Your disputes
-              </h2>
-              <p className="mb-4 text-brand-800">
-                {disputes.filter((d) => d.status === 'open' || d.status === 'in_review').length} open dispute
-                {disputes.filter((d) => d.status === 'open' || d.status === 'in_review').length !== 1 ? 's' : ''}. Track status and admin response.
-              </p>
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700">
-                View disputes <span aria-hidden>→</span>
-              </span>
-            </Link>
-          )}
-        </div>
-      )}
+        {/* Kids performance (switchable) */}
+        {data.kids.length > 0 && (
+          (() => {
+            const selectedKid =
+              data.kids.find((k) => k.studentMongoId === selectedKidMongoId) || data.kids[0];
 
-      <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        {PARENT_MENU.map((item, idx) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className="card-funky animate-slide-up relative overflow-hidden rounded-2xl border-2 border-brand-200/80 bg-gradient-to-br from-brand-50 via-white to-accent-100 p-6 shadow-lg transition-all duration-300 hover:border-brand-300 hover:shadow-xl"
-            style={{ animationDelay: `${idx * 0.05}s` }}
-          >
-            <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-accent-200/20 blur-xl" />
-            <div className="absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-brand-200/15 blur-lg" />
-            <div className="relative flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-100 via-violet-100 to-brand-200 text-2xl shadow-md">
-                {item.icon}
+            return (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-brand-800">
+                    <span>🧒</span> Kids performance
+                  </h2>
+                  <div className="flex w-full gap-2 overflow-x-auto pb-1">
+                    {data.kids.map((k) => {
+                      const active = k.studentMongoId === selectedKidMongoId;
+                      return (
+                        <button
+                          key={k.studentMongoId}
+                          type="button"
+                          onClick={() => setSelectedKidMongoId(k.studentMongoId)}
+                          className={`whitespace-nowrap rounded-2xl border-2 px-4 py-2 text-sm font-bold transition ${active
+                              ? 'border-brand-500 bg-brand-50 text-brand-700'
+                              : 'border-brand-200 bg-white text-brand-600 hover:border-brand-300'
+                            }`}
+                        >
+                          {k.name} · {k.classLevel}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <StatCard icon="✅" label="Classes done" value={selectedKid.stats.classesDone} gradient="from-emerald-500 to-teal-600" />
+                  <StatCard icon="📝" label="Exams taken" value={selectedKid.stats.examsTaken} gradient="from-amber-500 to-orange-600" />
+                  <StatCard icon="⭐" label="Avg score" value={selectedKid.stats.avgScore + '%'} gradient="from-rose-500 to-pink-600" />
+                  <StatCard icon="📚" label="Materials generated" value={selectedKid.stats.courseMaterialGenerated} gradient="from-indigo-500 to-blue-600" />
+                </div>
+
+                {selectedKid.chartData.length > 0 && (
+                  <div className="rounded-2xl border-2 border-brand-200 bg-white p-6 shadow-lg">
+                    <h3 className="mb-4 flex items-center gap-2 font-bold text-brand-800">
+                      <span>📈</span> Exam score trend
+                    </h3>
+                    <SimpleBarChart data={selectedKid.chartData} height={34} />
+                  </div>
+                )}
+
+                <div className="rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-white to-brand-50/50 p-6 shadow-lg">
+                  <h3 className="mb-2 flex items-center gap-2 font-bold text-brand-800">
+                    <span>🤖</span> AI guidance
+                  </h3>
+                  <p className="text-brand-700">{selectedKid.aiInsights.performanceSummary}</p>
+                  <ul className="mt-4 space-y-2">
+                    {selectedKid.aiInsights.suggestions.slice(0, 3).map((s, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-brand-600">
+                        <span className="text-amber-500">•</span> {s}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4 text-sm text-brand-600">
+                    Tip: open <Link to="/parent/students" className="font-bold underline">Student Details</Link> to see more for each kid.
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="font-bold text-brand-800">{item.title}</h2>
-                <p className="text-sm text-gray-600">{item.desc}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
+            );
+          })()
+        )}
       </div>
     </div>
   );

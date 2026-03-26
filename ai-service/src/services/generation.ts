@@ -86,7 +86,8 @@ export async function generateStudentExamQuestions(
   board: string,
   classLevel: string,
   examType: ExamType,
-  topics?: string[]
+  topics?: string[],
+  answerInputType: 'typed' | 'photo' | 'audio' = 'typed'
 ): Promise<{ questions: StudentExamQuestion[]; timeLimit: number; totalMarks: number }> {
   const format = getExamFormat(examType, board, classLevel, subject);
   const { numQuestions, timeLimit, totalMarks } = format;
@@ -97,12 +98,20 @@ export async function generateStudentExamQuestions(
       ? `Focus strictly on these topics: ${topics.join(', ')}.`
       : 'Cover key concepts from the entire syllabus as per the final exam pattern.';
 
+  const answerModeHint =
+    answerInputType === 'photo'
+      ? `ANSWER INPUT MODE: photo. Non-MCQ questions must be suitable for a photo or sketch upload (diagrams, drawings, worked steps on paper). Prefer "requiresDrawing": true or clear visual tasks.`
+      : answerInputType === 'audio'
+        ? `ANSWER INPUT MODE: audio. Non-MCQ questions must be answerable in brief spoken responses (1–3 sentences). Avoid long essays.`
+        : `ANSWER INPUT MODE: typed. Non-MCQ questions are answered as short written text.`;
+
   return withGeminiFallback(
     async () => {
       const result = await aiGenerateJson<{
         questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string; imageUrl?: string; requiresDrawing?: boolean }[];
       }>(
         `Generate ${numQuestions} exam questions for ${subject}, ${board} Class ${classLevel}. ${topicHint}
+        ${answerModeHint}
         Format must match the REAL final exam for this board, class and subject.
         Mix of: MCQ (4 options, correctAnswer 0-3), short/objective, and optionally questions that need diagrams or require students to draw.
         

@@ -36,6 +36,14 @@ export interface IClassSession extends Document {
   /** Live transcript of class audio */
   transcript?: { text: string; timestamp: Date; role: 'student' | 'teacher' }[];
   recordingUrl?: string;
+  /** Per-role warning counts for escalation */
+  warningCounts?: { teacher: number; student: number };
+  /** Latest board snapshot URL */
+  boardSnapshotUrl?: string;
+  /** Board screenshot history */
+  boardHistory?: { url: string; timestamp: Date }[];
+  /** Whether student is allowed to draw on board (teacher toggles) */
+  studentBoardEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +78,13 @@ const ClassSessionSchema = new Schema<IClassSession>(
     }],
     transcript: [{ text: String, timestamp: Date, role: { type: String, enum: ['student', 'teacher'] } }],
     recordingUrl: String,
+    warningCounts: {
+      teacher: { type: Number, default: 0 },
+      student: { type: Number, default: 0 },
+    },
+    boardSnapshotUrl: String,
+    boardHistory: [{ url: String, timestamp: { type: Date, default: Date.now } }],
+    studentBoardEnabled: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -111,6 +111,14 @@ import { GET as GET__api_classes_reschedule_pending } from './api/classes/resche
 import { POST as POST__api_classes_reschedule_reject } from './api/classes/reschedule/reject/route.js';
 import { POST as POST__api_classes_reschedule_request } from './api/classes/reschedule/request/route.js';
 import { POST as POST__api_classroom_monitor } from './api/classroom/monitor/route.js';
+import { POST as POST__api_classroom_session_board } from './api/classroom/session/board/route.js';
+import { GET as GET__api_classroom_session_detail } from './api/classroom/session/detail/route.js';
+import { POST as POST__api_classroom_session_end } from './api/classroom/session/end/route.js';
+import { POST as POST__api_classroom_session_join } from './api/classroom/session/join/route.js';
+import { POST as POST__api_classroom_session_start } from './api/classroom/session/start/route.js';
+import { POST as POST__api_classroom_session_transcript } from './api/classroom/session/transcript/route.js';
+import { GET as GET__api_classroom_session_warning, POST as POST__api_classroom_session_warning } from './api/classroom/session/warning/route.js';
+import { GET as GET__api_classroom_session_replay } from './api/classroom/session/replay/route.js';
 import { GET as GET__api_cmspages_slug } from './api/cms-pages/[slug]/route.js';
 import { GET as GET__api_cron_generateschedules, POST as POST__api_cron_generateschedules } from './api/cron/generate-schedules/route.js';
 import { GET as GET__api_cron_notifications, POST as POST__api_cron_notifications } from './api/cron/notifications/route.js';
@@ -123,6 +131,7 @@ import { GET as GET__api_notifications } from './api/notifications/route.js';
 import { GET as GET__api_notifications_unreadcount } from './api/notifications/unread-count/route.js';
 import { POST as POST__api_parent_checkout } from './api/parent/checkout/route.js';
 import { GET as GET__api_parent_classes } from './api/parent/classes/route.js';
+import { GET as GET__api_parent_dashboard } from './api/parent/dashboard/route.js';
 import { POST as POST__api_parent_discount_validate } from './api/parent/discount/validate/route.js';
 import { GET as GET__api_parent_mycourse } from './api/parent/my-course/route.js';
 import { GET as GET__api_parent_myteachers } from './api/parent/my-teachers/route.js';
@@ -164,6 +173,7 @@ import { POST as POST__api_student_class_end } from './api/student/class/end/rou
 import { POST as POST__api_student_class_start } from './api/student/class/start/route.js';
 import { GET as GET__api_student_classes } from './api/student/classes/route.js';
 import { GET as GET__api_student_courses } from './api/student/courses/route.js';
+import { GET as GET__api_student_dashboard } from './api/student/dashboard/route.js';
 import { GET as GET__api_student_exam_id } from './api/student/exam/[id]/route.js';
 import { GET as GET__api_student_exam_eligibility } from './api/student/exam/eligibility/route.js';
 import { POST as POST__api_student_exam_evaluate } from './api/student/exam/evaluate/route.js';
@@ -176,6 +186,8 @@ import { POST as POST__api_student_exam_start } from './api/student/exam/start/r
 import { POST as POST__api_student_exam_submit } from './api/student/exam/submit/route.js';
 import { GET as GET__api_student_exam_topics } from './api/student/exam/topics/route.js';
 import { GET as GET__api_student_exams } from './api/student/exams/route.js';
+import { GET as GET__api_student_myteachers } from './api/student/my-teachers/route.js';
+import { GET as GET__api_student_performance } from './api/student/performance/route.js';
 import { GET as GET__api_student_profile } from './api/student/profile/route.js';
 import { POST as POST__api_study_ask } from './api/study/ask/route.js';
 import { GET as GET__api_study_eligibility } from './api/study/eligibility/route.js';
@@ -192,6 +204,7 @@ import { GET as GET__api_teacher_batches, POST as POST__api_teacher_batches } fr
 import { POST as POST__api_teacher_class_end } from './api/teacher/class/end/route.js';
 import { POST as POST__api_teacher_class_start } from './api/teacher/class/start/route.js';
 import { GET as GET__api_teacher_classes } from './api/teacher/classes/route.js';
+import { GET as GET__api_teacher_dashboard } from './api/teacher/dashboard/route.js';
 import { GET as GET__api_teacher_exams } from './api/teacher/exams/route.js';
 import { GET as GET__api_teacher_onboardingstatus } from './api/teacher/onboarding-status/route.js';
 import { GET as GET__api_teacher_payments_export } from './api/teacher/payments/export/route.js';
@@ -355,6 +368,15 @@ export function registerRoutes(app: Express) {
   app.post('/api/classes/reschedule/reject', authMiddleware, adaptNextRoute(POST__api_classes_reschedule_reject));
   app.post('/api/classes/reschedule/request', authMiddleware, adaptNextRoute(POST__api_classes_reschedule_request));
   app.post('/api/classroom/monitor', authMiddleware, adaptNextRoute(POST__api_classroom_monitor));
+  app.post('/api/classroom/session/board', authMiddleware, adaptNextRoute(POST__api_classroom_session_board));
+  app.get('/api/classroom/session/detail', authMiddleware, adaptNextRoute(GET__api_classroom_session_detail));
+  app.post('/api/classroom/session/end', authMiddleware, adaptNextRoute(POST__api_classroom_session_end));
+  app.post('/api/classroom/session/join', authMiddleware, adaptNextRoute(POST__api_classroom_session_join));
+  app.post('/api/classroom/session/start', authMiddleware, adaptNextRoute(POST__api_classroom_session_start));
+  app.post('/api/classroom/session/transcript', authMiddleware, adaptNextRoute(POST__api_classroom_session_transcript));
+  app.get('/api/classroom/session/warning', authMiddleware, adaptNextRoute(GET__api_classroom_session_warning));
+  app.post('/api/classroom/session/warning', authMiddleware, adaptNextRoute(POST__api_classroom_session_warning));
+  app.get('/api/classroom/session/replay', authMiddleware, adaptNextRoute(GET__api_classroom_session_replay));
   app.get('/api/cms-pages/:slug', adaptNextRoute(GET__api_cmspages_slug));
   app.get('/api/cron/generate-schedules', adaptNextRoute(GET__api_cron_generateschedules));
   app.post('/api/cron/generate-schedules', adaptNextRoute(POST__api_cron_generateschedules));
@@ -373,6 +395,7 @@ export function registerRoutes(app: Express) {
   app.post('/api/parent-registration/save', adaptNextRoute(POST__api_parentregistration_save));
   app.post('/api/parent/checkout', authMiddleware, adaptNextRoute(POST__api_parent_checkout));
   app.get('/api/parent/classes', authMiddleware, adaptNextRoute(GET__api_parent_classes));
+  app.get('/api/parent/dashboard', authMiddleware, adaptNextRoute(GET__api_parent_dashboard));
   app.post('/api/parent/discount/validate', authMiddleware, adaptNextRoute(POST__api_parent_discount_validate));
   app.get('/api/parent/my-course', authMiddleware, adaptNextRoute(GET__api_parent_mycourse));
   app.get('/api/parent/my-teachers', authMiddleware, adaptNextRoute(GET__api_parent_myteachers));
@@ -415,6 +438,7 @@ export function registerRoutes(app: Express) {
   app.post('/api/student/class/start', authMiddleware, adaptNextRoute(POST__api_student_class_start));
   app.get('/api/student/classes', authMiddleware, adaptNextRoute(GET__api_student_classes));
   app.get('/api/student/courses', authMiddleware, adaptNextRoute(GET__api_student_courses));
+  app.get('/api/student/dashboard', authMiddleware, adaptNextRoute(GET__api_student_dashboard));
   app.get('/api/student/exam/eligibility', authMiddleware, adaptNextRoute(GET__api_student_exam_eligibility));
   app.post('/api/student/exam/evaluate', authMiddleware, adaptNextRoute(POST__api_student_exam_evaluate));
   app.get('/api/student/exam/format', authMiddleware, adaptNextRoute(GET__api_student_exam_format));
@@ -427,6 +451,8 @@ export function registerRoutes(app: Express) {
   app.get('/api/student/exam/topics', authMiddleware, adaptNextRoute(GET__api_student_exam_topics));
   app.get('/api/student/exam/:id', authMiddleware, adaptNextRoute(GET__api_student_exam_id));
   app.get('/api/student/exams', authMiddleware, adaptNextRoute(GET__api_student_exams));
+  app.get('/api/student/my-teachers', authMiddleware, adaptNextRoute(GET__api_student_myteachers));
+  app.get('/api/student/performance', authMiddleware, adaptNextRoute(GET__api_student_performance));
   app.get('/api/student/profile', authMiddleware, adaptNextRoute(GET__api_student_profile));
   app.post('/api/study/ask', authMiddleware, adaptNextRoute(POST__api_study_ask));
   app.get('/api/study/eligibility', authMiddleware, adaptNextRoute(GET__api_study_eligibility));
@@ -453,6 +479,7 @@ export function registerRoutes(app: Express) {
   app.post('/api/teacher/class/end', authMiddleware, adaptNextRoute(POST__api_teacher_class_end));
   app.post('/api/teacher/class/start', authMiddleware, adaptNextRoute(POST__api_teacher_class_start));
   app.get('/api/teacher/classes', authMiddleware, adaptNextRoute(GET__api_teacher_classes));
+  app.get('/api/teacher/dashboard', authMiddleware, adaptNextRoute(GET__api_teacher_dashboard));
   app.get('/api/teacher/exams', authMiddleware, adaptNextRoute(GET__api_teacher_exams));
   app.get('/api/teacher/onboarding-status', authMiddleware, adaptNextRoute(GET__api_teacher_onboardingstatus));
   app.get('/api/teacher/payments', authMiddleware, adaptNextRoute(GET__api_teacher_payments));

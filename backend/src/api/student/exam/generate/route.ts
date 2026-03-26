@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!student) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const body = (await request.json()) as any;
-    const { subject, board, classLevel, examMode, examType, topic, topics } = body;
+    const { subject, board, classLevel, examMode, examType, topic, topics, answerInputType } = body;
 
     if (!subject || !board || !classLevel) {
       return NextResponse.json({ error: 'Subject, board, and classLevel required' }, { status: 400 });
@@ -60,7 +60,8 @@ export async function POST(request: NextRequest) {
         board,
         classLevel,
         resolvedExamType,
-        topicList
+        topicList,
+        (answerInputType || 'typed') as 'typed' | 'photo' | 'audio'
       );
       questions = result.questions;
       timeLimit = result.timeLimit;

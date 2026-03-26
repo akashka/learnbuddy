@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
         board,
         classLevel,
         resolvedExamType,
-        topicList
+        topicList,
+        (answerInputType || 'typed') as 'typed' | 'photo' | 'audio'
       );
       questions = generated.questions;
       timeLimit = generated.timeLimit;
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
       questions,
       timeLimit,
       totalMarks,
+      answerInputType: answerInputType || 'typed',
     });
   } catch (error) {
     console.error('Exam start error:', error);

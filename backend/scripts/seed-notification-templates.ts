@@ -11,34 +11,36 @@ import { NotificationTemplate } from '../src/lib/models/NotificationTemplate';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tuition-platform';
 
-// Shared email header - logo, gradient bar, brand identity
+// Kid-friendly email header - playful gradient, stars, fun vibe
 const EMAIL_HEADER = `
-<div style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%); padding: 24px 32px; text-align: center;">
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #feca57 100%); padding: 28px 32px; text-align: center; border-radius: 0 0 24px 24px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: 0 auto;">
     <tr>
       <td align="center">
-        <img src="{{logoUrl}}" alt="LearnBuddy" width="56" height="56" style="display: block; border-radius: 12px;" />
-        <h1 style="margin: 12px 0 4px 0; font-family: 'Outfit', 'DM Sans', -apple-system, sans-serif; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">LearnBuddy</h1>
-        <p style="margin: 0; font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 500;">Learn with fun.</p>
+        <div style="display: inline-block; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 12px;">
+          <img src="{{logoUrl}}" alt="LearnBuddy" width="56" height="56" style="display: block; border-radius: 12px;" />
+        </div>
+        <h1 style="margin: 0 0 4px 0; font-family: 'Outfit', 'DM Sans', -apple-system, sans-serif; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🌟 LearnBuddy</h1>
+        <p style="margin: 0; font-size: 15px; color: rgba(255,255,255,0.95); font-weight: 600;">Where learning is an adventure!</p>
       </td>
     </tr>
   </table>
 </div>
 `;
 
-// Shared email footer - links, contact, copyright
+// Shared email footer - kid-friendly, playful
 const EMAIL_FOOTER = `
-<div style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+<div style="background: linear-gradient(180deg, #fef9e7 0%, #f8fafc 100%); padding: 32px; text-align: center; border-top: 2px solid #e2e8f0;">
   <p style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">
-    <a href="{{appUrl}}" style="color: #4f46e5; text-decoration: none; font-weight: 500;">Open LearnBuddy</a>
+    <a href="{{appUrl}}" style="color: #667eea; text-decoration: none; font-weight: 600;">✨ Open LearnBuddy</a>
     &nbsp;•&nbsp;
-    <a href="{{appUrl}}/contact" style="color: #4f46e5; text-decoration: none; font-weight: 500;">Contact Us</a>
+    <a href="{{appUrl}}/contact" style="color: #667eea; text-decoration: none; font-weight: 600;">Contact Us</a>
   </p>
   <p style="margin: 0 0 8px 0; font-size: 12px; color: #94a3b8;">
     Mon–Sat, 9 AM – 6 PM IST &nbsp;|&nbsp; support@learnbuddy.com
   </p>
   <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-    © {{year}} LearnBuddy. Every child deserves a learning buddy.
+    © {{year}} LearnBuddy. Every child deserves a learning buddy. 💛
   </p>
 </div>
 `;
@@ -263,6 +265,371 @@ const TEMPLATES = [
 `,
     footerHtml: EMAIL_FOOTER,
     variableHints: ['{{name}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'email_verification',
+    name: 'Email Verification',
+    description: 'Verification link sent to parent/teacher',
+    isActive: true,
+    subject: "Verify your email — you're almost there! ✉️",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #e8f4fd 0%, #e0e7ff 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #c7d2fe; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">✉️</p>
+      <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 700; color: #3730a3;">Hi {{name}}!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #475569;">
+        One quick tap and your email is verified! Click the button below to confirm it's really you.
+      </p>
+      <a href="{{verifyUrl}}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff !important; padding: 16px 32px; border-radius: 16px; font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);">
+        Verify My Email 🚀
+      </a>
+      <p style="margin: 20px 0 0 0; font-size: 13px; color: #64748b;">Link expires in 24 hours.</p>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{name}}', '{{verifyUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'batch_start_reminder',
+    name: 'Batch Start Reminder (Teacher)',
+    description: 'Teacher: batch starts tomorrow',
+    isActive: true,
+    subject: "Tomorrow's the day! Your {{subject}} batch starts 🎯",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #fed7aa; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">🎯</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #9a3412;">Batch starts tomorrow!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 17px; color: #c2410c;">
+        Your <strong>{{subject}}</strong> batch ({{batchName}}) kicks off tomorrow. Time to meet your awesome students! 🌟
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);">
+        View Batches →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{subject}}', '{{batchName}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'review_reminder',
+    name: 'Review Reminder (Parent)',
+    description: 'Parent: remind to review teacher',
+    isActive: true,
+    subject: "How was {{teacherName}}? Share your feedback 🌟",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #e9d5ff; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">⭐</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #6b21a8;">Share your experience!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #7e22ce;">
+        How was your child's experience with <strong>{{teacherName}}</strong>? Your review helps other parents find great teachers! 💜
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4);">
+        Leave a Review ✨
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{teacherName}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'reschedule_request',
+    name: 'Reschedule Request',
+    description: 'Someone requested class reschedule',
+    isActive: true,
+    subject: "Reschedule request for your {{subject}} class 📅",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #a7f3d0;">
+      <p style="margin: 0 0 12px 0; font-size: 40px; text-align: center;">📅</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #065f46; text-align: center;">Reschedule request</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #047857;">
+        Someone wants to reschedule your <strong>{{subject}}</strong> class. Tap below to confirm or suggest another time.
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);">
+        View Request →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'reschedule_confirmed',
+    name: 'Reschedule Confirmed',
+    description: 'Class reschedule was accepted',
+    isActive: true,
+    subject: "Reschedule confirmed! New time for {{subject}} ✅",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #a7f3d0; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">✅</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #065f46;">All set!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #047857;">
+        Your <strong>{{subject}}</strong> class has been moved. Check the new time and we'll see you there! 🎉
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Class →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'reschedule_rejected',
+    name: 'Reschedule Rejected',
+    description: 'Reschedule request was declined',
+    isActive: true,
+    subject: "Reschedule unavailable for {{subject}} — try another slot 📅",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #fcd34d; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 40px;">📅</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #92400e;">No worries!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #b45309;">
+        Your <strong>{{subject}}</strong> class reschedule wasn't accepted this time. You can try another slot or keep the original time! 🙂
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Classes →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'course_purchased',
+    name: 'New Student Enrolled (Teacher)',
+    description: 'Teacher: new student joined batch',
+    isActive: true,
+    subject: "New student {{studentName}} joined your {{subject}} batch! 🎉",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #c7d2fe; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">🎉</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #3730a3;">New student enrolled!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #4f46e5;">
+        <strong>{{studentName}}</strong> just joined your <strong>{{subject}}</strong> batch. Welcome them aboard! 🚀
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Classes →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{studentName}}', '{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'exam_completed',
+    name: 'Exam Result Ready (Parent)',
+    description: 'Parent: exam evaluated, result available',
+    isActive: true,
+    subject: "{{studentName}}'s exam result is ready! 📊",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fef9c3 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #fcd34d; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">📊</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #92400e;">Exam result ready!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #b45309;">
+        <strong>{{studentName}}</strong> scored <strong>{{score}}/{{totalMarks}}</strong> in {{subject}}. Great progress! 🌟
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Results →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{studentName}}', '{{score}}', '{{totalMarks}}', '{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'ai_content_generated',
+    name: 'AI Content Generated (Parent)',
+    description: 'Parent: child generated AI study material',
+    isActive: true,
+    subject: "{{studentName}} created study material for {{topic}}! ✨",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #ddd6fe; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">✨</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #5b21b6;">Study material ready!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #6d28d9;">
+        <strong>{{studentName}}</strong> created AI study material for <strong>{{topic}}</strong> in {{subject}}. Take a look! 📚
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Material →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{studentName}}', '{{topic}}', '{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'doubt_answered',
+    name: 'Doubt Answered (Parent)',
+    description: 'Parent: child asked doubt and got AI answer',
+    isActive: true,
+    subject: "{{studentName}} asked a doubt in {{subject}} — got an answer! 💡",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #a5f3fc; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">💡</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #0e7490;">Doubt answered!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #0891b2;">
+        <strong>{{studentName}}</strong> asked a doubt in <strong>{{subject}}</strong> and got an instant AI answer. Curious what they learned? 🧠
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Details →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{studentName}}', '{{subject}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'dispute_updated',
+    name: 'Dispute Updated',
+    description: 'Parent/Teacher: dispute status changed',
+    isActive: true,
+    subject: "Update on your dispute — {{status}} 📋",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #fecaca;">
+      <p style="margin: 0 0 12px 0; font-size: 40px; text-align: center;">📋</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #991b1b; text-align: center;">Dispute update</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #b91c1c;">
+        There's an update on your dispute. <strong>{{status}}</strong>
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Details →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{status}}', '{{message}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'ai_review_requested',
+    name: 'AI Review Requested (Admin)',
+    description: 'Admin: user requested human review',
+    isActive: true,
+    subject: "New AI review request from {{role}} 🔍",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #fde047;">
+      <p style="margin: 0 0 12px 0; font-size: 40px; text-align: center;">🔍</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #854d0e; text-align: center;">AI Review Request</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #a16207;">
+        A <strong>{{role}}</strong> has requested human review for {{entityType}}. Please review when you can.
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #ca8a04 0%, #eab308 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        Review Now →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{role}}', '{{entityType}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
+  },
+  {
+    channel: 'email',
+    code: 'ai_review_resolved',
+    name: 'AI Review Resolved',
+    description: 'Parent/User: admin resolved review request',
+    isActive: true,
+    subject: "Your AI review request has been resolved ✅",
+    logoUrl: 'https://learnbuddy.com/logo.svg',
+    headerHtml: EMAIL_HEADER,
+    bodyHtml: `
+<div style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+  <div style="padding: 40px 32px;">
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 20px; padding: 28px; margin-bottom: 24px; border: 2px solid #a7f3d0; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 48px;">✅</p>
+      <h2 style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #065f46;">Review complete!</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #047857;">
+        Your review request has been reviewed. {{resolutionMessage}}
+      </p>
+      <a href="{{ctaUrl}}" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 16px; text-decoration: none;">
+        View Details →
+      </a>
+    </div>
+  </div>
+</div>
+`,
+    footerHtml: EMAIL_FOOTER,
+    variableHints: ['{{resolutionMessage}}', '{{ctaUrl}}', '{{logoUrl}}', '{{appUrl}}', '{{year}}'],
   },
 
   // ═══════════════════════════════════════════════════════════════

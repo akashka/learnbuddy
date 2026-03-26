@@ -9,6 +9,7 @@ import { User } from '@/lib/models/User';
 import { StudentExam } from '@/lib/models/StudentExam';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotificationsForUsers } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 /** POST - Submit a human review request */
 export async function POST(request: NextRequest) {
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Notify all admin users
-    const admins = await User.find({ role: 'admin' }).select('_id').lean();
+    const admins = await User.find({ role: 'admin' }).select('_id email').lean();
     const adminIds = admins.map((a) => a._id as mongoose.Types.ObjectId).filter(Boolean);
     if (adminIds.length > 0) {
       await createNotificationsForUsers(adminIds, {
@@ -108,6 +109,22 @@ export async function POST(request: NextRequest) {
         entityId: String(review._id),
         metadata: { entityType, entityId: String(entityId) },
       });
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const entityTypeLabel = entityType === 'exam' ? 'an exam' : 'course material';
+      for (const a of admins) {
+        const adminEmail = (a as { email?: string }).email;
+        if (adminEmail) {
+          sendTemplatedEmail({
+            to: adminEmail,
+            templateCode: 'ai_review_requested',
+            variables: {
+              role: decoded.role,
+              entityType: entityTypeLabel,
+              ctaUrl: `${appUrl}/ai-review-requests`,
+            },
+          }).catch((err) => console.error('Email error:', err));
+        }
+      }
     }
 
     return NextResponse.json(

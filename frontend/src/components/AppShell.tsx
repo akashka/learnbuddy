@@ -8,7 +8,13 @@ import { AppBackground } from './AppBackground';
 /** Routes where main content uses full width (no 1400px cap). */
 function useFullWidthMainContent(): boolean {
   const { pathname } = useLocation();
-  return pathname === '/parent/marketplace' || pathname.startsWith('/parent/teacher/');
+  return (
+    pathname === '/parent/marketplace' ||
+    pathname.startsWith('/parent/teacher/') ||
+    pathname === '/parent/dashboard' ||
+    pathname === '/teacher/dashboard' ||
+    pathname === '/student/dashboard'
+  );
 }
 
 export default function AppShell() {

@@ -10,6 +10,7 @@ import { answerDoubt } from '@/lib/ai';
 import { saveAIGeneratedContent } from '@/lib/ai-data-store';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 import { logAIUsage } from '@/lib/ai-audit';
 
 export async function POST(request: NextRequest) {
@@ -111,19 +112,31 @@ export async function POST(request: NextRequest) {
         if (teacher?.userId) targetUserIds.push(teacher.userId as mongoose.Types.ObjectId);
       }
       const studentName = (student as { name?: string })?.name || 'Your child';
-      const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role').lean();
-      const ctaByRole: Record<string, string> = { parent: '/parent/students', teacher: '/teacher/batches' };
+      const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role email').lean();
+      const ctaPathByRole: Record<string, string> = { parent: '/parent/students', teacher: '/teacher/batches' };
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
       for (const u of users) {
+        const ctaPath = ctaPathByRole[(u as { role?: string }).role || ''] || '/parent/students';
         createNotification({
           userId: u._id as mongoose.Types.ObjectId,
           type: 'ai_content_generated',
           title: 'Doubt answered!',
           message: `${studentName} asked a doubt in ${subject} and got an AI answer.`,
           ctaLabel: 'View',
-          ctaUrl: ctaByRole[(u as { role?: string }).role || ''] || '/parent/students',
+          ctaUrl: ctaPath,
           entityType: 'enrollment',
           metadata: { topic: topic || 'General', subject },
         }).catch((err) => console.error('Notification error:', err));
+        if ((u as { role?: string }).role === 'parent') {
+          const parentEmail = (u as { email?: string }).email;
+          if (parentEmail) {
+            sendTemplatedEmail({
+              to: parentEmail,
+              templateCode: 'doubt_answered',
+              variables: { studentName, subject, ctaUrl: `${appUrl}${ctaPath}` },
+            }).catch((err) => console.error('Email error:', err));
+          }
+        }
       }
     }
 

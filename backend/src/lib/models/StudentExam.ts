@@ -53,6 +53,8 @@ export interface IStudentExam extends Document {
   warnings: number;
   closedDueToCheating?: boolean;
   monitoringAlerts: { type: string; message: string; timestamp: Date; transcript?: string }[];
+  /** Timeline of proctoring samples (lightweight; frame snapshot only when alert). */
+  monitoringEvidence?: { timestamp: Date; alert: boolean; note?: string; frameSnapshot?: string }[];
   monitoringTranscripts: { transcript: string; timestamp: Date }[]; // Speech-to-text during exam
   recordingUrl?: string;
   // AI evaluation
@@ -95,6 +97,17 @@ const StudentExamSchema = new Schema<IStudentExam>(
     warnings: { type: Number, default: 0 },
     closedDueToCheating: Boolean,
     monitoringAlerts: [{ type: { type: String }, message: String, timestamp: { type: Date, default: Date.now }, transcript: String }],
+    monitoringEvidence: {
+      type: [
+        {
+          timestamp: { type: Date, default: Date.now },
+          alert: { type: Boolean, default: false },
+          note: String,
+          frameSnapshot: String,
+        },
+      ],
+      default: [],
+    },
     monitoringTranscripts: { type: [{ transcript: String, timestamp: { type: Date, default: Date.now } }], default: [] },
     recordingUrl: String,
     aiFeedback: Schema.Types.Mixed,

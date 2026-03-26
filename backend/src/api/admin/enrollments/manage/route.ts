@@ -12,6 +12,7 @@ import { hashPassword } from '@/lib/auth';
 import { getAuthFromRequest } from '@/lib/auth';
 import { generateClassSchedules } from '@/lib/generate-class-schedules';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 /** Batch start date: min = tomorrow, max = 30 days from today */
 function getValidBatchStartDate(batchStartDate?: Date | string | null): Date {
@@ -118,16 +119,31 @@ export async function POST(request: NextRequest) {
       const student = await Student.findById(body.studentId).select('name').lean();
       const teacherDoc = await Teacher.findById(teacherId).select('userId').lean();
       if (teacherDoc?.userId) {
+        const studentName = (student as { name?: string })?.name || 'A student';
         createNotification({
           userId: teacherDoc.userId as mongoose.Types.ObjectId,
           type: 'course_purchased',
           title: 'New student enrolled!',
-          message: `${(student as { name?: string })?.name || 'A student'} has joined your ${batch.subject} batch.`,
+          message: `${studentName} has joined your ${batch.subject} batch.`,
           ctaLabel: 'View Classes',
           ctaUrl: '/teacher/classes',
           entityType: 'enrollment',
           entityId: String(enrollment._id),
         }).catch((err) => console.error('Notification error:', err));
+        const teacherUser = await User.findById(teacherDoc.userId).select('email').lean();
+        const teacherEmail = (teacherUser as { email?: string })?.email;
+        if (teacherEmail) {
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          sendTemplatedEmail({
+            to: teacherEmail,
+            templateCode: 'course_purchased',
+            variables: {
+              studentName,
+              subject: batch.subject,
+              ctaUrl: `${appUrl}/teacher/classes`,
+            },
+          }).catch((err) => console.error('Email error:', err));
+        }
       }
 
       generateClassSchedules().catch((err) => console.error('Schedule generation after map_teacher_batch:', err));

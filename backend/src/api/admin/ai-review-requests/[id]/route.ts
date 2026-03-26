@@ -7,6 +7,7 @@ import { AIGeneratedContent } from '@/lib/models/AIGeneratedContent';
 import { User } from '@/lib/models/User';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 
 function getIdFromRequest(request: NextRequest): string | null {
   try {
@@ -133,9 +134,14 @@ export async function PATCH(request: NextRequest) {
     // Notify the user who raised the request
     const raisedByUserId = review.raisedBy as mongoose.Types.ObjectId;
     if (raisedByUserId) {
-      const raisedByUser = await User.findById(raisedByUserId).select('role').lean();
+      const raisedByUser = await User.findById(raisedByUserId).select('role email').lean();
       const role = (raisedByUser as { role?: string })?.role;
-      const ctaUrl = role === 'parent' ? '/parent/review-requests' : role === 'teacher' ? '/teacher/review-requests' : '/student/review-requests';
+      const ctaPath = role === 'parent' ? '/parent/review-requests' : role === 'teacher' ? '/teacher/review-requests' : '/student/review-requests';
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const ctaUrlFull = `${appUrl}${ctaPath}`;
+      const resolutionMessage = status === 'resolved_correct'
+        ? 'The admin found the AI result was correct.'
+        : 'The admin has made corrections and updated the content/marks.';
       await createNotification({
           userId: raisedByUserId,
           type: 'ai_review_resolved',
@@ -144,11 +150,28 @@ export async function PATCH(request: NextRequest) {
             ? 'Your review request has been reviewed. The admin found the AI result was correct.'
             : 'Your review request has been reviewed. The admin has made corrections and updated the content/marks.',
           ctaLabel: 'View Details',
-          ctaUrl,
+          ctaUrl: ctaPath,
           entityType: 'ai_review',
           entityId: id,
           metadata: { status, adminReply },
         });
+      let email: string | null = (raisedByUser as { email?: string })?.email || null;
+      if (role === 'student' && raisedByUserId) {
+        const { Student } = await import('@/lib/models/Student');
+        const student = await Student.findOne({ userId: raisedByUserId }).populate('parentId', 'userId').lean();
+        const parent = student?.parentId as { userId?: mongoose.Types.ObjectId } | null;
+        if (parent?.userId) {
+          const parentUser = await User.findById(parent.userId).select('email').lean();
+          email = (parentUser as { email?: string })?.email || null;
+        }
+      }
+      if (email) {
+        sendTemplatedEmail({
+          to: email,
+          templateCode: 'ai_review_resolved',
+          variables: { resolutionMessage, ctaUrl: ctaUrlFull },
+        }).catch((err) => console.error('Email error:', err));
+      }
     }
 
     return NextResponse.json(updated);

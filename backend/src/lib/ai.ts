@@ -28,11 +28,12 @@ export async function generateStudentExamQuestions(
   board: string,
   classLevel: string,
   examType: ExamType,
-  topics?: string[]
+  topics?: string[],
+  answerInputType?: 'typed' | 'photo' | 'audio'
 ) {
   return USE_AI_SERVICE
-    ? aiClient.generateStudentExamQuestions(subject, board, classLevel, examType, topics)
-    : aiService.generateStudentExamQuestions(subject, board, classLevel, examType, topics);
+    ? aiClient.generateStudentExamQuestions(subject, board, classLevel, examType, topics, answerInputType)
+    : aiService.generateStudentExamQuestions(subject, board, classLevel, examType, topics, answerInputType);
 }
 
 export async function generateStudyMaterial(
@@ -91,7 +92,7 @@ export async function generateTeacherQualificationExam(
 
 export async function evaluateStudentExam(
   questions: StudentExamQuestion[],
-  answers: (number | string | { value?: number | string })[]
+  answers: (number | string | { value?: number | string; photoUrl?: string; audioTranscript?: string })[]
 ) {
   return USE_AI_SERVICE
     ? aiClient.evaluateStudentExam(questions, answers)

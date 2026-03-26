@@ -33,17 +33,19 @@ import TeacherDashboard from '@/pages/teacher/TeacherDashboard';
 import TeacherBatches from '@/pages/teacher/TeacherBatches';
 import TeacherClasses from '@/pages/teacher/TeacherClasses';
 import TeacherProfile from '@/pages/teacher/TeacherProfile';
-import TeacherExams from '@/pages/teacher/TeacherExams';
 import TeacherExamDetail from '@/pages/teacher/TeacherExamDetail';
 import TeacherStudents from '@/pages/teacher/TeacherStudents';
 import TeacherAgreements from '@/pages/teacher/TeacherAgreements';
 import TeacherPayments from '@/pages/teacher/TeacherPayments';
 import StudentDashboard from '@/pages/student/StudentDashboard';
+import StudentProfile from '@/pages/student/StudentProfile';
 import StudentCourses from '@/pages/student/StudentCourses';
 import StudentClasses from '@/pages/student/StudentClasses';
 import StudentExams from '@/pages/student/StudentExams';
 import StudentExamDetail from '@/pages/student/StudentExamDetail';
 import TakeExam from '@/pages/student/TakeExam';
+import StudentMyTeachers from '@/pages/student/StudentMyTeachers';
+import StudentPerformance from '@/pages/student/StudentPerformance';
 import StudyMaterials from '@/pages/StudyMaterials';
 import ReviewRequests from '@/pages/ReviewRequests';
 import Notifications from '@/pages/Notifications';
@@ -60,6 +62,8 @@ import CourseOwnershipRules from '@/pages/static/CourseOwnershipRules';
 import SafetyAndTrust from '@/pages/static/SafetyAndTrust';
 import VerifyEmail from '@/pages/VerifyEmail';
 import Disputes from '@/pages/Disputes';
+import PreJoinLobby from '@/pages/classroom/PreJoinLobby';
+import ClassroomPage from '@/pages/classroom/ClassroomPage';
 
 export default function App() {
   return (
@@ -357,6 +361,30 @@ export default function App() {
                 }
               />
               <Route
+                path="/student/profile"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/my-teachers"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentMyTeachers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/performance"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentPerformance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/student/exam/take"
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
@@ -409,6 +437,24 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <ReviewRequests />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Classroom - Shared between Teacher and Student */}
+              <Route
+                path="/classroom/pre-join/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={['teacher', 'student']}>
+                    <PreJoinLobby />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/classroom/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={['teacher', 'student']}>
+                    <ClassroomPage />
                   </ProtectedRoute>
                 }
               />

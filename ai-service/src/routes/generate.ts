@@ -42,7 +42,7 @@ router.post('/qualification-exam', async (req: Request, res: Response) => {
 /** POST /v1/generate/student-exam - Student exam questions */
 router.post('/student-exam', async (req: Request, res: Response) => {
   try {
-    const { subject, board, classLevel, examType, examMode, topics } = req.body;
+    const { subject, board, classLevel, examType, examMode, topics, answerInputType } = req.body;
     if (!subject || !board || !classLevel) {
       res.status(400).json({
         error: 'Bad request',
@@ -51,12 +51,14 @@ router.post('/student-exam', async (req: Request, res: Response) => {
       return;
     }
     const resolvedExamType: ExamType = mapLegacyExamMode(examMode || 'class_test', examType);
+    const mode = answerInputType === 'photo' || answerInputType === 'audio' ? answerInputType : 'typed';
     const result = await generateStudentExamQuestions(
       subject,
       board,
       classLevel,
       resolvedExamType,
-      Array.isArray(topics) ? topics : undefined
+      Array.isArray(topics) ? topics : undefined,
+      mode
     );
     res.json(result);
   } catch (err) {

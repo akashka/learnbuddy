@@ -8,6 +8,7 @@ import { ClassSession } from '@/lib/models/ClassSession';
 import { ClassRescheduleRequest } from '@/lib/models/ClassRescheduleRequest';
 import { getAuthFromRequest } from '@/lib/auth';
 import { createNotification } from '@/lib/notification-service';
+import { sendTemplatedEmail } from '@/lib/mailgun-service';
 import { User } from '@/lib/models/User';
 
 /** Minimum hours before session to request reschedule */
@@ -174,20 +175,38 @@ export async function POST(request: NextRequest) {
     }
     if (targetUserIds.length > 0) {
       const subject = (session as { subject?: string }).subject || 'Class';
-      const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role').lean();
-      const ctaByRole: Record<string, string> = { parent: '/parent/classes', teacher: '/teacher/classes', student: '/student/classes' };
+      const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+      const users = await User.find({ _id: { $in: targetUserIds } }).select('_id role email').lean();
+      const ctaPathByRole: Record<string, string> = { parent: '/parent/classes', teacher: '/teacher/classes', student: '/student/classes' };
       for (const u of users) {
-        const ctaUrl = ctaByRole[u.role as string] || '/parent/classes';
+        const ctaPath = ctaPathByRole[u.role as string] || '/parent/classes';
+        const ctaUrlFull = `${appUrl}${ctaPath}`;
         createNotification({
           userId: u._id as mongoose.Types.ObjectId,
           type: 'reschedule_request',
           title: 'Reschedule request',
           message: `Someone requested to reschedule your ${subject} class. Please confirm or reject.`,
           ctaLabel: 'View Request',
-          ctaUrl,
+          ctaUrl: ctaPath,
           entityType: 'reschedule',
           entityId: String(req._id),
         }).catch((err) => console.error('Notification error:', err));
+        let email: string | null = (u as { email?: string }).email || null;
+        if (u.role === 'student' && u._id) {
+          const student = await Student.findOne({ userId: u._id }).populate('parentId', 'userId').lean();
+          const parent = student?.parentId as { userId?: mongoose.Types.ObjectId } | null;
+          if (parent?.userId) {
+            const parentUser = await User.findById(parent.userId).select('email').lean();
+            email = (parentUser as { email?: string })?.email || null;
+          }
+        }
+        if (email) {
+          sendTemplatedEmail({
+            to: email,
+            templateCode: 'reschedule_request',
+            variables: { subject, ctaUrl: ctaUrlFull },
+          }).catch((err) => console.error('Email error:', err));
+        }
       }
     }
 

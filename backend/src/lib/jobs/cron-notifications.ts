@@ -11,10 +11,12 @@ import { ClassSession } from '../models/ClassSession.js';
 import { Enrollment } from '../models/Enrollment.js';
 import { Teacher } from '../models/Teacher.js';
 import { Parent } from '../models/Parent.js';
+import { Student } from '../models/Student.js';
 import { TeacherReview } from '../models/TeacherReview.js';
 import { User } from '../models/User.js';
 import { Notification } from '../models/Notification.js';
 import { createNotification } from '../notification-service.js';
+import { sendTemplatedEmail } from '../mailgun-service.js';
 
 export interface CronNotificationsResult {
   classReminders: number;
@@ -59,12 +61,9 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
     if (teacher?.userId) userIds.push(teacher.userId);
     for (const st of studentIds) if (st?.userId) userIds.push(st.userId);
     for (const p of parentIds) if (p?.userId) userIds.push(p.userId);
-    const users = await User.find({ _id: { $in: userIds } }).select('_id role').lean();
-    const ctaByRole: Record<string, string> = {
-      parent: '/parent/classes',
-      teacher: '/teacher/classes',
-      student: '/student/classes',
-    };
+    const users = await User.find({ _id: { $in: userIds } }).select('_id role email').lean();
+    const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+    const seenEmails = new Set<string>();
     for (const u of users) {
       const uid = u._id;
       const key = `${s._id}-${uid}`;
@@ -78,18 +77,38 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
           createdAt: { $gte: new Date(now.getTime() - 20 * 60 * 1000) },
         });
         if (!existing) {
+          const role = (u as { role?: string }).role || 'student';
+          const ctaPath = role === 'parent' ? '/parent/classes' : role === 'teacher' ? '/teacher/classes' : '/student/classes';
+          const ctaUrlFull = `${appUrl}${ctaPath}`;
           await createNotification({
             userId: uid as mongoose.Types.ObjectId,
             type: 'class_reminder_15min',
             title: 'Class starting soon!',
             message: `Your ${subject} class starts at ${timeStr}. Get ready!`,
             ctaLabel: 'Join Class',
-            ctaUrl: ctaByRole[(u as { role?: string }).role || ''] || '/student/classes',
+            ctaUrl: ctaPath,
             entityType: 'class',
             entityId: String(s._id),
             metadata: { scheduledAt: s.scheduledAt },
           });
           result.classReminders++;
+          let email: string | null = (u as { email?: string }).email || null;
+          if (role === 'student' && uid) {
+            const student = await Student.findOne({ userId: uid }).populate('parentId', 'userId').lean();
+            const parent = student?.parentId as { userId?: mongoose.Types.ObjectId } | null;
+            if (parent?.userId) {
+              const parentUser = await User.findById(parent.userId).select('email').lean();
+              email = (parentUser as { email?: string })?.email || null;
+            }
+          }
+          if (email && !seenEmails.has(email)) {
+            seenEmails.add(email);
+            sendTemplatedEmail({
+              to: email,
+              templateCode: 'class_reminder_15min',
+              variables: { subject, timeStr, ctaUrl: ctaUrlFull },
+            }).catch((err) => result.errors.push(String(err)));
+          }
         }
       } catch (err) {
         result.errors.push(String(err));
@@ -132,6 +151,20 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
               entityId: `batch-${t._id}-${i}`,
             });
             result.batchReminders++;
+            const teacherUser = await User.findById(t.userId).select('email').lean();
+            const teacherEmail = (teacherUser as { email?: string })?.email;
+            if (teacherEmail) {
+              const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+              sendTemplatedEmail({
+                to: teacherEmail,
+                templateCode: 'batch_start_reminder',
+                variables: {
+                  subject: b.subject || 'batch',
+                  batchName: b.name || 'Batch',
+                  ctaUrl: `${appUrl}/teacher/batches`,
+                },
+              }).catch((err) => result.errors.push(String(err)));
+            }
           }
         } catch (err) {
           result.errors.push(String(err));
@@ -184,6 +217,20 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
           metadata: { endDate: e.endDate, subject: e.subject },
         });
         result.paymentReminders++;
+        const parentUser = await User.findById(parent.userId).select('email').lean();
+        const parentEmail = (parentUser as { email?: string })?.email;
+        if (parentEmail) {
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          sendTemplatedEmail({
+            to: parentEmail,
+            templateCode: 'payment_reminder',
+            variables: {
+              studentName: student.name || 'your child',
+              subject: e.subject,
+              ctaUrl: `${appUrl}/parent/dashboard`,
+            },
+          }).catch((err) => result.errors.push(String(err)));
+        }
       }
     } catch (err) {
       result.errors.push(String(err));
@@ -239,6 +286,19 @@ export async function runCronNotifications(): Promise<CronNotificationsResult> {
           metadata: { teacherId: String(teacherId), teacherName },
         });
         result.reviewReminders++;
+        const parentUser = await User.findById(parent.userId).select('email').lean();
+        const parentEmail = (parentUser as { email?: string })?.email;
+        if (parentEmail) {
+          const appUrl = process.env.APP_URL || process.env.BACKEND_URL || 'https://learnbuddy.com';
+          sendTemplatedEmail({
+            to: parentEmail,
+            templateCode: 'review_reminder',
+            variables: {
+              teacherName,
+              ctaUrl: `${appUrl}/parent/my-teachers`,
+            },
+          }).catch((err) => result.errors.push(String(err)));
+        }
       }
     } catch (err) {
       result.errors.push(String(err));

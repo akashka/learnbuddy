@@ -8,7 +8,7 @@ import { Modal } from '@/components/Modal';
 const PROFILE_PATH_BY_ROLE: Record<string, string> = {
   teacher: '/teacher/profile',
   parent: '/parent/profile',
-  student: '/student/dashboard',
+  student: '/student/profile',
 };
 
 // Extra menu items by role (moved from header for easier management)
@@ -30,6 +30,8 @@ const EXTRA_LINKS_BY_ROLE: Record<string, { label: string; path: string; icon: s
     { label: 'Settings', path: '/teacher/settings', icon: '⚙️' },
   ],
   student: [
+    { label: 'My Courses', path: '/student/courses', icon: '📚' },
+    { label: 'My Teachers', path: '/student/my-teachers', icon: '👩‍🏫' },
     { label: 'Review Requests', path: '/student/review-requests', icon: '✏️' },
   ],
 };
@@ -171,33 +173,75 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
       <Modal
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
-        overlayClassName="bg-black/50 backdrop-blur-sm"
-        maxWidth="max-w-md"
+        overlayClassName="bg-black/60 backdrop-blur-md"
+        maxWidth="max-w-sm"
       >
-        <div className="overflow-hidden rounded-2xl border border-white/20 bg-white p-6 shadow-2xl ring-1 ring-black/5">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-100 to-violet-100 text-2xl">🚪</div>
+        <div className="overflow-hidden rounded-2xl shadow-2xl">
+          {/* Gradient Header */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-600 to-violet-600 px-6 pt-6 pb-8">
+            {/* Decorative blobs */}
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-violet-400/20 blur-xl" />
+            {/* User avatar row */}
+            <div className="relative flex flex-col items-center gap-3 text-center">
+              {/* Animated door icon */}
+              <div className="relative mb-1">
+                <div className="absolute inset-0 animate-ping rounded-full bg-white/20" style={{ animationDuration: '2s' }} />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-3xl shadow-lg backdrop-blur-sm ring-2 ring-white/30">
+                  🚪
+                </div>
+              </div>
               <div>
-                <h3 className="text-lg font-semibold text-brand-800">Logout</h3>
-                <p className="text-sm text-brand-600">Are you sure you want to logout?</p>
+                <h3 className="text-xl font-bold text-white tracking-tight">Signing Out?</h3>
+                <p className="mt-0.5 text-sm text-white/80">
+                  Hi <span className="font-semibold">{displayName}</span>, you're about to log out.
+                </p>
               </div>
             </div>
-            <div className="flex justify-end gap-3">
+          </div>
+
+          {/* Body */}
+          <div className="bg-white px-6 py-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+              What will happen
+            </p>
+            <ul className="space-y-2.5">
+              {[
+                { icon: '🔐', text: 'Your current session will be securely ended.' },
+                { icon: '📱', text: 'You\'ll be redirected to the login page.' },
+                { icon: '🔔', text: 'Live class notifications will pause until you log back in.' },
+                { icon: '💾', text: 'Your progress & data are safely saved in the cloud.' },
+              ].map(({ icon, text }) => (
+                <li key={text} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm">
+                    {icon}
+                  </span>
+                  <span className="text-sm text-gray-600 leading-snug">{text}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Divider */}
+            <div className="my-4 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+            {/* Action buttons */}
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setShowLogoutConfirm(false)}
-                className="rounded-xl border-2 border-brand-200 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
+                className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 active:scale-[0.98]"
               >
-                Cancel
+                Stay Logged In
               </button>
               <button
                 type="button"
                 onClick={handleLogoutConfirm}
-                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                className="flex-1 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-red-200 transition-all hover:from-red-600 hover:to-rose-700 hover:shadow-red-300 active:scale-[0.98]"
               >
-                {t('logout')}
+                Yes, Log Out
               </button>
             </div>
+          </div>
         </div>
       </Modal>
     </>

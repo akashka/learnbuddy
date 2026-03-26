@@ -1,4 +1,5 @@
 /// <reference path="./global.d.ts" />
+import { createServer } from 'http';
 import path from 'path';
 import fs from 'fs';
 import 'dotenv/config';
@@ -16,6 +17,7 @@ import { JobPosition } from './lib/models/JobPosition.js';
 import { redisHealth } from './lib/redis.js';
 import { requestIdMiddleware } from './lib/requestId.js';
 import { startWorker, setupRepeatJobs, closeQueue } from './lib/queue.js';
+import { initSocketIO } from './lib/socket.js';
 
 const PORT = process.env.PORT || 3005;
 
@@ -138,7 +140,10 @@ app.get('/health', async (_req, res) => {
   });
 });
 
-const server = app.listen(PORT, async () => {
+const httpServer = createServer(app);
+initSocketIO(httpServer);
+
+const server = httpServer.listen(PORT, async () => {
   console.log(`Backend API running at http://localhost:${PORT}`);
   console.log('Registered routes:');
   startWorker();
