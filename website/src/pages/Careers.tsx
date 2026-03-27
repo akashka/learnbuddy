@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { fetchJobPositions, submitJobApplication, fetchPageContent, type JobPosition } from '@/lib/api';
@@ -84,6 +84,15 @@ export default function Careers() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Filter states
+  const [filterTeam, setFilterTeam] = useState<string>('');
+  const [filterLocation, setFilterLocation] = useState<string>('');
+  const [filterType, setFilterType] = useState<string>('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 5;
+
   useEffect(() => {
     fetchJobPositions()
       .then((d) => setPositions(d.positions))
@@ -100,12 +109,40 @@ export default function Careers() {
       .catch(() => {});
   }, []);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterTeam, filterLocation, filterType]);
+
   const openApply = (job: JobPosition) => setApplyModal(job);
   const closeApply = () => {
     setApplyModal(null);
     setSubmitError(null);
     setSubmitSuccess(false);
   };
+
+  // Filtered positions
+  const filteredPositions = useMemo(() => {
+    return positions.filter((job) => {
+      const matchesTeam = filterTeam ? job.team === filterTeam : true;
+      const matchesLocation = filterLocation ? job.location === filterLocation : true;
+      const matchesType = filterType ? job.type === filterType : true;
+      return matchesTeam && matchesLocation && matchesType;
+    });
+  }, [positions, filterTeam, filterLocation, filterType]);
+
+  // Pagination logic
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = filteredPositions.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(filteredPositions.length / jobsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Get unique filter options
+  const uniqueTeams = useMemo(() => ['All', ...new Set(positions.map((job) => job.team))], [positions]);
+  const uniqueLocations = useMemo(() => ['All', ...new Set(positions.map((job) => job.location))], [positions]);
+  const uniqueTypes = useMemo(() => ['All', ...new Set(positions.map((job) => job.type))], [positions]);
 
   return (
     <div className="overflow-x-hidden">
@@ -174,20 +211,97 @@ export default function Careers() {
           <p className="text-lg text-gray-600">
             We&apos;re always looking for talented people. Don&apos;t see a fit? Reach out anyway!
           </p>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="team-filter" className="text-sm font-medium text-gray-700">Team:</label>
+              <select
+                id="team-filter"
+                value={filterTeam}
+                onChange={(e) => setFilterTeam(e.target.value === 'All' ? '' : e.target.value)}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+              >
+                {uniqueTeams.map((team) => (
+                  <option key={team} value={team}>{team}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="location-filter" className="text-sm font-medium text-gray-700">Location:</label>
+              <select
+                id="location-filter"
+                value={filterLocation}
+                onChange={(e) => setFilterLocation(e.target.value === 'All' ? '' : e.target.value)}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+              >
+                {uniqueLocations.map((location) => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="type-filter" className="text-sm font-medium text-gray-700">Type:</label>
+              <select
+                id="type-filter"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value === 'All' ? '' : e.target.value)}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+              >
+                {uniqueTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="h-12 w-48 animate-pulse rounded-xl bg-brand-100" />
             </div>
-          ) : positions.length > 0 ? (
-            <div className="space-y-6">
-              {positions.map((job, i) => (
-                <JobCard key={job.id} job={job} index={i} onApply={() => openApply(job)} />
-              ))}
-            </div>
+          ) : filteredPositions.length > 0 ? (
+            <>
+              <div className="space-y-6">
+                {currentJobs.map((job, i) => (
+                  <JobCard key={job.id} job={job} index={i} onApply={() => openApply(job)} />
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="mt-8 flex justify-center space-x-2">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => paginate(i + 1)}
+                      className={`rounded-xl px-4 py-2 text-sm font-medium ${
+                        currentPage === i + 1
+                          ? 'bg-brand-600 text-white'
+                          : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <ScrollReveal variant="fade-up" delay={150}>
               <div className="card-funky rounded-2xl border-2 border-dashed border-brand-200 bg-gradient-to-br from-brand-50/50 to-accent-50/30 p-12 text-center">
-                <p className="text-lg text-gray-600">No open positions at the moment.</p>
+                <p className="text-lg text-gray-600">No open positions matching your criteria at the moment.</p>
                 <p className="mt-2 text-sm text-gray-500">Check back soon or reach out—we&apos;d love to hear from you!</p>
                 <a
                   href="mailto:careers@guruchakra.com?subject=General%20Inquiry"
