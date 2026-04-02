@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { fetchJobPositions, submitJobApplication, fetchPageContent, type JobPosition } from '@/lib/api';
 import { API_BASE } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const defaultPerks = [
   { icon: '🏠', title: 'Remote-first', desc: 'Work from anywhere. No commute, more flexibility.' },
@@ -76,6 +78,7 @@ function JobCard({ job, index, onApply }: { job: JobPosition; index: number; onA
 }
 
 export default function Careers() {
+  const { locale } = useLanguage();
   const [positions, setPositions] = useState<JobPosition[]>([]);
   const [perks, setPerks] = useState(defaultPerks);
   const [loading, setLoading] = useState(true);
@@ -101,13 +104,13 @@ export default function Careers() {
   }, []);
 
   useEffect(() => {
-    fetchPageContent('careers')
+    fetchPageContent('careers', locale)
       .then((res) => {
         const p = res.sections.perks;
         if (Array.isArray(p) && p.length > 0) setPerks(p as typeof defaultPerks);
       })
       .catch(() => {});
-  }, []);
+  }, [locale]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -375,12 +378,16 @@ function ApplyModal({
   submitSuccess: boolean;
   setSubmitSuccess: (v: boolean) => void;
 }) {
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError(null);
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.set('positionId', job.id);
+    formData.set('recaptchaToken', recaptchaToken || '');
 
     const resume = formData.get('resume') as File | null;
     if (!resume || resume.size === 0) {
@@ -404,6 +411,8 @@ function ApplyModal({
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit');
     } finally {
       setSubmitting(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -493,6 +502,15 @@ function ApplyModal({
               placeholder="Tell us why you'd like to join..."
             />
           </div>
+
+          <div className="flex justify-center py-2">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setRecaptchaToken(token)}
+            />
+          </div>
+
           <div className="flex gap-2 pt-2">
             <button
               type="button"

@@ -4,6 +4,7 @@ import { Teacher } from '@/lib/models/Teacher';
 import { getAuthFromRequest } from '@/lib/auth';
 import { aiGenerateJson } from '@/lib/ai-unified';
 import { calculateTeacherProRata } from '@/lib/earning-utils';
+import { logAIUsage } from '@/lib/ai-audit';
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,10 +40,35 @@ export async function GET(request: NextRequest) {
     `;
 
     try {
-      const parsed = await aiGenerateJson<{ suggestions: string[], summaryMessage: string }>(prompt);
+      const response = await aiGenerateJson<{ suggestions: string[], summaryMessage: string }>(prompt);
+      const parsed = response.data;
+      
+      // Log usage
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'teacher_ai_suggestion',
+          userId: decoded.userId,
+          userRole: decoded.role,
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
       return NextResponse.json({ data: parsed });
     } catch (parseError) {
       console.error('Failed to parse AI JSON', parseError);
+      
+      logAIUsage({
+        operationType: 'teacher_ai_suggestion',
+        userId: decoded.userId,
+        userRole: decoded.role,
+        success: false,
+        errorMessage: parseError instanceof Error ? parseError.message : String(parseError),
+      }).catch(console.error);
+
       return NextResponse.json({ 
         data: { 
           suggestions: ['Consider opening weekend batches to attract working parents.', 'Review your pricing for high-demand subjects in a few weeks.', 'Keep up the good work on maintaining classes consistently!'],

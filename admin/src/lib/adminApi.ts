@@ -50,6 +50,19 @@ export interface StaffProfile {
   isActive?: boolean;
 }
 
+export interface WebsiteSettings {
+  playStoreUrl: string;
+  appStoreUrl: string;
+  facebookUrl: string;
+  twitterUrl: string;
+  linkedinUrl: string;
+  instagramUrl: string;
+  youtubeUrl: string;
+  contactPhone: string;
+  contactHours: string;
+  contactDays: string;
+}
+
 export const adminApi = {
   me: {
     get: () => apiJson<StaffProfile & { hasStaffRecord?: boolean }>(`${BASE}/me`),
@@ -296,43 +309,39 @@ export const adminApi = {
       apiJson(`${BASE}/contact-submissions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   },
   websiteSettings: {
-    get: () =>
-      apiJson<{
-        playStoreUrl: string;
-        appStoreUrl: string;
-        facebookUrl: string;
-        twitterUrl: string;
-        linkedinUrl: string;
-        instagramUrl: string;
-        youtubeUrl: string;
-        contactPhone: string;
-        contactHours: string;
-        contactDays: string;
-      }>(`${BASE}/website-settings`),
-    update: (data: {
-      playStoreUrl?: string;
-      appStoreUrl?: string;
-      facebookUrl?: string;
-      twitterUrl?: string;
-      linkedinUrl?: string;
-      instagramUrl?: string;
-      youtubeUrl?: string;
-      contactPhone?: string;
-      contactHours?: string;
-      contactDays?: string;
-    }) =>
-      apiJson(`${BASE}/website-settings`, {
+    get: (lang?: string) => {
+      const q = lang ? `?lang=${lang}` : '';
+      return apiJson<WebsiteSettings & { translations?: any }>(`${BASE}/website-settings${q}`);
+    },
+    update: (data: Partial<WebsiteSettings>, lang?: string) => {
+      const q = lang ? `?lang=${lang}` : '';
+      return apiJson(`${BASE}/website-settings${q}`, {
         method: 'PUT',
         body: JSON.stringify(data),
-      }),
+      });
+    },
   },
   cmsPages: {
     list: () => apiJson<{ pages: { slug: string; title: string; content: string; updatedAt: string }[] }>(`${BASE}/cms-pages`),
-    get: (slug: string) => apiJson<{ slug: string; title: string; content: string; updatedAt: string }>(`${BASE}/cms-pages/${slug}`),
-    update: (slug: string, data: { title: string; content: string }) =>
-      apiJson(`${BASE}/cms-pages/${slug}`, {
+    get: (slug: string, lang?: string) => {
+      const q = lang ? `?lang=${lang}` : '';
+      return apiJson<{ slug: string; title: string; content: string; updatedAt: string }>(`${BASE}/cms-pages/${slug}${q}`);
+    },
+    update: (slug: string, data: { title: string; content: string }, lang?: string) => {
+      const q = lang ? `?lang=${lang}` : '';
+      return apiJson(`${BASE}/cms-pages/${slug}${q}`, {
         method: 'PUT',
         body: JSON.stringify(data),
+      });
+    },
+  },
+  websitePageContent: {
+    get: (pageType: string, lang: string) => 
+      apiJson<{ pageType: string; lang: string; sections: any }>(`${BASE}/website-page-content?page=${pageType}&lang=${lang}`),
+    update: (pageType: string, lang: string, sections: any) =>
+      apiJson(`${BASE}/website-page-content`, {
+        method: 'PUT',
+        body: JSON.stringify({ pageType, lang, sections }),
       }),
   },
   teacherChanges: {

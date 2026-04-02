@@ -5,12 +5,18 @@ import { ParentRegistration } from '@/lib/models/ParentRegistration';
 import { User } from '@/lib/models/User';
 import { Parent } from '@/lib/models/Parent';
 import { hashPassword, generateToken } from '@/lib/auth';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = (await request.json()) as any;
-    const { phone, data: formData, complete } = body;
+    const { phone, data: formData, complete, recaptchaToken } = body;
+
+    const recaptcha = await verifyRecaptcha(recaptchaToken, request);
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+    }
 
     if (!phone) {
       return NextResponse.json({ error: 'Phone required' }, { status: 400 });

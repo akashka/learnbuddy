@@ -13,10 +13,10 @@ export interface IMaster extends Document {
 
 const MasterSchema = new Schema<IMaster>(
   {
-    type: { type: String, enum: ['board', 'class', 'subject'], required: true },
+    type: { type: String, enum: ['board', 'class', 'subject'], required: true, index: true },
     value: { type: String, required: true },
-    displayOrder: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
+    displayOrder: { type: Number, default: 0, index: true },
+    isActive: { type: Boolean, default: true, index: true },
   },
   { timestamps: true }
 );

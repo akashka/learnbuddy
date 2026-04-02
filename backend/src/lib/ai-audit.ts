@@ -5,6 +5,7 @@
 import mongoose from 'mongoose';
 import connectDB from '@/lib/db';
 import { AIUsageLog, type AIOperationType } from '@/lib/models/AIUsageLog';
+import { calculateAICost } from './ai-pricing';
 
 const USE_AI_SERVICE = !!process.env.AI_SERVICE_URL && !!process.env.AI_SERVICE_API_KEY;
 
@@ -20,11 +21,20 @@ export interface AIAuditParams {
   success: boolean;
   errorMessage?: string;
   modelId?: string;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  cost?: number;
 }
 
 export async function logAIUsage(params: AIAuditParams): Promise<void> {
   try {
     await connectDB();
+    const promptTokens = params.promptTokens || 0;
+    const completionTokens = params.completionTokens || 0;
+    const totalTokens = params.totalTokens || (promptTokens + completionTokens);
+    const cost = params.cost ?? (params.modelId ? calculateAICost(params.modelId, promptTokens, completionTokens) : 0);
+
     await AIUsageLog.create({
       operationType: params.operationType,
       userId: params.userId ? new mongoose.Types.ObjectId(String(params.userId)) : undefined,
@@ -38,6 +48,10 @@ export async function logAIUsage(params: AIAuditParams): Promise<void> {
       success: params.success,
       errorMessage: params.errorMessage,
       modelId: params.modelId,
+      promptTokens,
+      completionTokens,
+      totalTokens,
+      cost,
     });
   } catch (err) {
     console.error('AI audit log failed:', err);

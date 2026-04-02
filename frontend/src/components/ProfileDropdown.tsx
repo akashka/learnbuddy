@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiJson } from '@/lib/api';
@@ -92,6 +92,33 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
     window.location.href = '/';
   };
 
+  /** Arrow-key / Escape keyboard navigation for the menu (WAI-ARIA menu pattern) */
+  const handleMenuKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!ref.current) return;
+      const items = Array.from(
+        ref.current.querySelectorAll<HTMLElement>('[role="menuitem"]')
+      );
+      const idx = items.indexOf(document.activeElement as HTMLElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items[(idx + 1) % items.length]?.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        items[(idx - 1 + items.length) % items.length]?.focus();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        items[0]?.focus();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+      } else if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    },
+    []
+  );
+
   return (
     <>
       <div className="relative" ref={ref}>
@@ -103,11 +130,12 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
               ? 'ring-brand-300 bg-gradient-to-br from-brand-50 to-violet-50 shadow-md'
               : 'ring-transparent hover:ring-brand-200 hover:bg-gradient-to-br hover:from-brand-50/50 hover:to-violet-50/50 hover:shadow-sm'
           }`}
-          aria-label="Profile menu"
+          aria-label={`Profile menu for ${displayName}`}
           aria-expanded={open}
+          aria-haspopup="menu"
         >
           {photoUrl ? (
-            <img src={photoUrl} alt="" className="h-9 w-9 rounded-full object-cover ring-2 ring-white shadow-sm" />
+            <img src={photoUrl} alt={`${displayName}'s profile photo`} className="h-9 w-9 rounded-full object-cover ring-2 ring-white shadow-sm" />
           ) : (
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-violet-600 text-sm font-medium text-white shadow-md">
               {getInitials(profile?.name ?? null, user.email ?? '')}
@@ -116,21 +144,26 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
         </button>
 
         {open && (
-          <div className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-white/20 bg-white shadow-2xl ring-1 ring-black/5 animate-scale-in">
+          <div
+            className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-white/20 bg-white shadow-2xl ring-1 ring-black/5 animate-scale-in"
+            role="menu"
+            aria-label="Profile options"
+            onKeyDown={handleMenuKeyDown}
+          >
             <div className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-600 to-violet-600 px-4 py-4">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/10 blur-xl" />
-              <div className="absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-violet-400/20 blur-lg" />
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
+              <div className="absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-violet-400/20 blur-lg" aria-hidden="true" />
               <div className="relative flex items-center gap-3">
                 {photoUrl ? (
-                  <img src={photoUrl} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-white/50 shadow" />
+                  <img src={photoUrl} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-white/50 shadow" aria-hidden="true" />
                 ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 text-lg font-semibold text-white backdrop-blur-sm">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 text-lg font-semibold text-white backdrop-blur-sm" aria-hidden="true">
                     {getInitials(profile?.name ?? null, user.email ?? '')}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-white">{displayName}</p>
-                  <p className="truncate text-xs text-white/80 capitalize">{user.role}</p>
+                  <p className="truncate text-xs text-white/90 capitalize">{user.role}</p>
                 </div>
               </div>
             </div>
@@ -141,8 +174,9 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
                   to={profilePath}
                   onClick={() => { setOpen(false); onLinkClick?.(); }}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-brand-100/50"
+                  role="menuitem"
                 >
-                  <span>👤</span>
+                  <span aria-hidden="true">👤</span>
                   View profile
                 </Link>
               )}
@@ -152,8 +186,9 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
                   to={item.path}
                   onClick={() => { setOpen(false); onLinkClick?.(); }}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-brand-100/50"
+                  role="menuitem"
                 >
-                  <span>{item.icon}</span>
+                  <span aria-hidden="true">{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
@@ -161,8 +196,9 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
                 type="button"
                 onClick={handleLogoutClick}
                 className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                role="menuitem"
               >
-                <span>🚪</span>
+                <span aria-hidden="true">🚪</span>
                 {t('logout')}
               </button>
             </div>
@@ -175,6 +211,7 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
         onClose={() => setShowLogoutConfirm(false)}
         overlayClassName="bg-black/60 backdrop-blur-md"
         maxWidth="max-w-sm"
+        labelledBy="logout-modal-title"
       >
         <div className="overflow-hidden rounded-2xl shadow-2xl">
           {/* Gradient Header */}
@@ -192,7 +229,7 @@ export default function ProfileDropdown({ onLinkClick }: ProfileDropdownProps) {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Signing Out?</h3>
+                <h3 id="logout-modal-title" className="text-xl font-bold text-white tracking-tight">Signing Out?</h3>
                 <p className="mt-0.5 text-sm text-white/80">
                   Hi <span className="font-semibold">{displayName}</span>, you're about to log out.
                 </p>

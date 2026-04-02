@@ -149,6 +149,13 @@ export const translations = {
     welcome: 'স্বাগতম',
     home: 'হোম',
   },
+  te: { appName: 'GuruChakra' },
+  mr: { appName: 'GuruChakra' },
+  ta: { appName: 'GuruChakra' },
+  gu: { appName: 'GuruChakra' },
+  kn: { appName: 'GuruChakra' },
+  ml: { appName: 'GuruChakra' },
+  pa: { appName: 'GuruChakra' },
 } as const;
 
 export type Locale = keyof typeof translations;

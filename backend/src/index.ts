@@ -4,8 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import 'dotenv/config';
 import express from 'express';
+import helmet from 'helmet';
+import compression from 'compression';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import { getRedisClient, redisHealth } from './lib/redis.js';
 import { registerRoutes } from './routes.generated.js';
 import { adaptNextRoute } from './adaptNextRoute.js';
 import { POST as POST_job_applications } from './api/website/job-applications/route.js';
@@ -14,7 +18,6 @@ import { auditMiddleware } from './lib/auditMiddleware.js';
 import { uploadJd } from './lib/upload.js';
 import connectDB from './lib/db.js';
 import { JobPosition } from './lib/models/JobPosition.js';
-import { redisHealth } from './lib/redis.js';
 import { requestIdMiddleware } from './lib/requestId.js';
 import { startWorker, setupRepeatJobs, closeQueue } from './lib/queue.js';
 import { initSocketIO } from './lib/socket.js';
@@ -23,8 +26,18 @@ const PORT = process.env.PORT || 3005;
 
 const app = express();
 
+// Trust proxy for rate limiting
+app.set('trust proxy', true);
+
 // Request ID for tracing across services (must run first)
 app.use(requestIdMiddleware);
+
+// Set security headers
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 app.use(
   cors({
@@ -32,19 +45,48 @@ app.use(
     credentials: true,
   })
 );
+
+// Compression for all responses
+app.use(compression());
+
 // 15MB limit for JSON body - teacher registration step 4 sends base64 documents (up to 5 × 2MB)
 app.use(express.json({ limit: '15mb' }));
 
 // Stricter rate limits for auth endpoints: 5 req/min per IP (reduces brute-force and OTP abuse)
-const AUTH_PATHS = ['/api/auth/login', '/api/auth/register', '/api/registration/send-otp'];
+const AUTH_PATHS = ['/api/auth/login', '/api/auth/register', '/api/registration/send-otp', '/api/auth/send-otp'];
+const redisClient = await redisHealth().then(h => h.ok ? getRedisClient() : null);
+
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  store: redisClient ? new RedisStore({
+    sendCommand: (...args: string[]) => (redisClient as any).call(...args),
+  }) : undefined,
+  validate: false,
   skip: (req) => !AUTH_PATHS.includes(req.path),
 });
 app.use(authLimiter);
+
+// Per-user rate limiting for critical business logic (e.g. rescheduling, payments)
+const CRITICAL_PATHS = ['/api/classes/reschedule/request', '/api/payments/create', '/api/parent/checkout'];
+const userLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3, // Very strict: 3 requests per minute per user
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: redisClient ? new RedisStore({
+    sendCommand: (...args: string[]) => (redisClient as any).call(...args),
+  }) : undefined,
+  validate: false,
+  keyGenerator: (req) => {
+    // Falls back to IP if user not authenticated
+    return (req as any).user?.userId || req.ip || 'anonymous';
+  },
+  skip: (req) => !CRITICAL_PATHS.includes(req.path),
+});
+app.use(userLimiter);
 
 // General rate limiting: configurable via RATE_LIMIT_MAX (default 500 req/15min per IP)
 const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '500', 10);

@@ -8,6 +8,7 @@ export interface IJobPosition extends Document {
   description: string;
   jdUrl: string;
   status: 'open' | 'closed';
+  translations?: Record<string, { title?: string; team?: string; description?: string }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ const JobPositionSchema = new Schema<IJobPosition>(
     description: { type: String, default: '' },
     jdUrl: { type: String, default: '' },
     status: { type: String, enum: ['open', 'closed'], default: 'open' },
+    translations: { type: Map, of: Object, default: {} },
   },
   { timestamps: true }
 );

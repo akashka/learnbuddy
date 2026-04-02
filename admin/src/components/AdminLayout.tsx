@@ -17,6 +17,7 @@ const ALL_NAV_ITEMS = [
   { to: '/masters', label: 'Masters', icon: '📋' },
   { to: '/cms-pages', label: 'CMS Pages', icon: '📄' },
   { to: '/website-settings', label: 'Website Settings', icon: '🌐' },
+  { to: '/website-page-content', label: 'Page Content', icon: '🎨' },
   { to: '/ai-data', label: 'AI Data', icon: '🤖' },
   { to: '/drafts', label: 'Drafts', icon: '📝' },
   { to: '/teachers', label: 'Teachers', icon: '👩‍🏫' },

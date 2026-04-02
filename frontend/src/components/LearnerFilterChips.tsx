@@ -33,6 +33,7 @@ export function LearnerFilterChips({
         <button
           type="button"
           onClick={() => onChange(null)}
+          aria-pressed={!selectedId}
           className={`${chipBase} ${
             !selectedId
               ? 'border-brand-500 bg-gradient-to-r from-brand-50 to-violet-50 text-brand-900 ring-2 ring-brand-400/40'
@@ -52,6 +53,7 @@ export function LearnerFilterChips({
               key={opt.id}
               type="button"
               onClick={() => onChange(opt.id)}
+              aria-pressed={active}
               className={`${chipBase} max-w-full ${
                 active
                   ? 'border-brand-500 bg-gradient-to-r from-brand-50 to-violet-50 text-brand-900 ring-2 ring-brand-400/40'

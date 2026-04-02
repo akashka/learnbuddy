@@ -9,6 +9,7 @@ import {
   aiTranscribeAudio,
   isAIConfigured,
 } from '@/lib/ai-unified';
+import { logAIUsage } from '@/lib/ai-audit';
 
 async function withAIFallback<T>(
   fn: () => Promise<T>,
@@ -30,12 +31,25 @@ export async function generateQualificationExam(
 ): Promise<{ question: string; options: string[]; correctAnswer: number }[]> {
   return withAIFallback(
     async () => {
-      const result = await aiGenerateJson<{
+      const response = await aiGenerateJson<{
         questions: { question: string; options: string[]; correctAnswer: number }[];
       }>(
         `Generate 5 MCQ questions for a teacher qualification exam. Subject: ${subject}, Board: ${board}, Class: ${classLevel}. Each question must have exactly 4 options. correctAnswer is 0-indexed (0=A, 1=B, 2=C, 3=D). Focus on teaching methodology, curriculum knowledge, and subject expertise.`,
         'You are an expert in Indian school education. Generate exam questions in valid JSON format.'
       );
+      
+      const result = response.data;
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_qualification_exam',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+      
       return result.questions?.slice(0, 5) || [];
     },
     getPlaceholderQualificationExam(subject, board, classLevel)
@@ -126,7 +140,7 @@ export async function generateStudentExamQuestions(
 
   return withAIFallback(
     async () => {
-      const result = await aiGenerateJson<{
+      const response = await aiGenerateJson<{
         questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string; imageUrl?: string; requiresDrawing?: boolean }[];
       }>(
         `Generate ${numQuestions} exam questions for ${subject}, ${board} Class ${classLevel}. ${topicHint}
@@ -139,6 +153,20 @@ export async function generateStudentExamQuestions(
         
         Return JSON: { "questions": [ { "question": "...", "type": "mcq"|"short"|"objective", "options": ["A","B","C","D"] for mcq, "correctAnswer": 0-3 or string, "imageUrl": "data:image/svg+xml;base64,..." or null, "requiresDrawing": true/false } ] }`
       );
+      
+      const result = response.data;
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_exam_questions',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+          entityType: 'exam',
+        }).catch(console.error);
+      }
+
       const qs = (result.questions || []).slice(0, numQuestions).map((q) => ({
         question: q.question,
         type: (q.type || 'mcq') as 'mcq' | 'objective' | 'short',
@@ -275,7 +303,8 @@ function pickAnswerParts(ans: unknown): {
 
 export async function evaluateStudentExam(
   questions: StudentExamQuestion[],
-  answers: (number | string | { value?: number | string; photoUrl?: string; audioTranscript?: string })[]
+  answers: (number | string | { value?: number | string; photoUrl?: string; audioTranscript?: string })[],
+  userContext?: { userId?: string; userRole?: string }
 ): Promise<{ score: number; feedback: { good: string[]; bad: string[]; overall: string; questionFeedback?: { questionIndex: number; correct: boolean; feedback: string }[]; questionDetails?: QuestionResultDetail[]; lowSentimentWarning?: boolean } }> {
   let score = 0;
   const questionFeedback: { questionIndex: number; correct: boolean; feedback: string }[] = [];
@@ -286,12 +315,24 @@ export async function evaluateStudentExam(
     const ans = answers[i];
     const parts = pickAnswerParts(ans);
     let val: number | string = parts.mcqIndex !== undefined ? parts.mcqIndex : parts.rawText;
+    
     if (parts.presetTranscript) {
       val = parts.presetTranscript;
     } else if (parts.audioDataUrl) {
-      const transcribed = await withAIFallback(() => aiTranscribeAudio(parts.audioDataUrl!), '');
-      val = transcribed || '';
+      const resp = await withAIFallback(() => aiTranscribeAudio(parts.audioDataUrl!), { text: '' });
+      val = resp.text || '';
+      if (resp.usage) {
+        logAIUsage({
+          operationType: 'analyze_exam_frame_with_audio',
+          success: true,
+          modelId: resp.usage.model,
+          promptTokens: resp.usage.promptTokens,
+          completionTokens: resp.usage.completionTokens,
+          totalTokens: resp.usage.totalTokens,
+        }).catch(console.error);
+      }
     }
+
     const imageDataUrl =
       parts.imageDataUrl || (typeof val === 'string' && val.startsWith('data:image') ? val : null);
     const isImageAnswer = !!imageDataUrl;
@@ -302,9 +343,6 @@ export async function evaluateStudentExam(
     const displayCorrectAnswer = q.type === 'mcq' && q.options
       ? (typeof q.correctAnswer === 'number' ? q.options[q.correctAnswer] : String(q.correctAnswer ?? 'N/A'))
       : String(q.correctAnswer ?? 'N/A');
-    const displayUserAnswer = q.type === 'mcq' && q.options && typeof val === 'number'
-      ? q.options[val] ?? String(val ?? 'Not answered')
-      : String(val ?? 'Not answered');
 
     if (q.type === 'mcq' && typeof val === 'number' && val === q.correctAnswer) {
       correct = true;
@@ -317,7 +355,7 @@ export async function evaluateStudentExam(
       const totalMarksForQ = q.marks;
       const aiEval = await withAIFallback(
         async () => {
-          const result = await aiGenerateWithImages(
+          const response = await aiGenerateWithImages(
             `You are an expert teacher grading a student's drawing/diagram for an exam question.
 
 Question: ${q.question}
@@ -328,7 +366,21 @@ Evaluate the student's drawing. Award partial marks for: correct elements, parti
 Return JSON only: { "marksObtained": <0 to ${totalMarksForQ}>, "feedback": "brief feedback on what was correct/incorrect in the drawing" }`,
             [String(imageDataUrl)]
           );
-          const jsonMatch = result.match(/\{[\s\S]*\}/);
+          
+          if (response.usage) {
+            logAIUsage({
+              operationType: 'evaluate_student_exam',
+              success: true,
+              modelId: response.usage.model,
+              promptTokens: response.usage.promptTokens,
+              completionTokens: response.usage.completionTokens,
+              totalTokens: response.usage.totalTokens,
+              entityType: 'exam',
+            }).catch(console.error);
+          }
+
+          const resultText = response.text;
+          const jsonMatch = resultText.match(/\{[\s\S]*\}/);
           if (jsonMatch?.[0]) {
             return JSON.parse(jsonMatch[0]) as { marksObtained: number; feedback: string };
           }
@@ -350,10 +402,10 @@ Return JSON only: { "marksObtained": <0 to ${totalMarksForQ}>, "feedback": "brie
         score += totalMarksForQ;
         feedbackText = 'Correct';
       } else {
-      const aiEval = await withAIFallback(
-        async () => {
-          const result = await aiGenerateJson<{ marksObtained: number; feedback: string }>(
-            `You are an expert teacher grading an exam. Evaluate the student's answer like a human teacher would.
+        const aiEval = await withAIFallback(
+          async () => {
+            const response = await aiGenerateJson<{ marksObtained: number; feedback: string }>(
+              `You are an expert teacher grading an exam. Evaluate the student's answer like a human teacher would.
 
 Question: ${q.question}
 Expected answer (key points / correct value): ${String(q.correctAnswer ?? 'N/A')}
@@ -372,16 +424,29 @@ EVALUATION RULES (evaluate like a fair, experienced teacher - BE LENIENT with eq
 5. ZERO: Only if completely wrong, irrelevant, or copied wrong question. When in doubt, award partial marks.
 
 Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "brief teacher-like feedback" }`,
-            'You are a fair, experienced teacher. Award partial marks generously when the student demonstrates partial understanding. Be consistent and explain your grading.'
-          );
-          return result;
-        },
-        { marksObtained: studentStr.length > 10 ? Math.round(totalMarksForQ * 0.5) : 0, feedback: 'Auto-graded' }
-      );
-      marksObtained = Math.round(Math.min(totalMarksForQ, Math.max(0, Number(aiEval.marksObtained) || 0)) * 10) / 10;
-      correct = marksObtained >= totalMarksForQ * 0.5;
-      score += marksObtained;
-      feedbackText = aiEval.feedback || (marksObtained >= totalMarksForQ ? 'Correct' : `Partial credit: ${marksObtained}/${totalMarksForQ}. ${displayCorrectAnswer}`);
+              'You are a fair, experienced teacher. Award partial marks generously when the student demonstrates partial understanding. Be consistent and explain your grading.'
+            );
+            
+            if (response.usage) {
+              logAIUsage({
+                operationType: 'evaluate_student_exam',
+                success: true,
+                modelId: response.usage.model,
+                promptTokens: response.usage.promptTokens,
+                completionTokens: response.usage.completionTokens,
+                totalTokens: response.usage.totalTokens,
+                entityType: 'exam',
+              }).catch(console.error);
+            }
+
+            return response.data;
+          },
+          { marksObtained: studentStr.length > 10 ? Math.round(totalMarksForQ * 0.5) : 0, feedback: 'Auto-graded' }
+        );
+        marksObtained = Math.round(Math.min(totalMarksForQ, Math.max(0, Number(aiEval.marksObtained) || 0)) * 10) / 10;
+        correct = marksObtained >= totalMarksForQ * 0.5;
+        score += marksObtained;
+        feedbackText = aiEval.feedback || (marksObtained >= totalMarksForQ ? 'Correct' : `Partial credit: ${marksObtained}/${totalMarksForQ}. ${displayCorrectAnswer}`);
       }
     } else {
       feedbackText = `Correct answer: ${displayCorrectAnswer}`;
@@ -423,7 +488,9 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
     .filter((i) => i >= 0);
   if (textAnswerIndices.length > 0) {
     const textAnswers = textAnswerIndices.map((i) => String(questionDetails[i].userAnswer));
-    const sentimentResults = await Promise.all(textAnswers.map((t) => analyzeSentiment(t)));
+    const sentimentResults = await Promise.all(
+      textAnswers.map((t) => analyzeSentiment(t, userContext?.userId, userContext?.userRole))
+    );
     sentimentResults.forEach((res, idx) => {
       const detailIdx = textAnswerIndices[idx];
       const orig = String(questionDetails[detailIdx].userAnswer);
@@ -447,7 +514,7 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
   const correctCount = questionFeedback.filter((f) => f.correct).length;
   good.push(`${correctCount}/${questions.length} questions answered correctly.`);
 
-  const aiOverall = await withAIFallback(
+  const response = await withAIFallback(
     async () => {
       const qaSummary = questions
         .slice(0, 5)
@@ -457,8 +524,10 @@ Return JSON: { "marksObtained": <number 0 to ${totalMarksForQ}>, "feedback": "br
         `Student scored ${score}/${totalMarks} (${pct}%). Provide 1-2 sentence personalized feedback for a student. Be encouraging but constructive.\n\nSample Q&A:\n${qaSummary}`
       );
     },
-    `You scored ${score}/${totalMarks} (${pct}%).`
+    { text: `You scored ${score}/${totalMarks} (${pct}%).` } as any
   );
+  
+  const aiOverall = response.text;
 
   const hasLowSentiment = questionDetails.some((d) => (d as { sentimentWarning?: boolean }).sentimentWarning);
   return {
@@ -499,11 +568,23 @@ export async function generateFlashcards(
 ): Promise<{ cards: Flashcard[] }> {
   return withAIFallback(
     async () => {
-      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+      const response = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
         `Generate 10-12 flashcards for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students. Each card: "front" = question/term, "back" = answer. Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
         'Generate flashcards in valid JSON format.'
       );
-      return { cards: (result.cards || []).slice(0, 15) };
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_flashcards',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      return { cards: (response.data.cards || []).slice(0, 15) };
     },
     { cards: getPlaceholderFlashcards(subject, topic, board, classLevel) }
   );
@@ -529,11 +610,23 @@ export async function generateFlashcardsFromStudyMaterial(
   if (!studyMaterialText || studyMaterialText.trim().length < 50) return { cards: [] };
   return withAIFallback(
     async () => {
-      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+      const response = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
         `Extract 8-12 flashcards from this study material. Topic: ${topic}, Subject: ${subject}.\n\n${studyMaterialText.slice(0, 6000)}\n\nReturn JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
         'Extract flashcards in valid JSON format.'
       );
-      return { cards: (result.cards || []).slice(0, 15) };
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_flashcards',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      return { cards: (response.data.cards || []).slice(0, 15) };
     },
     { cards: [] }
   );
@@ -551,11 +644,23 @@ export async function generateFlashcardsFromExamFeedback(
   return withAIFallback(
     async () => {
       const weakQ = incorrectIndices.map((i) => questions[i]?.question).filter(Boolean).join(' | ');
-      const result = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
+      const response = await aiGenerateJson<{ cards: { front: string; back: string }[] }>(
         `Generate 6-10 remedial flashcards for ${subject} (${board} Class ${classLevel}). Weak areas: ${(feedback.bad || []).join('. ')}. Questions wrong: ${weakQ}. Return JSON: { "cards": [ { "front": "...", "back": "..." } ] }`,
         'Generate flashcards in valid JSON format.'
       );
-      return { cards: (result.cards || []).slice(0, 12) };
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_flashcards',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      return { cards: (response.data.cards || []).slice(0, 12) };
     },
     { cards: [] }
   );
@@ -570,7 +675,7 @@ export async function generateStudyMaterial(
 ): Promise<{ title: string; summary: string; sections: StudyMaterialContent[]; flashcards?: Flashcard[] }> {
   return withAIFallback(
     async () => {
-      const text = await aiGenerate(
+      const response = await aiGenerate(
         `Create fun, engaging study material for ${subject}, topic: ${topic}, for ${board} Class ${classLevel} students.
         Use markdown with:
         1. **Introduction** - Start with a friendly hook, use emojis (📖 ✨ 💡) to make it engaging
@@ -582,6 +687,19 @@ export async function generateStudyMaterial(
         Make it colorful in description, use emojis sparingly for emphasis, and align with Indian school curriculum. Write as if explaining to a curious student - friendly and encouraging.`,
         'You are an expert, friendly teacher creating fun study materials for Indian school students. Use simple language, real examples, and make learning enjoyable.'
       );
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_study_material',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const text = response.text;
       const base = {
         title: `${topic} - ${subject}`,
         summary: `Study material for ${topic} (${board} Class ${classLevel}).`,
@@ -600,9 +718,9 @@ export async function generateStudyMaterial(
       }
       return base;
     },
-    _options?.includeFlashcards
-      ? { ...getPlaceholderStudyMaterial(subject, topic, board, classLevel), flashcards: getPlaceholderFlashcards(subject, topic, board, classLevel) } as { title: string; summary: string; sections: StudyMaterialContent[]; flashcards?: Flashcard[] }
-      : getPlaceholderStudyMaterial(subject, topic, board, classLevel)
+    (_options?.includeFlashcards
+      ? { ...getPlaceholderStudyMaterial(subject, topic, board, classLevel), flashcards: getPlaceholderFlashcards(subject, topic, board, classLevel) }
+      : getPlaceholderStudyMaterial(subject, topic, board, classLevel))
   );
 }
 
@@ -626,23 +744,38 @@ function getPlaceholderStudyMaterial(
 
 export async function answerDoubt(
   question: string,
-  context: { subject: string; topic: string; board: string; classLevel: string }
+  context: { subject: string; topic: string; board: string; classLevel: string; userId?: string; userRole?: string }
 ): Promise<{ answer: string; questionWarning?: boolean; answerWarning?: boolean; sentimentScore?: number }> {
-  const rawAnswer = await withAIFallback(
+  const response = await withAIFallback(
     async () => {
-      return await aiGenerate(
+      const resp = await aiGenerate(
         `A student asks: "${question}"\n\nContext: ${context.subject}, ${context.board} Class ${context.classLevel}, topic: ${context.topic}.\n\nProvide a clear, educational answer suitable for a school student. Use simple language and include examples if helpful. Format your answer with markdown: use **bold** for key terms, bullet points for lists, numbered steps when explaining procedures, and headings for distinct sections.`,
         'You are a patient and knowledgeable tutor helping Indian school students. Explain concepts clearly and encourage learning. Always use markdown formatting (bullets, numbered lists, bold for emphasis) to make answers easy to read.'
       );
+      
+      if (resp.usage) {
+        logAIUsage({
+          operationType: 'answer_doubt',
+          success: true,
+          modelId: resp.usage.model,
+          promptTokens: resp.usage.promptTokens,
+          completionTokens: resp.usage.completionTokens,
+          totalTokens: resp.usage.totalTokens,
+        }).catch(console.error);
+      }
+      
+      return resp;
     },
-    `Based on ${context.subject} (${context.board} Class ${context.classLevel}) - ${context.topic}:\n\n${question}\n\nAnswer: Please configure GEMINI_API_KEY for AI-powered doubt resolution.`
+    { text: `Based on ${context.subject} (${context.board} Class ${context.classLevel}) - ${context.topic}:\n\n${question}\n\nAnswer: Please configure GEMINI_API_KEY for AI-powered doubt resolution.` } as any
   );
+  
+  const rawAnswer = response.text;
   const { analyzeSentiment, getSafeDisplayText } = await import('@/lib/sentiment');
-  const questionSentiment = await analyzeSentiment(question.trim());
+  const questionSentiment = await analyzeSentiment(question.trim(), context.userId, context.userRole);
   if (questionSentiment.score < 0.2) {
     throw new Error('Your question contains inappropriate content. Please rephrase and try again.');
   }
-  const answerSentiment = await analyzeSentiment(rawAnswer);
+  const answerSentiment = await analyzeSentiment(rawAnswer, context.userId, context.userRole);
   const { text: safeAnswer } = getSafeDisplayText(rawAnswer, answerSentiment);
   return {
     answer: safeAnswer,
@@ -659,10 +792,23 @@ export async function analyzeSessionMonitoring(
   return withAIFallback(
     async () => {
       if (frames.studentFrame && frames.teacherFrame) {
-        const result = await aiGenerateWithImages(
+        const response = await aiGenerateWithImages(
           'Analyze these two images from an online tutoring session. Image 1: student view. Image 2: teacher view. Is the session appropriate and safe? Reply with JSON only: { "alert": false or true, "type": "reason if alert", "message": "brief message" }',
           [frames.studentFrame, frames.teacherFrame]
         );
+        
+        if (response.usage) {
+          logAIUsage({
+            operationType: 'analyze_classroom_frame',
+            success: true,
+            modelId: response.usage.model,
+            promptTokens: response.usage.promptTokens,
+            completionTokens: response.usage.completionTokens,
+            totalTokens: response.usage.totalTokens,
+          }).catch(console.error);
+        }
+
+        const result = response.text;
         const jsonMatch = result.match(/\{[\s\S]*\}/);
         if (jsonMatch?.[0]) {
           return JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -680,7 +826,7 @@ export async function analyzeExamFrame(
 ): Promise<{ alert: boolean; type?: string; message?: string }> {
   return withAIFallback(
     async () => {
-      const result = await aiGenerateWithImages(
+      const response = await aiGenerateWithImages(
         `Analyze this webcam frame from an online exam. Strictly check:
 1. Is the person ALONE? (no other people in frame, background, or reflection)
 2. Is the person's FACE clearly visible and facing the camera/screen?
@@ -694,6 +840,19 @@ Flag alert=true if ANY: multiple people, person changed, extra person, phone/dev
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`,
         [studentFrame]
       );
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'analyze_exam_frame',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const result = response.text;
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch?.[0]) {
         return JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -743,7 +902,20 @@ AUDIO - Flag alert=true if:
 BE STRICT. When in doubt, flag. Better to warn than miss cheating.
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user-facing message" }`;
 
-      const result = await aiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
+      const response = await aiGenerateWithImageAndAudio(prompt, studentFrame, audioDataUrl);
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'analyze_exam_frame_with_audio',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const result = response.text;
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch?.[0]) {
         const parsed = JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -768,7 +940,7 @@ export async function analyzeClassroomFrame(
       const faceMatchPrompt = referencePhotoUrl
         ? `Image 1: Current webcam. Image 2: Stored ${roleDesc} photo. Does the face in Image 1 match Image 2? Flag if mismatch. `
         : '';
-      const result = await aiGenerateWithImages(
+      const response = await aiGenerateWithImages(
         `STRICT AI inspection for online class. This is the ${roleDesc}'s webcam view.
 ${faceMatchPrompt}
 Check ALL:
@@ -785,6 +957,19 @@ Flag alert=true for: camera_off, voice_off, face_mismatch, extra_person, backgro
 Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message": "brief user message" }`,
         images
       );
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'analyze_classroom_frame',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const result = response.text;
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch?.[0]) {
         return JSON.parse(jsonMatch[0]) as { alert: boolean; type?: string; message?: string };
@@ -798,7 +983,10 @@ Reply with JSON only: { "alert": true/false, "type": "reason if alert", "message
 /** Transcribe audio to text using Gemini (speech-to-text for exam monitoring) */
 export async function transcribeAudio(audioDataUrl: string): Promise<string> {
   if (!audioDataUrl?.trim()) return '';
-  return withAIFallback(async () => aiTranscribeAudio(audioDataUrl), '');
+  return withAIFallback(async () => {
+    const response = await aiTranscribeAudio(audioDataUrl);
+    return response.text;
+  }, '');
 }
 
 export interface TeacherExamQuestion {
@@ -810,18 +998,18 @@ export interface TeacherExamQuestion {
 
 export async function generateTeacherQualificationExam(
   combinations: { board: string; classLevel: string; subject: string }[],
-  durationMinutes: number = 15
+  _durationMinutes: number = 15
 ): Promise<TeacherExamQuestion[]> {
-  if (!isAIConfigured()) {
-    throw new Error('GEMINI_API_KEY is not configured. Please add it to .env.local');
-  }
   const comboDesc = combinations
     .map((c) => `${c.board} Board, Class ${c.classLevel}, ${c.subject}`)
     .join('; ');
-  const result = await aiGenerateJson<{
-    questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string }[];
-  }>(
-    `You are an expert in Indian school curricula (CBSE, ICSE, State Boards). Generate 15 REAL qualification exam questions for teachers. Teaching combinations: ${comboDesc}.
+  
+  return withAIFallback(
+    async () => {
+      const response = await aiGenerateJson<{
+        questions: { question: string; type: string; options?: string[]; correctAnswer?: number | string }[];
+      }>(
+        `You are an expert in Indian school curricula (CBSE, ICSE, State Boards). Generate 15 REAL qualification exam questions for teachers. Teaching combinations: ${comboDesc}.
 
 Create curriculum-specific questions. For each board/class/subject:
 - MCQ: Test actual syllabus concepts, formulas, definitions (e.g., Math Class 10: quadratic equations, trigonometry; Physics: motion, force; English: grammar)
@@ -830,17 +1018,33 @@ Create curriculum-specific questions. For each board/class/subject:
 
 Format: ~10 MCQ + ~5 short. MCQ: exactly 4 options, correctAnswer 0-3. Short: correctAnswer as string.
 Return ONLY valid JSON: { "questions": [ { "question": "...", "type": "mcq"|"short", "options": ["...","...","...","..."] for mcq, "correctAnswer": 0-3 or "key answer" } ] }`
+      );
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'generate_qualification_exam',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const questions = (response.data.questions || []).slice(0, 15).map((q) => ({
+        question: q.question,
+        type: (q.type || 'mcq') as 'mcq' | 'short',
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+      }));
+      
+      if (questions.length === 0) {
+        throw new Error('AI returned no questions.');
+      }
+      return questions;
+    },
+    []
   );
-  const questions = (result.questions || []).slice(0, 15).map((q) => ({
-    question: q.question,
-    type: (q.type || 'mcq') as 'mcq' | 'short',
-    options: q.options,
-    correctAnswer: q.correctAnswer,
-  }));
-  if (questions.length === 0) {
-    throw new Error('AI returned no questions. Please try again.');
-  }
-  return questions;
 }
 
 export function evaluateTeacherExam(
@@ -863,13 +1067,25 @@ export async function verifyDocumentPhoto(
 ): Promise<'verified' | 'not_verified' | 'partially_verified'> {
   return withAIFallback(
     async () => {
-      const result = await aiGenerateWithImages(
+      const response = await aiGenerateWithImages(
         `You are verifying identity documents. Image 1: ID proof document (Aadhaar/Passport etc). Image 2: Student/person photo.
         Does the photo on the ID document match the person in the second photo? Consider face similarity.
         Reply with exactly one word: verified, not_verified, or partially_verified.`,
         [documentImageUrl, profilePhotoUrl]
       );
-      const lower = result.trim().toLowerCase();
+      
+      if (response.usage) {
+        logAIUsage({
+          operationType: 'verify_document_photo',
+          success: true,
+          modelId: response.usage.model,
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }).catch(console.error);
+      }
+
+      const lower = response.text.trim().toLowerCase();
       if (lower.includes('not_verified')) return 'not_verified';
       if (lower.includes('partially')) return 'partially_verified';
       return 'verified';

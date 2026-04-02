@@ -89,4 +89,9 @@ const ClassSessionSchema = new Schema<IClassSession>(
   { timestamps: true }
 );
 
+ClassSessionSchema.index({ teacherId: 1, status: 1 });
+ClassSessionSchema.index({ studentIds: 1, status: 1 });
+ClassSessionSchema.index({ scheduledAt: 1 });
+ClassSessionSchema.index({ enrollmentIds: 1 });
+
 export const ClassSession: Model<IClassSession> = mongoose.models.ClassSession || mongoose.model<IClassSession>('ClassSession', ClassSessionSchema);

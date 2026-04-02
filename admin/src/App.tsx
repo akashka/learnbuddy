@@ -46,6 +46,8 @@ import TeacherPayments from '@/pages/TeacherPayments';
 import Documents from '@/pages/Documents';
 import Reports from '@/pages/Reports';
 
+import WebsitePageContentEditor from '@/pages/WebsitePageContentEditor';
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   if (isLoading) {
@@ -113,6 +115,7 @@ function AppRoutes() {
         <Route path="ai-usage-logs" element={<AIUsageLogs />} />
         <Route path="ai-usage-logs/:id" element={<AIUsageLogDetail />} />
         <Route path="ai-review-requests" element={<AIReviewRequests />} />
+        <Route path="website-page-content" element={<WebsitePageContentEditor />} />
         <Route path="documents" element={<Documents />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

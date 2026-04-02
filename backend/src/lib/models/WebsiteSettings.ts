@@ -11,6 +11,7 @@ export interface IWebsiteSettings extends Document {
   contactPhone: string;
   contactHours: string;
   contactDays: string;
+  translations?: Record<string, { contactHours?: string; contactDays?: string }>;
   updatedAt: Date;
 }
 
@@ -26,6 +27,7 @@ const WebsiteSettingsSchema = new Schema<IWebsiteSettings>(
     contactPhone: { type: String, default: '' },
     contactHours: { type: String, default: '' },
     contactDays: { type: String, default: '' },
+    translations: { type: Map, of: Object, default: {} },
   },
   { timestamps: true }
 );

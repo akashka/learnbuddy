@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { ContactSubmission } from '@/lib/models/ContactSubmission';
 import { sendTemplatedEmail } from '@/lib/mailgun-service';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 /** Public: Submit contact form (concern, suggestion, feedback, etc.) */
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { name?: string; email?: string; phone?: string; type?: string; subject?: string; message?: string };
+    const body = (await request.json()) as { name?: string; email?: string; phone?: string; type?: string; subject?: string; message?: string; recaptchaToken?: string };
+    
+    const recaptcha = await verifyRecaptcha(body.recaptchaToken || '', request);
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+    }
+
     const name = (body.name as string)?.trim() || '';
     const email = (body.email as string)?.trim() || '';
     const phone = (body.phone as string)?.trim() || '';

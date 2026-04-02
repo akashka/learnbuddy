@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
 import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -16,6 +17,8 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     if (isLoading) return;
@@ -41,7 +44,11 @@ export default function AdminLogin() {
     try {
       const res = await api('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ 
+          email: email.trim(), 
+          password,
+          recaptchaToken: recaptchaToken || undefined 
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -60,6 +67,8 @@ export default function AdminLogin() {
       toast.error('Login failed');
     } finally {
       setLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -140,6 +149,15 @@ export default function AdminLogin() {
                   </button>
                 </div>
               </div>
+              
+              <div className="flex justify-center py-2">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                  onChange={(token) => setRecaptchaToken(token)}
+                />
+              </div>
+
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit"

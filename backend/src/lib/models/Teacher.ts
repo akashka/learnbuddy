@@ -130,6 +130,11 @@ const TeacherSchema = new Schema<ITeacher>(
   { timestamps: true }
 );
 
+TeacherSchema.index({ userId: 1 }, { unique: true });
+TeacherSchema.index({ name: 1 });
+TeacherSchema.index({ marketplaceOrder: 1 });
+TeacherSchema.index({ bgvVerified: 1 });
+TeacherSchema.index({ bgvApprovedBy: 1 });
 TeacherSchema.index({ status: 1, board: 1, classes: 1, subjects: 1 });
 
 export const Teacher: Model<ITeacher> = mongoose.models.Teacher || mongoose.model<ITeacher>('Teacher', TeacherSchema);

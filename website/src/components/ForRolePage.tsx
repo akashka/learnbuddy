@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { apiJson, fetchPageContent } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchCmsPage, fetchPageContent } from '@/lib/api';
 import { ScrollReveal } from './ScrollReveal';
 import { FeaturedTeachers } from './FeaturedTeachers';
 
@@ -62,6 +63,7 @@ interface ForRolePageProps {
 }
 
 export function ForRolePage({ slug, links }: ForRolePageProps) {
+  const { locale } = useLanguage();
   const [config, setConfig] = useState<RoleConfig>(DEFAULT_ROLE_CONFIG[slug]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,22 +71,22 @@ export function ForRolePage({ slug, links }: ForRolePageProps) {
 
   useEffect(() => {
     setConfig(DEFAULT_ROLE_CONFIG[slug]);
-    fetchPageContent('role-config')
+    fetchPageContent('role-config', locale)
       .then((res) => {
         const rc = res.sections[slug] as RoleConfig | undefined;
         if (rc?.image && rc?.highlights?.length) setConfig(rc);
       })
       .catch(() => {});
-  }, [slug]);
+  }, [slug, locale]);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    apiJson<{ title: string; content: string }>(`/api/cms-pages/${slug}`)
+    fetchCmsPage(slug, locale)
       .then(setPage)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load page'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, locale]);
 
   if (loading) {
     return (

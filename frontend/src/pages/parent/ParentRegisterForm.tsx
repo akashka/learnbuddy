@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { LocationSearch } from '@/components/LocationSearch';
 import { PolicyTermsCheckbox } from '@/components/PolicyTermsCheckbox';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface FormData {
   name: string;
@@ -22,6 +23,8 @@ export default function ParentRegisterForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     if (!phone) navigate('/parent/register');
@@ -43,7 +46,7 @@ export default function ParentRegisterForm() {
         user?: { id: string; email: string; role: string };
       }>('/api/parent-registration/save', {
         method: 'POST',
-        body: JSON.stringify({ phone, data: form, complete: true }),
+        body: JSON.stringify({ phone, data: form, complete: true, recaptchaToken }),
       });
       if (res.isComplete && res.token && res.user) {
         loginWithToken(res.token, res.user);
@@ -55,6 +58,8 @@ export default function ParentRegisterForm() {
       setError((err as Error).message || 'Failed to save');
     } finally {
       setLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -117,6 +122,15 @@ export default function ParentRegisterForm() {
             onChange={setAcceptedPolicy}
             error={error && !acceptedPolicy ? error : undefined}
           />
+
+          <div className="flex justify-center py-2">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setRecaptchaToken(token)}
+            />
+          </div>
+
           {error && acceptedPolicy && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full py-4 disabled:opacity-50">
             <span className="btn-text">{loading ? 'Creating account...' : 'Create Account'}</span>

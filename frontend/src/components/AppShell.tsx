@@ -26,9 +26,13 @@ export default function AppShell() {
 
   return (
     <div className="relative flex min-h-screen flex-col">
+      {/* Skip-to-main-content — visually hidden until focused by keyboard (WCAG 2.4.1) */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       <AppBackground />
       {showHeader && <Navbar />}
-      <main className="relative z-0 flex-1 w-full min-w-0">
+      <main id="main-content" className="relative z-0 flex-1 w-full min-w-0">
         <div
           className={`mx-auto w-full ${isMarketplace ? 'py-0 sm:py-0 lg:py-0' : 'py-6 sm:py-8 lg:py-10'} ${fullWidthMain ? 'max-w-none px-0 sm:px-0 lg:px-0' : 'max-w-[1400px] px-4 sm:px-6 lg:px-8'}`}
         >

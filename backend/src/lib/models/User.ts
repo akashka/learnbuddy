@@ -19,9 +19,9 @@ const UserSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String, sparse: true },
-    role: { type: String, enum: ['student', 'parent', 'teacher', 'admin'], required: true },
-    isActive: { type: Boolean, default: true },
+    phone: { type: String, sparse: true, index: true },
+    role: { type: String, enum: ['student', 'parent', 'teacher', 'admin'], required: true, index: true },
+    isActive: { type: Boolean, default: true, index: true },
     emailVerifiedAt: Date,
     deactivationReason: String,
     deactivatedAt: Date,

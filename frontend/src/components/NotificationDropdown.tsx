@@ -76,8 +76,15 @@ export default function NotificationDropdown({ onLinkClick }: NotificationDropdo
     function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const markAsRead = (id: string) => {
@@ -112,22 +119,30 @@ export default function NotificationDropdown({ onLinkClick }: NotificationDropdo
         }`}
         aria-label="Notifications"
         aria-expanded={open}
+        aria-haspopup="true"
       >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-            {unreadCount > 99 ? '99+' : unreadCount}
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+            aria-label={`${unreadCount > 99 ? '99+' : unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`}
+          >
+            <span aria-hidden="true">{unreadCount > 99 ? '99+' : unreadCount}</span>
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 max-h-[400px] overflow-hidden rounded-2xl border border-white/20 bg-white shadow-2xl ring-1 ring-black/5 animate-scale-in">
+        <div
+          className="absolute right-0 top-full z-50 mt-2 w-80 max-h-[400px] overflow-hidden rounded-2xl border border-white/20 bg-white shadow-2xl ring-1 ring-black/5 animate-scale-in"
+          role="region"
+          aria-label="Notifications panel"
+        >
           <div className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-600 to-violet-600 px-4 py-3">
-            <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-white/10 blur-xl" />
-            <div className="absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-violet-400/20 blur-lg" />
+            <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-white/10 blur-xl" aria-hidden="true" />
+            <div className="absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-violet-400/20 blur-lg" aria-hidden="true" />
             <div className="relative flex items-center justify-between">
               <h3 className="font-semibold text-white">Notifications</h3>
               {unreadCount > 0 && (
@@ -135,6 +150,7 @@ export default function NotificationDropdown({ onLinkClick }: NotificationDropdo
                   type="button"
                   onClick={markAllRead}
                   className="rounded-lg px-2 py-1 text-xs font-medium text-white/90 transition hover:bg-white/20 hover:text-white"
+                  aria-label="Mark all notifications as read"
                 >
                   Mark all read
                 </button>

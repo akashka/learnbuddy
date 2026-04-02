@@ -15,6 +15,9 @@ export async function GET(
     }
 
     const { slug } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const lang = searchParams.get('lang');
+
     if (!slug) {
       return NextResponse.json({ error: 'Slug required' }, { status: 400 });
     }
@@ -24,6 +27,16 @@ export async function GET(
     const page = await CmsPage.findOne({ slug }).lean();
     if (!page) {
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+    }
+
+    if (lang && lang !== 'en') {
+      const trans = (page.translations as any)?.[lang] || { title: '', content: '' };
+      return NextResponse.json({
+        slug: page.slug,
+        title: trans.title || '',
+        content: trans.content || '',
+        isTranslation: true,
+      });
     }
 
     return NextResponse.json(page);
@@ -45,6 +58,9 @@ export async function PUT(
     }
 
     const { slug } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const lang = searchParams.get('lang');
+
     if (!slug) {
       return NextResponse.json({ error: 'Slug required' }, { status: 400 });
     }
@@ -57,6 +73,21 @@ export async function PUT(
     }
 
     await connectDB();
+
+    if (lang && lang !== 'en') {
+      const page = await CmsPage.findOne({ slug });
+      if (!page) {
+        return NextResponse.json({ error: 'Base page not found' }, { status: 404 });
+      }
+      if (!page.translations) page.translations = {};
+      page.translations[lang] = {
+        title: title.trim(),
+        content: typeof content === 'string' ? content : '',
+      };
+      page.markModified('translations');
+      await page.save();
+      return NextResponse.json(page);
+    }
 
     const page = await CmsPage.findOneAndUpdate(
       { slug },

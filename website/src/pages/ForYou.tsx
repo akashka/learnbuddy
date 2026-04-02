@@ -11,17 +11,17 @@ const defaultRoleKeys = [
 ];
 
 export default function ForYou() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [rolesFromApi, setRolesFromApi] = useState<Array<{ to: string; title: string; desc: string; emoji?: string; gradient?: string; border?: string; image?: string; accent?: string }> | null>(null);
 
   useEffect(() => {
-    fetchPageContent('for-you')
+    fetchPageContent('for-you', locale)
       .then((res) => {
         const r = res.sections.roles;
         if (Array.isArray(r) && r.length > 0) setRolesFromApi(r);
       })
       .catch(() => {});
-  }, []);
+  }, [locale]);
 
   const roles = rolesFromApi ?? defaultRoleKeys.map((r) => ({ ...r, title: t(r.titleKey), desc: t(r.descKey) }));
   return (

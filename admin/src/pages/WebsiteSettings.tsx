@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
-import { adminApi } from '@/lib/adminApi';
+import { adminApi, type WebsiteSettings } from '@/lib/adminApi';
 import { useToast } from '@/contexts/ToastContext';
 import { DataState } from '@/components/DataState';
 
-type Settings = {
-  playStoreUrl: string;
-  appStoreUrl: string;
-  facebookUrl: string;
-  twitterUrl: string;
-  linkedinUrl: string;
-  instagramUrl: string;
-  youtubeUrl: string;
-  contactPhone: string;
-  contactHours: string;
-  contactDays: string;
-};
+const LOCALES = [
+  { id: 'en', label: 'English', flag: '🇺🇸' },
+  { id: 'hi', label: 'Hindi', flag: '🇮🇳' },
+  { id: 'bn', label: 'Bengali', flag: '🇮🇳' },
+  { id: 'te', label: 'Telugu', flag: '🇮🇳' },
+  { id: 'mr', label: 'Marathi', flag: '🇮🇳' },
+  { id: 'ta', label: 'Tamil', flag: '🇮🇳' },
+  { id: 'gu', label: 'Gujarati', flag: '🇮🇳' },
+  { id: 'kn', label: 'Kannada', flag: '🇮🇳' },
+  { id: 'ml', label: 'Malayalam', flag: '🇮🇳' },
+  { id: 'pa', label: 'Punjabi', flag: '🇮🇳' },
+];
 
-const LABELS: Record<keyof Settings, string> = {
+const LABELS: Record<keyof WebsiteSettings, string> = {
   playStoreUrl: 'Google Play Store URL',
   appStoreUrl: 'Apple App Store URL',
   facebookUrl: 'Facebook URL',
@@ -33,20 +33,21 @@ export default function WebsiteSettingsPage() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('en');
   const [error, setError] = useState<string | null>(null);
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [settings, setSettings] = useState<WebsiteSettings | null>(null);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
     adminApi.websiteSettings
-      .get()
+      .get(selectedLang)
       .then(setSettings)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to fetch'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedLang]);
 
-  const handleChange = (key: keyof Settings, value: string) => {
+  const handleChange = (key: keyof WebsiteSettings, value: string) => {
     setSettings((s) => (s ? { ...s, [key]: value } : null));
   };
 
@@ -55,8 +56,8 @@ export default function WebsiteSettingsPage() {
     setSaving(true);
     setError(null);
     try {
-      await adminApi.websiteSettings.update(settings);
-      toast.success('Website settings saved');
+      await adminApi.websiteSettings.update(settings, selectedLang);
+      toast.success(`Website settings (${selectedLang}) saved`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to save';
       setError(msg);
@@ -72,69 +73,92 @@ export default function WebsiteSettingsPage() {
         <div>
           <h1 className="text-2xl font-bold text-accent-800">Website Settings</h1>
           <p className="mt-1 text-sm text-accent-700">
-            App store links and social media URLs shown on the website footer, Contact Us, About Us, and app download sections.
+            Global configuration and localized contact details for the entire platform.
           </p>
         </div>
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving || !settings}
+          disabled={saving || !settings || loading}
           className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-700 disabled:opacity-50"
         >
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? 'Saving...' : 'Save Settings'}
         </button>
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-2 border-b border-accent-200 pb-2">
+        {LOCALES.map((l) => (
+          <button
+            key={l.id}
+            onClick={() => setSelectedLang(l.id)}
+            className={`flex items-center gap-2 rounded-t-lg px-4 py-2 text-sm font-medium transition ${
+              selectedLang === l.id
+                ? 'bg-accent-100 text-accent-800'
+                : 'text-accent-600 hover:bg-accent-50 hover:text-accent-700'
+            }`}
+          >
+            <span>{l.flag}</span>
+            <span>{l.label}</span>
+          </button>
+        ))}
       </div>
 
       <DataState loading={loading} error={error}>
         {settings && (
           <div className="max-w-2xl space-y-6">
-            <div className="rounded-xl border border-accent-200 bg-white p-6">
-              <h2 className="mb-4 font-semibold text-accent-800">App Store Links</h2>
-              <p className="mb-4 text-sm text-accent-600">
-                These URLs are used for the &quot;Download the App&quot; buttons across the website.
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.playStoreUrl}</label>
-                  <input
-                    type="url"
-                    value={settings.playStoreUrl}
-                    onChange={(e) => handleChange('playStoreUrl', e.target.value)}
-                    placeholder="https://play.google.com/store/apps/details?id=..."
-                    className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.appStoreUrl}</label>
-                  <input
-                    type="url"
-                    value={settings.appStoreUrl}
-                    onChange={(e) => handleChange('appStoreUrl', e.target.value)}
-                    placeholder="https://apps.apple.com/app/..."
-                    className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
-                  />
+            {selectedLang === 'en' && (
+              <div className="rounded-xl border border-accent-200 bg-white p-6">
+                <h2 className="mb-4 font-semibold text-accent-800">App Store Links</h2>
+                <p className="mb-4 text-sm text-accent-600">
+                  Global URLs for mobile applications. These are shared across all languages.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.playStoreUrl}</label>
+                    <input
+                      type="url"
+                      value={settings.playStoreUrl}
+                      onChange={(e) => handleChange('playStoreUrl', e.target.value)}
+                      placeholder="https://play.google.com/store/apps/details?id=..."
+                      className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.appStoreUrl}</label>
+                    <input
+                      type="url"
+                      value={settings.appStoreUrl}
+                      onChange={(e) => handleChange('appStoreUrl', e.target.value)}
+                      placeholder="https://apps.apple.com/app/..."
+                      className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="rounded-xl border border-accent-200 bg-white p-6">
-              <h2 className="mb-4 font-semibold text-accent-800">Call Center / Helpline</h2>
+              <h2 className="mb-4 font-semibold text-accent-800">
+                Contact Details ({selectedLang})
+              </h2>
               <p className="mb-4 text-sm text-accent-600">
-                Shown on the Contact Us page. Phone number, hours, and days of operation.
+                Localized support information. Phone number is global, but hours and days can be translated.
               </p>
               <div className="space-y-4">
+                {selectedLang === 'en' && (
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactPhone}</label>
+                    <input
+                      type="text"
+                      value={settings.contactPhone}
+                      onChange={(e) => handleChange('contactPhone', e.target.value)}
+                      placeholder="+91 1800-123-4567"
+                      className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
+                    />
+                  </div>
+                )}
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactPhone}</label>
-                  <input
-                    type="text"
-                    value={settings.contactPhone}
-                    onChange={(e) => handleChange('contactPhone', e.target.value)}
-                    placeholder="+91 1800-123-4567"
-                    className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactHours}</label>
+                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactHours} ({selectedLang})</label>
                   <input
                     type="text"
                     value={settings.contactHours}
@@ -144,7 +168,7 @@ export default function WebsiteSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactDays}</label>
+                  <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS.contactDays} ({selectedLang})</label>
                   <input
                     type="text"
                     value={settings.contactDays}
@@ -156,26 +180,28 @@ export default function WebsiteSettingsPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-accent-200 bg-white p-6">
-              <h2 className="mb-4 font-semibold text-accent-800">Social Media Links</h2>
-              <p className="mb-4 text-sm text-accent-600">
-                Icons appear in the footer and on Contact Us / About Us pages. Leave blank to hide.
-              </p>
-              <div className="space-y-4">
-                {(['facebookUrl', 'twitterUrl', 'linkedinUrl', 'instagramUrl', 'youtubeUrl'] as const).map((key) => (
-                  <div key={key}>
-                    <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS[key]}</label>
-                    <input
-                      type="url"
-                      value={settings[key]}
-                      onChange={(e) => handleChange(key, e.target.value)}
-                      placeholder={`https://${key.replace('Url', '')}.com/...`}
-                      className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
-                    />
-                  </div>
-                ))}
+            {selectedLang === 'en' && (
+              <div className="rounded-xl border border-accent-200 bg-white p-6">
+                <h2 className="mb-4 font-semibold text-accent-800">Social Media Links</h2>
+                <p className="mb-4 text-sm text-accent-600">
+                  Global social media profiles. Leave blank to hide the corresponding icon.
+                </p>
+                <div className="space-y-4">
+                  {(['facebookUrl', 'twitterUrl', 'linkedinUrl', 'instagramUrl', 'youtubeUrl'] as const).map((key) => (
+                    <div key={key}>
+                      <label className="mb-1 block text-sm font-medium text-accent-700">{LABELS[key]}</label>
+                      <input
+                        type="url"
+                        value={settings[key]}
+                        onChange={(e) => handleChange(key, e.target.value)}
+                        placeholder={`https://${key.replace('Url', '')}.com/...`}
+                        className="w-full rounded-lg border border-accent-200 px-3 py-2 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </DataState>

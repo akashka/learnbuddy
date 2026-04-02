@@ -89,8 +89,9 @@ export interface LandingData {
   roleCards?: LandingRoleCard[];
 }
 
-export async function fetchLandingData(): Promise<LandingData> {
-  return apiJson<LandingData>('/api/website/landing');
+export async function fetchLandingData(lang?: string): Promise<LandingData> {
+  const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  return apiJson<LandingData>(`/api/website/landing${query}`);
 }
 
 export interface TeamMember {
@@ -104,8 +105,9 @@ export interface TeamData {
   team: TeamMember[];
 }
 
-export async function fetchTeam(): Promise<TeamData> {
-  return apiJson<TeamData>('/api/website/team');
+export async function fetchTeam(lang?: string): Promise<TeamData> {
+  const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  return apiJson<TeamData>(`/api/website/team${query}`);
 }
 
 export interface WebsiteSettingsData {
@@ -121,8 +123,9 @@ export interface WebsiteSettingsData {
   contactDays: string;
 }
 
-export async function fetchWebsiteSettings(): Promise<WebsiteSettingsData> {
-  return apiJson<WebsiteSettingsData>('/api/website/settings');
+export async function fetchWebsiteSettings(lang?: string): Promise<WebsiteSettingsData> {
+  const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  return apiJson<WebsiteSettingsData>(`/api/website/settings${query}`);
 }
 
 export interface JobPosition {
@@ -194,6 +197,7 @@ export interface ContactFormData {
   type: 'concern' | 'suggestion' | 'feedback' | 'other';
   subject: string;
   message: string;
+  recaptchaToken: string;
 }
 
 export interface PageContentResponse {
@@ -201,8 +205,14 @@ export interface PageContentResponse {
   sections: Record<string, unknown>;
 }
 
-export async function fetchPageContent(page: string): Promise<PageContentResponse> {
-  return apiJson<PageContentResponse>(`/api/website/page-content?page=${encodeURIComponent(page)}`);
+export async function fetchPageContent(page: string, lang?: string): Promise<PageContentResponse> {
+  const query = lang ? `&lang=${encodeURIComponent(lang)}` : '';
+  return apiJson<PageContentResponse>(`/api/website/page-content?page=${encodeURIComponent(page)}${query}`);
+}
+
+export async function fetchCmsPage(slug: string, lang?: string): Promise<{ title: string; content: string }> {
+  const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  return apiJson<{ title: string; content: string }>(`/api/cms-pages/${slug}${query}`);
 }
 
 export async function submitContactForm(data: ContactFormData): Promise<{ message: string; id: string }> {

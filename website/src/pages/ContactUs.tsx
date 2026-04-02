@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { SocialLinks } from '@/components/SocialLinks';
 import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
 import { fetchLandingData } from '@/lib/api';
 import { submitContactForm, type ContactFormData } from '@/lib/api';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function ContactUs() {
   const websiteSettings = useWebsiteSettings();
@@ -12,6 +13,8 @@ export default function ContactUs() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     fetchLandingData().then((d) => setCompany(d.company ?? null)).catch(() => setCompany(null));
@@ -28,6 +31,7 @@ export default function ContactUs() {
       type: (form.elements.namedItem('type') as HTMLSelectElement).value as ContactFormData['type'],
       subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
       message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+      recaptchaToken: recaptchaToken || '',
     };
     setSubmitting(true);
     try {
@@ -38,6 +42,8 @@ export default function ContactUs() {
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit');
     } finally {
       setSubmitting(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -164,6 +170,15 @@ export default function ContactUs() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">Message *</label>
                   <textarea name="message" required rows={4} className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400" placeholder="Your message..." />
                 </div>
+
+                <div className="flex justify-start py-2">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    onChange={(token) => setRecaptchaToken(token)}
+                  />
+                </div>
+
                 <button type="submit" disabled={submitting} className="rounded-xl bg-brand-600 px-6 py-2.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50">
                   {submitting ? 'Sending...' : 'Send message'}
                 </button>

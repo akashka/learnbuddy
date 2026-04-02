@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { IconUser, IconPhone, IconBook, IconChart } from '@/components/AnimatedIcon';
 import { fetchPageContent } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ICONS = [IconUser, IconPhone, IconBook, IconChart];
 
@@ -37,6 +38,7 @@ const defaultForTeachersSteps = [
 ];
 
 export default function HowItWorks() {
+  const { locale } = useLanguage();
   const [fourSteps, setFourSteps] = useState(defaultFourSteps);
   const [forParentsSteps, setForParentsSteps] = useState(defaultForParentsSteps);
   const [forStudentsSteps, setForStudentsSteps] = useState(defaultForStudentsSteps);
@@ -45,7 +47,7 @@ export default function HowItWorks() {
   const [heroSubtitle, setHeroSubtitle] = useState("From finding a teacher to attending classes—here's your journey with GuruChakra.");
 
   useEffect(() => {
-    fetchPageContent('how-it-works')
+    fetchPageContent('how-it-works', locale)
       .then((res) => {
         const s = res.sections;
         if (Array.isArray(s.fourSteps) && s.fourSteps.length > 0) setFourSteps(s.fourSteps as typeof defaultFourSteps);
@@ -56,7 +58,7 @@ export default function HowItWorks() {
         if (s.heroSubtitle) setHeroSubtitle(s.heroSubtitle as string);
       })
       .catch(() => {});
-  }, []);
+  }, [locale]);
   return (
     <div className="overflow-x-hidden">
       {/* Hero - no image, aligned like About/Contact */}

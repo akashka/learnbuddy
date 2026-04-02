@@ -12,12 +12,12 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  loginWithStudentId: (studentId: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, recaptchaToken?: string) => Promise<boolean>;
+  loginWithStudentId: (studentId: string, password: string, recaptchaToken?: string) => Promise<boolean>;
   loginWithToken: (token: string, user: { id: string; email: string; role: string }) => void;
-  sendOtp: (phone: string) => Promise<{ success: boolean; devOtp?: string }>;
+  sendOtp: (phone: string, recaptchaToken?: string) => Promise<{ success: boolean; devOtp?: string }>;
   loginWithOtp: (phone: string, otp: string) => Promise<boolean>;
-  register: (data: { email: string; password: string; role: UserRole } & Record<string, unknown>) => Promise<boolean>;
+  register: (data: { email: string; password: string; role: UserRole } & Record<string, unknown>, recaptchaToken?: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -39,11 +39,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, recaptchaToken?: string) => {
     try {
       const data = await apiJson<{ token: string; user: User }>('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, recaptchaToken }),
       });
       setToken(data.token);
       setUser(data.user);
@@ -62,11 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('user', JSON.stringify(user));
   };
 
-  const loginWithStudentId = async (studentId: string, password: string) => {
+  const loginWithStudentId = async (studentId: string, password: string, recaptchaToken?: string) => {
     try {
       const data = await apiJson<{ token: string; user: User }>('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ type: 'student', studentId, password }),
+        body: JSON.stringify({ type: 'student', studentId, password, recaptchaToken }),
       });
       setToken(data.token);
       setUser(data.user);
@@ -78,11 +78,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const sendOtp = async (phone: string) => {
+  const sendOtp = async (phone: string, recaptchaToken?: string) => {
     try {
       const res = await api('/api/auth/send-otp', {
         method: 'POST',
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, recaptchaToken }),
       });
       const data = (await res.json()) as { error?: string; devOtp?: string };
       if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
@@ -108,11 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: { email: string; password: string; role: UserRole } & Record<string, unknown>) => {
+  const register = async (data: { email: string; password: string; role: UserRole } & Record<string, unknown>, recaptchaToken?: string) => {
     try {
       const result = await apiJson<{ token: string; user: User }>('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, recaptchaToken }),
       });
       setToken(result.token);
       setUser(result.user);

@@ -35,6 +35,11 @@ export default function Navbar() {
       { label: t('exams'), path: '/student/exams' },
       { label: '🏆 Performance', path: '/student/performance' },
     ],
+    admin: [
+      { label: t('home'), path: '/admin/dashboard' },
+      { label: 'AI Usage', path: '/admin/ai-usage' },
+      { label: 'Sentiment Alerts', path: '/admin/sentiment-alerts' },
+    ],
   };
 
   const links = user ? roleLinks[user.role] || [] : [];
@@ -56,6 +61,7 @@ export default function Navbar() {
             to={l.path}
             onClick={() => setMobileOpen(false)}
             className={`${navLinkBase} ${active ? navLinkActive : navLinkInactive}`}
+            aria-current={active ? 'page' : undefined}
           >
             {l.label}
           </Link>
@@ -84,7 +90,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/98 shadow-sm backdrop-blur-md">
-      <nav className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <nav aria-label="Main navigation" className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex shrink-0 items-center">
           <BrandLogo
             to={user ? (roleLinks[user.role]?.[0]?.path ?? '/') : '/'}
@@ -114,9 +120,11 @@ export default function Navbar() {
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="rounded-lg p-2.5 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 active:scale-95 lg:hidden"
-          aria-label="Toggle menu"
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav-menu"
         >
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             {mobileOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -127,7 +135,7 @@ export default function Navbar() {
       </nav>
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 lg:hidden">
+        <div id="mobile-nav-menu" className="border-t border-gray-100 bg-gray-50 px-4 py-4 lg:hidden">
           <div className="flex flex-col gap-0.5">
             <NavLinks />
             {user && (

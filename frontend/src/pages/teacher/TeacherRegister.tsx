@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { apiJson } from '@/lib/api';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function TeacherRegister() {
   const [searchParams] = useSearchParams();
@@ -19,6 +20,8 @@ export default function TeacherRegister() {
   } | null>(null);
   const navigate = useNavigate();
   const { secondsLeft, canResend, start: startResendTimer } = useResendOtpTimer();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
 
@@ -47,7 +50,7 @@ export default function TeacherRegister() {
 
       const otpRes = await apiJson<{ success?: boolean; error?: string }>(
         '/api/registration/send-otp',
-        { method: 'POST', body: JSON.stringify({ phone: normalizedPhone, type: 'teacher' }) }
+        { method: 'POST', body: JSON.stringify({ phone: normalizedPhone, type: 'teacher', recaptchaToken }) }
       );
       if (otpRes.success) {
         setOtpSent(true);
@@ -58,8 +61,11 @@ export default function TeacherRegister() {
       }
     } catch (err) {
       setError((err as Error).message || 'Failed');
+    } finally {
+      setLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
-    setLoading(false);
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -144,6 +150,15 @@ export default function TeacherRegister() {
               className="w-full rounded-xl border-2 border-brand-200 px-4 py-3 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
             />
           </div>
+          
+          <div className="flex justify-center py-2">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setRecaptchaToken(token)}
+            />
+          </div>
+
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
             <span className="btn-text">{loading ? 'Sending OTP...' : 'Send OTP'}</span>

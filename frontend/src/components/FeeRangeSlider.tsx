@@ -11,8 +11,9 @@ interface FeeRangeSliderProps {
 }
 
 /**
- * Dual-thumb fee range: single track + pointer capture (stacked native ranges
- * fight for hit targets; this avoids that).
+ * Dual-thumb fee range: custom visual track + hidden native inputs for keyboard access.
+ * Native <input type="range"> handles Arrow/Home/End/PageUp/PageDown (WCAG 2.1.1).
+ * The visual thumbs are pointer-events:none decorations only.
  */
 export function FeeRangeSlider({
   min,
@@ -127,9 +128,13 @@ export function FeeRangeSlider({
 
   return (
     <div className="rounded-xl border border-gray-200/90 bg-gray-50/80 px-3.5 py-3.5 shadow-sm">
-      <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-gray-600">
+      <div className="flex justify-between text-xs font-semibold uppercase tracking-wide text-gray-600" aria-hidden="true">
         <span>{formatCurrency(valueMin)}</span>
         <span>{formatCurrency(valueMax)}</span>
+      </div>
+      {/* Screen-reader summary of current range */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        Fee range: {formatCurrency(valueMin)} to {formatCurrency(valueMax)}
       </div>
       <div
         ref={trackRef}
@@ -142,23 +147,59 @@ export function FeeRangeSlider({
         onPointerCancel={onPointerUp}
       >
         {/* Track */}
-        <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gray-200" />
+        <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-gray-200" aria-hidden="true" />
         {/* Selected range */}
         <div
           className="pointer-events-none absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-brand-500"
           style={{ left: `${leftPct}%`, width: `${Math.max(0, rightPct - leftPct)}%` }}
+          aria-hidden="true"
         />
-        {/* Min thumb */}
+        {/* Visual min thumb (decorative) */}
         <div
           className="pointer-events-none absolute top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-brand-600 shadow-md"
           style={{ left: `${leftPct}%` }}
+          aria-hidden="true"
         />
-        {/* Max thumb */}
+        {/* Visual max thumb (decorative) */}
         <div
           className="pointer-events-none absolute top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-brand-600 shadow-md"
           style={{ left: `${rightPct}%` }}
+          aria-hidden="true"
+        />
+        {/* Hidden native min range input — provides keyboard access (WCAG 2.1.1) */}
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={valueMin}
+          onChange={(e) => applyMin(Number(e.target.value))}
+          aria-label="Minimum fee"
+          aria-valuemin={min}
+          aria-valuemax={valueMax}
+          aria-valuenow={valueMin}
+          aria-valuetext={formatCurrency(valueMin)}
+          className="fee-range-thumb absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          style={{ zIndex: 2 }}
+        />
+        {/* Hidden native max range input — provides keyboard access (WCAG 2.1.1) */}
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={valueMax}
+          onChange={(e) => applyMax(Number(e.target.value))}
+          aria-label="Maximum fee"
+          aria-valuemin={valueMin}
+          aria-valuemax={max}
+          aria-valuenow={valueMax}
+          aria-valuetext={formatCurrency(valueMax)}
+          className="fee-range-thumb absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          style={{ zIndex: 3 }}
         />
       </div>
     </div>
   );
 }
+

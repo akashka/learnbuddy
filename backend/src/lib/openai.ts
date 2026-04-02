@@ -2,6 +2,7 @@
  * OpenAI API client - fallback when Gemini quota is exhausted
  */
 import OpenAI, { toFile } from 'openai';
+import { AIResponse, AIJsonResponse } from './ai-types';
 
 const apiKey = process.env.OPENAI_API_KEY;
 const client = apiKey ? new OpenAI({ apiKey }) : null;
@@ -17,7 +18,7 @@ function getImageContent(dataUrl: string): { type: 'image_url'; image_url: { url
   return null;
 }
 
-export async function openaiGenerate(prompt: string, systemInstruction?: string): Promise<string> {
+export async function openaiGenerate(prompt: string, systemInstruction?: string): Promise<AIResponse> {
   if (!client) throw new Error('OPENAI_API_KEY is not configured');
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
   if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
@@ -26,10 +27,18 @@ export async function openaiGenerate(prompt: string, systemInstruction?: string)
     model: TEXT_MODEL,
     messages,
   });
-  return res.choices[0]?.message?.content ?? '';
+  return {
+    text: res.choices[0]?.message?.content ?? '',
+    usage: res.usage ? {
+      promptTokens: res.usage.prompt_tokens,
+      completionTokens: res.usage.completion_tokens,
+      totalTokens: res.usage.total_tokens,
+      model: TEXT_MODEL,
+    } : undefined,
+  };
 }
 
-export async function openaiGenerateJson<T>(prompt: string, systemInstruction?: string): Promise<T> {
+export async function openaiGenerateJson<T>(prompt: string, systemInstruction?: string): Promise<AIJsonResponse<T>> {
   if (!client) throw new Error('OPENAI_API_KEY is not configured');
   const sys = systemInstruction
     ? `${systemInstruction}\n\nRespond with valid JSON only, no markdown or extra text.`
@@ -47,13 +56,21 @@ export async function openaiGenerateJson<T>(prompt: string, systemInstruction?: 
   const text = res.choices[0]?.message?.content ?? '';
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error(`Invalid JSON from OpenAI: ${text.slice(0, 200)}`);
-  return JSON.parse(jsonMatch[0]) as T;
+  return {
+    data: JSON.parse(jsonMatch[0]) as T,
+    usage: res.usage ? {
+      promptTokens: res.usage.prompt_tokens,
+      completionTokens: res.usage.completion_tokens,
+      totalTokens: res.usage.total_tokens,
+      model: TEXT_MODEL,
+    } : undefined,
+  };
 }
 
 export async function openaiGenerateWithImages(
   prompt: string,
   imageUrls: string[]
-): Promise<string> {
+): Promise<AIResponse> {
   if (!client) throw new Error('OPENAI_API_KEY is not configured');
   const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [];
   content.push({ type: 'text', text: prompt });
@@ -65,14 +82,22 @@ export async function openaiGenerateWithImages(
     model: VISION_MODEL,
     messages: [{ role: 'user', content }],
   });
-  return res.choices[0]?.message?.content ?? '';
+  return {
+    text: res.choices[0]?.message?.content ?? '',
+    usage: res.usage ? {
+      promptTokens: res.usage.prompt_tokens,
+      completionTokens: res.usage.completion_tokens,
+      totalTokens: res.usage.total_tokens,
+      model: VISION_MODEL,
+    } : undefined,
+  };
 }
 
 export async function openaiGenerateWithImageAndAudio(
   prompt: string,
   imageDataUrl: string,
   audioDataUrl?: string | null
-): Promise<string> {
+): Promise<AIResponse> {
   if (!client) throw new Error('OPENAI_API_KEY is not configured');
   const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [];
   content.push({ type: 'text', text: prompt });
@@ -85,13 +110,21 @@ export async function openaiGenerateWithImageAndAudio(
     model: VISION_MODEL,
     messages: [{ role: 'user', content }],
   });
-  return res.choices[0]?.message?.content ?? '';
+  return {
+    text: res.choices[0]?.message?.content ?? '',
+    usage: res.usage ? {
+      promptTokens: res.usage.prompt_tokens,
+      completionTokens: res.usage.completion_tokens,
+      totalTokens: res.usage.total_tokens,
+      model: VISION_MODEL,
+    } : undefined,
+  };
 }
 
-export async function openaiTranscribeAudio(audioDataUrl: string): Promise<string> {
+export async function openaiTranscribeAudio(audioDataUrl: string): Promise<AIResponse> {
   if (!client) throw new Error('OPENAI_API_KEY is not configured');
   const match = audioDataUrl.match(/^data:([^;]+);base64,(.+)$/);
-  if (!match) return '';
+  if (!match) return { text: '' };
   const mime = match[1] || 'audio/webm';
   const ext = mime.includes('webm') ? 'webm' : mime.includes('mp4') ? 'm4a' : 'webm';
   const buffer = Buffer.from(match[2], 'base64');
@@ -100,7 +133,16 @@ export async function openaiTranscribeAudio(audioDataUrl: string): Promise<strin
     file,
     model: 'whisper-1',
   });
-  return (res as { text?: string }).text?.trim() ?? '';
+  // Whisper doesn't return usage in the same way, but we can set model
+  return {
+    text: (res as { text?: string }).text?.trim() ?? '',
+    usage: {
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      model: 'whisper-1',
+    },
+  };
 }
 
 export function isOpenAIConfigured(): boolean {

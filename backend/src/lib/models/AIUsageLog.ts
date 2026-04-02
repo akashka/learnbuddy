@@ -12,7 +12,9 @@ export type AIOperationType =
   | 'analyze_classroom_frame'
   | 'analyze_exam_frame'
   | 'analyze_exam_frame_with_audio'
-  | 'verify_document_photo';
+  | 'verify_document_photo'
+  | 'sentiment_analysis'
+  | 'teacher_ai_suggestion';
 
 export interface IAIUsageLog extends Document {
   operationType: AIOperationType;
@@ -36,6 +38,12 @@ export interface IAIUsageLog extends Document {
   errorMessage?: string;
   /** Model identifier if available (e.g. gemini-1.5-flash) */
   modelId?: string;
+  /** Token counts */
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  /** Calculated cost in USD */
+  cost?: number;
   createdAt: Date;
 }
 
@@ -56,6 +64,8 @@ const AIUsageLogSchema = new Schema<IAIUsageLog>(
         'analyze_exam_frame',
         'analyze_exam_frame_with_audio',
         'verify_document_photo',
+        'sentiment_analysis',
+        'teacher_ai_suggestion',
       ],
       required: true,
       index: true,
@@ -69,8 +79,12 @@ const AIUsageLogSchema = new Schema<IAIUsageLog>(
     outputMetadata: { type: Schema.Types.Mixed },
     durationMs: Number,
     success: { type: Boolean, required: true, index: true },
-    errorMessage: String,
+      errorMessage: String,
     modelId: String,
+    promptTokens: Number,
+    completionTokens: Number,
+    totalTokens: Number,
+    cost: Number,
   },
   { timestamps: true }
 );

@@ -72,16 +72,20 @@ function MemberCard({ member, index }: { member: TeamMember; index: number }) {
   );
 }
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 export default function OurTeam() {
+  const { locale } = useLanguage();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTeam()
+    setLoading(true);
+    fetchTeam(locale)
       .then((data) => setTeam(data.team || []))
       .catch(() => setTeam([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [locale]);
 
   return (
     <div className="overflow-x-hidden">

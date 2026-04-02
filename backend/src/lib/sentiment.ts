@@ -3,6 +3,7 @@
  */
 import { aiGenerateJson, isAIConfigured } from '@/lib/ai-unified';
 import * as aiClient from '@/lib/ai-client';
+import { logAIUsage } from '@/lib/ai-audit';
 
 export interface SentimentResult {
   score: number;
@@ -28,12 +29,16 @@ function maskOffendingWords(text: string): string {
   return out;
 }
 
-async function analyzeSentimentLocal(text: string): Promise<SentimentResult> {
+async function analyzeSentimentLocal(
+  text: string,
+  userId?: string,
+  userRole?: string
+): Promise<SentimentResult> {
   if (!isAIConfigured()) {
     return { score: 1, safe: true, flags: [] };
   }
   try {
-    const result = await aiGenerateJson<{
+    const response = await aiGenerateJson<{
       score: number;
       flags: string[];
       maskedText?: string;
@@ -42,6 +47,24 @@ async function analyzeSentimentLocal(text: string): Promise<SentimentResult> {
       `Analyze this text for content safety. Check for: abuse, profanity, sexual content, hate speech, religious slurs, violence, threats, bullying, policy violations. Return JSON only: { "score": <0.0 to 1.0>, "flags": ["list or empty"], "maskedText": "<text with offending words as ***>", "reason": "<brief reason or empty>" }\n\nText: "${(text || '').trim().replace(/"/g, '\\"')}"`,
       'You are a content safety moderator. Be strict. Return valid JSON only.'
     );
+    const result = response.data;
+    
+    // Log usage
+    if (response.usage) {
+      logAIUsage({
+        operationType: 'sentiment_analysis',
+        userId,
+        userRole,
+        success: true,
+        modelId: response.usage.model,
+        promptTokens: response.usage.promptTokens,
+        completionTokens: response.usage.completionTokens,
+        totalTokens: response.usage.totalTokens,
+        inputMetadata: { textLength: text.length },
+        outputMetadata: { score: result.score, flags: result.flags },
+      }).catch(console.error);
+    }
+
     const score = Math.max(0, Math.min(1, Number(result.score) ?? 1));
     const flags = Array.isArray(result.flags) ? result.flags : [];
     const safe = score >= SENTIMENT_THRESHOLD && flags.length === 0;
@@ -52,12 +75,21 @@ async function analyzeSentimentLocal(text: string): Promise<SentimentResult> {
       maskedText: result.maskedText ?? (safe ? text : maskOffendingWords(text)),
       reason: result.reason ?? '',
     };
-  } catch {
+  } catch (err) {
+    logAIUsage({
+      operationType: 'sentiment_analysis',
+      success: false,
+      errorMessage: err instanceof Error ? err.message : String(err),
+    }).catch(console.error);
     return { score: 1, safe: true, flags: [] };
   }
 }
 
-export async function analyzeSentiment(text: string): Promise<SentimentResult> {
+export async function analyzeSentiment(
+  text: string,
+  userId?: string,
+  userRole?: string
+): Promise<SentimentResult> {
   if (!text || typeof text !== 'string' || text.trim().length < 2) {
     return { score: 1, safe: true, flags: [] };
   }
@@ -65,10 +97,10 @@ export async function analyzeSentiment(text: string): Promise<SentimentResult> {
     try {
       return await aiClient.analyzeSentiment(text);
     } catch {
-      return analyzeSentimentLocal(text);
+      return analyzeSentimentLocal(text, userId, userRole);
     }
   }
-  return analyzeSentimentLocal(text);
+  return analyzeSentimentLocal(text, userId, userRole);
 }
 
 export function isLowSentiment(result: SentimentResult): boolean {

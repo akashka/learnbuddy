@@ -64,6 +64,9 @@ import VerifyEmail from '@/pages/VerifyEmail';
 import Disputes from '@/pages/Disputes';
 import PreJoinLobby from '@/pages/classroom/PreJoinLobby';
 import ClassroomPage from '@/pages/classroom/ClassroomPage';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AIUsageStats from '@/pages/admin/AIUsageStats';
+import SentimentAlerts from '@/pages/admin/SentimentAlerts';
 
 export default function App() {
   return (
@@ -455,6 +458,32 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['teacher', 'student']}>
                     <ClassroomPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Admin */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/ai-usage"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AIUsageStats />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/sentiment-alerts"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <SentimentAlerts />
                   </ProtectedRoute>
                 }
               />

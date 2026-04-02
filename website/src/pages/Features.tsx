@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { fetchPageContent } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const defaultSafetyFeatures = [
   { title: 'DPDP Compliant', desc: "Full compliance with India's Digital Personal Data Protection Act. Children's data is protected.", icon: '🛡️', emoji: '🔒' },

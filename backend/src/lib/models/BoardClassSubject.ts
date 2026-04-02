@@ -14,7 +14,7 @@ const BoardClassSubjectSchema = new Schema<IBoardClassSubject>(
     board: { type: String, required: true },
     classLevel: { type: String, required: true },
     subjects: [String],
-    isActive: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: true, index: true },
   },
   { timestamps: true }
 );

@@ -4,6 +4,7 @@ import { User } from '@/lib/models/User';
 import { Student } from '@/lib/models/Student';
 import { verifyPassword, generateToken } from '@/lib/auth';
 import { logAuditEvent } from '@/lib/auditLog';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 function getClientMeta(request: NextRequest) {
   const forwarded = request.headers.get('x-forwarded-for');
@@ -18,7 +19,12 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = (await request.json()) as any;
-    const { type, studentId, password, email } = body;
+    const { type, studentId, password, email, recaptchaToken } = body;
+
+    const recaptcha = await verifyRecaptcha(recaptchaToken, request);
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+    }
 
     if (type === 'student') {
       if (!studentId || !password) {

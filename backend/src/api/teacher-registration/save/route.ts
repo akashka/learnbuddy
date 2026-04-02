@@ -6,14 +6,23 @@ import { User } from '@/lib/models/User';
 import { Teacher } from '@/lib/models/Teacher';
 import { hashPassword } from '@/lib/auth';
 import { verifyTeacherRegistrationSession } from '@/lib/teacher-registration-session';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as any;
-    const { phone, step, data } = body;
+    const { phone, step, data, recaptchaToken } = body;
 
     if (!phone || !step) {
       return NextResponse.json({ error: 'Phone and step required' }, { status: 400 });
+    }
+
+    // reCAPTCHA is only required on the first step (initial registration)
+    if (step === 1) {
+      const recaptcha = await verifyRecaptcha(recaptchaToken, request);
+      if (!recaptcha.success) {
+        return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+      }
     }
 
     if (!verifyTeacherRegistrationSession(request, phone)) {

@@ -5,10 +5,11 @@ import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { JobApplication } from '@/lib/models/JobApplication';
 import { JobPosition } from '@/lib/models/JobPosition';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 
-/** Public: Submit job application. Expects multipart/form-data: name, email, phone, positionId, coverLetter (optional), resume (file). */
+/** Public: Submit job application. Expects multipart/form-data: name, email, phone, positionId, coverLetter (optional), resume (file), recaptchaToken. */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -18,6 +19,12 @@ export async function POST(request: NextRequest) {
     const positionId = formData.get('positionId') as string;
     const coverLetter = (formData.get('coverLetter') as string) || '';
     const resumeFile = formData.get('resume') as File | null;
+    const recaptchaToken = formData.get('recaptchaToken') as string;
+
+    const recaptcha = await verifyRecaptcha(recaptchaToken, request);
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+    }
 
     if (!name?.trim() || !email?.trim() || !phone?.trim() || !positionId) {
       return NextResponse.json(

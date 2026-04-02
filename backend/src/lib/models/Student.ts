@@ -19,9 +19,9 @@ export interface IStudent extends Document {
 const StudentSchema = new Schema<IStudent>(
   {
     studentId: { type: String, unique: true },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    parentId: { type: Schema.Types.ObjectId, ref: 'Parent', required: true },
-    name: String,
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    parentId: { type: Schema.Types.ObjectId, ref: 'Parent', required: true, index: true },
+    name: { type: String, index: true },
     dateOfBirth: { type: Date, required: true },
     board: String,
     classLevel: String,

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { apiJson } from '@/lib/api';
+import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchCmsPage } from '@/lib/api';
 import { AppDownload } from './AppDownload';
 import { SocialLinks } from './SocialLinks';
-import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
 import { ScrollReveal } from './ScrollReveal';
 
 interface CmsPageViewProps {
@@ -27,6 +28,7 @@ const slugImages: Record<string, string> = {
 
 export function CmsPageView({ slug, links = [], showAppDownload, showSocialLinks }: CmsPageViewProps) {
   const websiteSettings = useWebsiteSettings();
+  const { locale } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<{ title: string; content: string } | null>(null);
@@ -34,11 +36,11 @@ export function CmsPageView({ slug, links = [], showAppDownload, showSocialLinks
   useEffect(() => {
     setLoading(true);
     setError(null);
-    apiJson<{ title: string; content: string }>(`/api/cms-pages/${slug}`)
+    fetchCmsPage(slug, locale)
       .then(setPage)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load page'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, locale]);
 
   if (loading) {
     return (

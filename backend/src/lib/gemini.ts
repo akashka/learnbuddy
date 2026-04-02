@@ -3,6 +3,7 @@
  * Includes fallback to alternative models on rate limit (429) errors
  */
 import { GoogleGenAI, createPartFromText, createPartFromBase64 } from '@google/genai';
+import { AIResponse, AIJsonResponse, AIUsageMetadata } from './ai-types';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
@@ -60,37 +61,55 @@ async function withModelFallback<T>(
   throw lastError;
 }
 
-export async function geminiGenerate(prompt: string, systemInstruction?: string): Promise<string> {
+export async function geminiGenerate(prompt: string, systemInstruction?: string): Promise<AIResponse> {
   if (!ai) {
     throw new Error('GEMINI_API_KEY is not configured');
   }
   const fullPrompt = systemInstruction ? `${systemInstruction}\n\n${prompt}` : prompt;
   return withModelFallback(async (model) => {
-    const response = await ai!.models.generateContent({
+    const result = (await ai!.models.generateContent({
       model,
       contents: fullPrompt,
-    });
-    return response.text ?? '';
+    })) as any;
+    return {
+      text: result.text ?? '',
+      usage: result.usageMetadata ? {
+        promptTokens: result.usageMetadata.promptTokenCount ?? 0,
+        completionTokens: result.usageMetadata.candidatesTokenCount ?? 0,
+        totalTokens: result.usageMetadata.totalTokenCount ?? 0,
+        model,
+      } : undefined,
+    };
   });
 }
 
-export async function geminiGenerateJson<T>(prompt: string, systemInstruction?: string): Promise<T> {
+export async function geminiGenerateJson<T>(prompt: string, systemInstruction?: string): Promise<AIJsonResponse<T>> {
   if (!ai) {
     throw new Error('GEMINI_API_KEY is not configured');
   }
   const fullPrompt = systemInstruction
     ? `${systemInstruction}\n\n${prompt}\n\nRespond with valid JSON only, no markdown or extra text.`
     : `${prompt}\n\nRespond with valid JSON only, no markdown or extra text.`;
-  const text = await withModelFallback(async (model) => {
-    const response = await ai!.models.generateContent({
+  const result = await withModelFallback(async (model) => {
+    const res = (await ai!.models.generateContent({
       model,
       contents: fullPrompt,
       config: {
         responseMimeType: 'application/json',
       },
-    });
-    return response.text ?? '';
+    })) as any;
+    return {
+      text: res.text ?? '',
+      usage: res.usageMetadata ? {
+        promptTokens: res.usageMetadata.promptTokenCount ?? 0,
+        completionTokens: res.usageMetadata.candidatesTokenCount ?? 0,
+        totalTokens: res.usageMetadata.totalTokenCount ?? 0,
+        model,
+      } : undefined,
+    };
   });
+  
+  const text = result.text;
   let cleaned = text.trim();
   const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (codeBlockMatch) {
@@ -101,7 +120,10 @@ export async function geminiGenerateJson<T>(prompt: string, systemInstruction?: 
     throw new Error(`Invalid JSON response from AI: ${text.slice(0, 200)}`);
   }
   try {
-    return JSON.parse(jsonMatch[0]) as T;
+    return {
+      data: JSON.parse(jsonMatch[0]) as T,
+      usage: result.usage,
+    };
   } catch (parseErr) {
     throw new Error(`Invalid JSON response from AI: ${text.slice(0, 200)}`);
   }
@@ -131,7 +153,7 @@ async function getImageBase64(url: string): Promise<{ data: string; mimeType: st
 export async function geminiGenerateWithImages(
   prompt: string,
   imageUrls: string[]
-): Promise<string> {
+): Promise<AIResponse> {
   if (!ai) throw new Error('GEMINI_API_KEY is not configured');
   const parts = [createPartFromText(prompt)];
   for (const url of imageUrls) {
@@ -139,11 +161,19 @@ export async function geminiGenerateWithImages(
     if (img) parts.push(createPartFromBase64(img.data, img.mimeType));
   }
   return withModelFallback(async (model) => {
-    const response = await ai!.models.generateContent({
+    const result = (await ai!.models.generateContent({
       model,
       contents: [{ role: 'user', parts }],
-    });
-    return response.text ?? '';
+    })) as any;
+    return {
+      text: result.text ?? '',
+      usage: result.usageMetadata ? {
+        promptTokens: result.usageMetadata.promptTokenCount ?? 0,
+        completionTokens: result.usageMetadata.candidatesTokenCount ?? 0,
+        totalTokens: result.usageMetadata.totalTokenCount ?? 0,
+        model,
+      } : undefined,
+    };
   });
 }
 
@@ -161,7 +191,7 @@ export async function geminiGenerateWithImageAndAudio(
   prompt: string,
   imageDataUrl: string,
   audioDataUrl?: string | null
-): Promise<string> {
+): Promise<AIResponse> {
   if (!ai) throw new Error('GEMINI_API_KEY is not configured');
   const parts = [createPartFromText(prompt)];
   const img = await getImageBase64(imageDataUrl);
@@ -171,19 +201,27 @@ export async function geminiGenerateWithImageAndAudio(
     if (audio) parts.push(createPartFromBase64(audio.data, audio.mimeType));
   }
   return withModelFallback(async (model) => {
-    const response = await ai!.models.generateContent({
+    const result = (await ai!.models.generateContent({
       model,
       contents: [{ role: 'user', parts }],
-    });
-    return response.text ?? '';
+    })) as any;
+    return {
+      text: result.text ?? '',
+      usage: result.usageMetadata ? {
+        promptTokens: result.usageMetadata.promptTokenCount ?? 0,
+        completionTokens: result.usageMetadata.candidatesTokenCount ?? 0,
+        totalTokens: result.usageMetadata.totalTokenCount ?? 0,
+        model,
+      } : undefined,
+    };
   });
 }
 
 /** Transcribe audio to text using Gemini (speech-to-text) */
-export async function geminiTranscribeAudio(audioDataUrl: string): Promise<string> {
+export async function geminiTranscribeAudio(audioDataUrl: string): Promise<AIResponse> {
   if (!ai) throw new Error('GEMINI_API_KEY is not configured');
   const audio = getAudioBase64(audioDataUrl);
-  if (!audio) return '';
+  if (!audio) return { text: '' };
   const parts = [
     createPartFromText(
       'Transcribe this audio exactly. Return only the spoken words as text. If the audio is silent, unclear, or contains only noise, return an empty string. Use proper punctuation and capitalization. Support English and Indian languages (Hindi, etc.) if spoken.'
@@ -191,11 +229,19 @@ export async function geminiTranscribeAudio(audioDataUrl: string): Promise<strin
     createPartFromBase64(audio.data, audio.mimeType),
   ];
   return withModelFallback(async (model) => {
-    const response = await ai!.models.generateContent({
+    const result = (await ai!.models.generateContent({
       model,
       contents: [{ role: 'user', parts }],
-    });
-    return (response.text ?? '').trim();
+    })) as any;
+    return {
+      text: (result.text ?? '').trim(),
+      usage: result.usageMetadata ? {
+        promptTokens: result.usageMetadata.promptTokenCount ?? 0,
+        completionTokens: result.usageMetadata.candidatesTokenCount ?? 0,
+        totalTokens: result.usageMetadata.totalTokenCount ?? 0,
+        model,
+      } : undefined,
+    };
   });
 }
 

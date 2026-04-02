@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchLandingData, fetchBoardClassSubjects, type LandingData } from '@/lib/api';
+import { fetchLandingData, fetchBoardClassSubjects, fetchFeaturedTeachers, type LandingData, type FeaturedTeacher } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AppDownload } from '@/components/AppDownload';
 import { ScrollReveal } from '@/components/ScrollReveal';
@@ -51,8 +51,10 @@ const defaultReviews = [
 ];
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [data, setData] = useState<LandingData | null>(null);
+  const [teachers, setTeachers] = useState<FeaturedTeacher[]>([]);
+  const [loading, setLoading] = useState(true);
   const [masterPills, setMasterPills] = useState<string[]>([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -67,10 +69,16 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchLandingData()
-      .then(setData)
-      .catch(() => setData(null));
-  }, []);
+    setLoading(true);
+    Promise.all([
+      fetchLandingData(locale).catch(() => null),
+      fetchFeaturedTeachers(6).catch(() => [])
+    ]).then(([landingData, featuredTeachers]) => {
+      setData(landingData);
+      setTeachers(featuredTeachers);
+      setLoading(false);
+    });
+  }, [locale]);
 
   useEffect(() => {
     fetchBoardClassSubjects()

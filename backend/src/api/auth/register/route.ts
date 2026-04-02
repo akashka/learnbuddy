@@ -5,12 +5,18 @@ import { Teacher } from '@/lib/models/Teacher';
 import { Parent } from '@/lib/models/Parent';
 import { hashPassword, generateToken } from '@/lib/auth';
 import { sendTemplatedEmail } from '@/lib/mailgun-service';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = (await request.json()) as any;
-    const { email, password, role, ...profileData } = body;
+    const { email, password, role, recaptchaToken, ...profileData } = body;
+
+    const recaptcha = await verifyRecaptcha(recaptchaToken, request);
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: recaptcha.error || 'reCAPTCHA verification failed' }, { status: 400 });
+    }
 
     if (!email || !password || !role) {
       return NextResponse.json({ error: 'Email, password and role are required' }, { status: 400 });

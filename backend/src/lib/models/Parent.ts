@@ -13,9 +13,9 @@ export interface IParent extends Document {
 
 const ParentSchema = new Schema<IParent>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     name: String,
-    phone: String,
+    phone: { type: String, index: true },
     location: String,
     photoUrl: String,
     children: [{ type: Schema.Types.ObjectId, ref: 'Student' }],

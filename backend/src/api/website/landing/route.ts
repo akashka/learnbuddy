@@ -6,9 +6,11 @@ import { BRAND, COMPANY } from '@/lib/brand';
 import { WEBSITE_PAGE_CONTENT_SEED } from '@/lib/website-page-content-seed';
 
 /** Public: Get website landing content (stats, reviews, features, company). No auth required. */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const data = await getLandingData();
+    const url = new URL(request.url);
+    const lang = url.searchParams.get('lang') || 'en';
+    const data = await getLandingData(lang);
     return NextResponse.json(data);
   } catch (error) {
     console.error('Website landing fetch error:', error);
@@ -16,9 +18,10 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-async function getLandingSectionsFromDB() {
+async function getLandingSectionsFromDB(lang: string) {
   const doc = await WebsitePageContent.findOne({ pageType: 'landing-sections' }).lean();
-  return (doc?.sections as Record<string, unknown>) ?? WEBSITE_PAGE_CONTENT_SEED['landing-sections'];
+  const sections = (doc?.translations as any)?.[lang] || doc?.sections || WEBSITE_PAGE_CONTENT_SEED['landing-sections'];
+  return sections as Record<string, unknown>;
 }
 
 function formatStatValue(n: number, suffix = ''): string {
@@ -27,7 +30,7 @@ function formatStatValue(n: number, suffix = ''): string {
   return `${n}${suffix}`;
 }
 
-async function getLandingData() {
+async function getLandingData(lang: string) {
   const fallback = getLandingDataFallback();
   try {
     await connectDB();
@@ -35,7 +38,7 @@ async function getLandingData() {
       Student.countDocuments(),
       Teacher.countDocuments(),
       ClassSession.countDocuments({ status: 'completed' }),
-      getLandingSectionsFromDB(),
+      getLandingSectionsFromDB(lang),
     ]);
     const stats = [
       { value: formatStatValue(studentsCount, '+'), label: 'Students Learning', raw: studentsCount },

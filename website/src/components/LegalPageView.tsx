@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { apiJson } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchCmsPage } from '@/lib/api';
 import { ScrollReveal } from './ScrollReveal';
 
 const LEGAL_CONFIG: Record<string, { floatEmojis: string[]; subtitle: string }> = {
@@ -21,6 +22,7 @@ interface LegalPageViewProps {
 }
 
 export function LegalPageView({ slug, links }: LegalPageViewProps) {
+  const { locale } = useLanguage();
   const config = LEGAL_CONFIG[slug];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,11 +31,11 @@ export function LegalPageView({ slug, links }: LegalPageViewProps) {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    apiJson<{ title: string; content: string }>(`/api/cms-pages/${slug}`)
+    fetchCmsPage(slug, locale)
       .then(setPage)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load page'))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, locale]);
 
   if (loading) {
     return (

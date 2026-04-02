@@ -11,6 +11,7 @@ export interface IAdminStaff extends Document {
   staffRole: StaffRole;
   position?: string;
   department?: string;
+  translations?: Record<string, { position?: string; department?: string }>;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -26,6 +27,7 @@ const AdminStaffSchema = new Schema<IAdminStaff>(
     staffRole: { type: String, enum: ['admin', 'sales', 'marketing', 'hr', 'finance'], required: true },
     position: { type: String },
     department: { type: String },
+    translations: { type: Map, of: Object, default: {} },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
