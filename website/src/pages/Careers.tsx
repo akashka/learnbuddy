@@ -5,6 +5,7 @@ import { fetchJobPositions, submitJobApplication, fetchPageContent, type JobPosi
 import { API_BASE } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 
 const defaultPerks = [
   { icon: '🏠', title: 'Remote-first', desc: 'Work from anywhere. No commute, more flexibility.' },
@@ -387,7 +388,10 @@ function ApplyModal({
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.set('positionId', job.id);
-    formData.set('recaptchaToken', recaptchaToken || '');
+    if (!recaptchaToken) {
+      setSubmitError('Please solve the reCAPTCHA to continue.');
+      return;
+    }
 
     const resume = formData.get('resume') as File | null;
     if (!resume || resume.size === 0) {
@@ -405,7 +409,11 @@ function ApplyModal({
 
     setSubmitting(true);
     try {
-      await submitJobApplication(formData);
+      const data = new FormData(form);
+      data.set('positionId', job.id);
+      data.set('recaptchaToken', recaptchaToken);
+      
+      await submitJobApplication(data);
       setSubmitSuccess(true);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit');
@@ -503,10 +511,10 @@ function ApplyModal({
             />
           </div>
 
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-2 min-h-[80px] bg-brand-50/30 rounded-xl border border-dashed border-brand-200/50">
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              sitekey={recaptchaSiteKey}
               onChange={(token) => setRecaptchaToken(token)}
             />
           </div>

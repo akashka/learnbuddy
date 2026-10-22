@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -150,10 +151,10 @@ export default function AdminLogin() {
                 </div>
               </div>
               
-              <div className="flex justify-center py-2">
+              <div className="flex justify-center py-2 min-h-[80px] bg-accent-50/50 rounded-xl border border-dashed border-accent-200/50">
                 <ReCAPTCHA
                   ref={recaptchaRef}
-                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                  sitekey={recaptchaSiteKey}
                   onChange={(token) => setRecaptchaToken(token)}
                 />
               </div>

@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
 import { BrandLogo } from '@/components/BrandLogo';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 
 type LoginMode = 'student' | 'otp';
 
@@ -218,10 +219,10 @@ export default function Login() {
                   </div>
                 </div>
                 
-                <div className="flex justify-center">
+                <div className="flex justify-center min-h-[80px] bg-brand-50/30 rounded-xl border border-dashed border-brand-200/50 py-2">
                   <ReCAPTCHA
                     ref={recaptchaRef}
-                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    sitekey={recaptchaSiteKey}
                     onChange={(token) => setRecaptchaToken(token)}
                   />
                 </div>

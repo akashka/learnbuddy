@@ -6,6 +6,7 @@ import { useWebsiteSettings } from '@/contexts/WebsiteSettingsContext';
 import { fetchLandingData } from '@/lib/api';
 import { submitContactForm, type ContactFormData } from '@/lib/api';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 
 export default function ContactUs() {
   const websiteSettings = useWebsiteSettings();
@@ -33,6 +34,10 @@ export default function ContactUs() {
       message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
       recaptchaToken: recaptchaToken || '',
     };
+    if (!recaptchaToken) {
+      setSubmitError('Please solve the reCAPTCHA to continue.');
+      return;
+    }
     setSubmitting(true);
     try {
       await submitContactForm(data);
@@ -171,10 +176,10 @@ export default function ContactUs() {
                   <textarea name="message" required rows={4} className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400" placeholder="Your message..." />
                 </div>
 
-                <div className="flex justify-start py-2">
+                <div className="flex justify-start py-2 min-h-[80px] bg-brand-50/30 rounded-xl border border-dashed border-brand-200/50 px-4 items-center">
                   <ReCAPTCHA
                     ref={recaptchaRef}
-                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    sitekey={recaptchaSiteKey}
                     onChange={(token) => setRecaptchaToken(token)}
                   />
                 </div>

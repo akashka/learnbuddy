@@ -4,6 +4,7 @@ import { apiJson } from '@/lib/api';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 
 export default function TeacherRegister() {
   const [searchParams] = useSearchParams();
@@ -151,10 +152,10 @@ export default function TeacherRegister() {
             />
           </div>
           
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-2 min-h-[80px] bg-brand-50/30 rounded-xl border border-dashed border-brand-200/50">
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              sitekey={recaptchaSiteKey}
               onChange={(token) => setRecaptchaToken(token)}
             />
           </div>

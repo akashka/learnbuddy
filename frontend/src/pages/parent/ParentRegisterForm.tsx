@@ -6,6 +6,7 @@ import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { LocationSearch } from '@/components/LocationSearch';
 import { PolicyTermsCheckbox } from '@/components/PolicyTermsCheckbox';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { recaptchaSiteKey } from '@/lib/recaptcha';
 
 interface FormData {
   name: string;
@@ -123,10 +124,10 @@ export default function ParentRegisterForm() {
             error={error && !acceptedPolicy ? error : undefined}
           />
 
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-2 min-h-[80px] bg-brand-50/30 rounded-xl border border-dashed border-brand-200/50">
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              sitekey={recaptchaSiteKey}
               onChange={(token) => setRecaptchaToken(token)}
             />
           </div>
