@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { apiJson } from '@/lib/api';
+import { apiJson, setTeacherRegSession } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { Modal } from '@/components/Modal';
@@ -78,10 +78,11 @@ export default function TeacherRegisterStep() {
     let cancelled = false;
     const checkAccess = async () => {
       try {
-        const data = await apiJson<{ verified?: boolean; allowedStep?: number }>(
+        const data = await apiJson<{ verified?: boolean; allowedStep?: number; sessionToken?: string }>(
           `/api/teacher-registration/verify-access?phone=${encodeURIComponent(phone)}`
         );
         if (cancelled) return;
+        if (data.sessionToken) setTeacherRegSession(data.sessionToken);
         if (!data.verified) {
           navigate('/teacher/register');
           return;

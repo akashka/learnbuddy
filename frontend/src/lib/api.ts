@@ -11,14 +11,28 @@ export class ApiError extends Error {
   }
 }
 
+export function getTeacherRegSession(): string | null {
+  try {
+    return sessionStorage.getItem('teacher_reg_session');
+  } catch {
+    return null;
+  }
+}
+
+export function setTeacherRegSession(token: string): void {
+  sessionStorage.setItem('teacher_reg_session', token);
+}
+
 export function api(path: string, options?: RequestInit): Promise<Response> {
   const token = localStorage.getItem('token');
+  const teacherSession = getTeacherRegSession();
   return fetch(`${API_BASE}${path}`, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(teacherSession ? { 'X-Teacher-Reg-Session': teacherSession } : {}),
       ...options?.headers,
     },
   });

@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Phone and questions required' }, { status: 400 });
     }
 
-    if (!verifyTeacherRegistrationSession(request, phone)) {
+    if (!verifyTeacherRegistrationSession(request, phone, body.sessionToken)) {
       return NextResponse.json({ error: 'Session expired. Please verify your number again.' }, { status: 401 });
     }
 

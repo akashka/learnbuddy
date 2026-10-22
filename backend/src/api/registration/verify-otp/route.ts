@@ -1,9 +1,7 @@
-import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { OTP } from '@/lib/models/OTP';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+import { signTeacherRegistrationSession, teacherRegCookieOptions } from '@/lib/teacher-registration-session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,21 +29,15 @@ export async function POST(request: NextRequest) {
 
     await OTP.deleteOne({ _id: otpRecord._id });
 
-    const response = NextResponse.json({ success: true, message: 'Phone verified' });
+    const sessionToken = type === 'teacher' ? signTeacherRegistrationSession(normalizedPhone) : undefined;
+    const response = NextResponse.json({
+      success: true,
+      message: 'Phone verified',
+      ...(sessionToken ? { sessionToken } : {}),
+    });
 
-    if (type === 'teacher') {
-      const token = jwt.sign(
-        { phone: normalizedPhone, purpose: 'teacher_registration' },
-        JWT_SECRET,
-        { expiresIn: '30m' }
-      );
-      response.cookies.set('teacher_reg_session', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 30 * 60,
-        path: '/',
-      });
+    if (sessionToken) {
+      response.cookies.set('teacher_reg_session', sessionToken, teacherRegCookieOptions());
     }
 
     return response;

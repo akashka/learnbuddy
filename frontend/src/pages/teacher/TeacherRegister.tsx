@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { apiJson } from '@/lib/api';
+import { apiJson, setTeacherRegSession } from '@/lib/api';
 import { AuthPageLayout } from '@/components/AuthPageLayout';
 import { useResendOtpTimer } from '@/hooks/useResendOtpTimer';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -74,10 +74,11 @@ export default function TeacherRegister() {
     setError('');
     setLoading(true);
     try {
-      await apiJson('/api/registration/verify-otp', {
+      const verified = await apiJson<{ sessionToken?: string }>('/api/registration/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ phone: normalizedPhone, otp: String(otp).trim(), type: 'teacher' }),
       });
+      if (verified.sessionToken) setTeacherRegSession(verified.sessionToken);
 
       const checkRes = await apiJson<{
         exists?: boolean;

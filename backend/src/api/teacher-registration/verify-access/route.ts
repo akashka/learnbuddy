@@ -1,9 +1,11 @@
-import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from '@/lib/next-compat';
 import connectDB from '@/lib/db';
 import { TeacherRegistration } from '@/lib/models/TeacherRegistration';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+import {
+  signTeacherRegistrationSession,
+  teacherRegCookieOptions,
+  verifyTeacherRegistrationSession,
+} from '@/lib/teacher-registration-session';
 
 /**
  * GET /api/teacher-registration/verify-access?phone=XXXXXXXXXX
@@ -20,21 +22,9 @@ export async function GET(request: NextRequest) {
     }
 
     const normalizedPhone = String(phone).replace(/\D/g, '').slice(-10);
-    const sessionCookie = request.cookies?.get('teacher_reg_session');
 
-    if (!sessionCookie) {
+    if (!verifyTeacherRegistrationSession(request, normalizedPhone)) {
       return NextResponse.json({ verified: false, error: 'Session expired. Please verify your number again.' }, { status: 401 });
-    }
-
-    let decoded: { phone?: string; purpose?: string };
-    try {
-      decoded = jwt.verify(sessionCookie, JWT_SECRET) as { phone?: string; purpose?: string };
-    } catch {
-      return NextResponse.json({ verified: false, error: 'Session expired. Please verify your number again.' }, { status: 401 });
-    }
-
-    if (decoded.phone !== normalizedPhone || decoded.purpose !== 'teacher_registration') {
-      return NextResponse.json({ verified: false, error: 'Invalid session' }, { status: 401 });
     }
 
     await connectDB();
@@ -58,20 +48,10 @@ export async function GET(request: NextRequest) {
       allowedStep = 5;
     }
 
-    const response = NextResponse.json({ verified: true, allowedStep });
+    const sessionToken = signTeacherRegistrationSession(normalizedPhone);
+    const response = NextResponse.json({ verified: true, allowedStep, sessionToken });
 
-    const newToken = jwt.sign(
-      { phone: normalizedPhone, purpose: 'teacher_registration' },
-      JWT_SECRET,
-      { expiresIn: '30m' }
-    );
-    response.cookies.set('teacher_reg_session', newToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 60,
-      path: '/',
-    });
+    response.cookies.set('teacher_reg_session', sessionToken, teacherRegCookieOptions());
 
     return response;
   } catch (error) {
