@@ -141,7 +141,13 @@ export function startWorker(): void {
   });
 
   worker.on('error', (err) => {
-    console.error('[Queue] Worker error:', err);
+    const message = err?.message || String(err);
+    console.error('[Queue] Worker error:', message);
+    if (/redis version needs to be greater/i.test(message)) {
+      console.error('[Queue] Redis is older than BullMQ requires. Background jobs are disabled until REDIS_URL points at Redis 5 or newer.');
+      void worker?.close().catch(() => undefined);
+      worker = null;
+    }
   });
 
   console.log('[Queue] Worker started');

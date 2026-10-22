@@ -33,18 +33,37 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+function isUsableConnection(conn: typeof mongoose | null): boolean {
+  const state = conn?.connection.readyState;
+  return state === 1 || state === 2;
+}
+
 async function connectDB(): Promise<typeof mongoose> {
-  if (cached!.conn) {
-    return cached!.conn;
+  if (isUsableConnection(cached!.conn)) {
+    return cached!.conn!;
   }
 
+  cached!.conn = null;
   if (!cached!.promise) {
-    cached!.promise = mongoose.connect(MONGODB_URI, {
-      readPreference: READ_PREFERENCE,
-    });
+    cached!.promise = mongoose
+      .connect(MONGODB_URI, {
+        readPreference: READ_PREFERENCE,
+        serverSelectionTimeoutMS: 15000,
+      })
+      .catch((err) => {
+        cached!.promise = null;
+        cached!.conn = null;
+        throw err;
+      });
   }
 
-  cached!.conn = await cached!.promise;
+  try {
+    cached!.conn = await cached!.promise;
+  } catch (err) {
+    cached!.promise = null;
+    cached!.conn = null;
+    throw err;
+  }
   return cached!.conn;
 }
 

@@ -8,12 +8,28 @@ const REDIS_URL = process.env.REDIS_URL || '';
 
 let client: Redis | null = null;
 
+function isClosed(redis: Redis): boolean {
+  return redis.status === 'end' || redis.status === 'close';
+}
+
+function dropClient(): void {
+  if (!client) return;
+  client.removeAllListeners();
+  try {
+    client.disconnect();
+  } catch {
+    // Already closed.
+  }
+  client = null;
+}
+
 export async function getRedisClient(): Promise<Redis | null> {
   if (!REDIS_URL) return null;
-  if (client) return client;
+  if (client && !isClosed(client)) return client;
+  dropClient();
 
   try {
-    client = new Redis(REDIS_URL, {
+    const next = new Redis(REDIS_URL, {
       maxRetriesPerRequest: 2,
       retryStrategy(times: number) {
         if (times > 3) return null;
@@ -21,10 +37,14 @@ export async function getRedisClient(): Promise<Redis | null> {
       },
     });
 
-    client.on('error', (err: Error) => {
+    next.on('error', (err: Error) => {
       console.warn('[Redis] Error:', err.message);
     });
+    next.on('end', () => {
+      if (client === next) client = null;
+    });
 
+    client = next;
     return client;
   } catch (err) {
     console.warn('[Redis] Failed to connect:', err instanceof Error ? err.message : err);
