@@ -26,8 +26,9 @@ const PORT = process.env.PORT || 3005;
 
 const app = express();
 
-// Trust proxy for rate limiting
-app.set('trust proxy', true);
+// Render terminates one proxy hop. A boolean `true` lets clients spoof
+// X-Forwarded-For and makes express-rate-limit throw ERR_ERL_PERMISSIVE_TRUST_PROXY.
+app.set('trust proxy', 1);
 
 // Request ID for tracing across services (must run first)
 app.use(requestIdMiddleware);
@@ -188,7 +189,7 @@ initSocketIO(httpServer);
 const server = httpServer.listen(PORT, async () => {
   console.log(`Backend API running at http://localhost:${PORT}`);
   console.log('Registered routes:');
-  startWorker();
+  await startWorker();
   await setupRepeatJobs();
 });
 

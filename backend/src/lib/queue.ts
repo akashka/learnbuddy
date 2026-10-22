@@ -8,6 +8,7 @@ import { generateClassSchedules } from './generate-class-schedules.js';
 import { runCronNotifications } from './jobs/cron-notifications.js';
 import { runCronDashboardMetrics } from './jobs/cron-dashboard-metrics.js';
 import { processEnrollmentConfirmation } from './jobs/enrollment-confirmation.js';
+import { isRedisUnavailable, markRedisUnavailable, probeRedisHost } from './redis.js';
 
 const REDIS_URL = process.env.REDIS_URL || '';
 const QUEUE_PREFIX = 'tp:';
@@ -34,8 +35,8 @@ function getConnectionOptions(): RedisConnOpts | null {
       enableReadyCheck: true,
       connectTimeout: 10000,
       retryStrategy: (times) => {
-        if (times > 20) return null;
-        return Math.min(times * 500, 5000);
+        if (times > 2) return null;
+        return Math.min(times * 200, 1000);
       },
     };
     if (u.password) opts.password = decodeURIComponent(u.password);
@@ -50,6 +51,17 @@ const connection = getConnectionOptions();
 let queue: Queue | null = null;
 let worker: Worker | null = null;
 
+function stopQueue(message: string): void {
+  if (isRedisUnavailable()) return;
+  markRedisUnavailable(message);
+  const currentWorker = worker;
+  const currentQueue = queue;
+  worker = null;
+  queue = null;
+  void currentWorker?.close().catch(() => undefined);
+  void currentQueue?.close().catch(() => undefined);
+}
+
 export const JOB_NAMES = {
   GENERATE_SCHEDULES: 'generate-schedules',
   CRON_NOTIFICATIONS: 'cron-notifications',
@@ -58,7 +70,7 @@ export const JOB_NAMES = {
 } as const;
 
 export function getQueue(): Queue | null {
-  if (!REDIS_URL || !connection) return null;
+  if (!REDIS_URL || !connection || isRedisUnavailable()) return null;
   if (queue) return queue;
   queue = new Queue('cron', {
     connection,
@@ -68,6 +80,9 @@ export function getQueue(): Queue | null {
       backoff: { type: 'exponential', delay: 5000 },
       removeOnComplete: { count: 100 },
     },
+  });
+  queue.on('error', (err: Error) => {
+    stopQueue(err?.message || String(err));
   });
   return queue;
 }
@@ -85,11 +100,13 @@ export async function addJob(name: string, data?: Record<string, unknown>): Prom
 }
 
 export async function setupRepeatJobs(): Promise<void> {
-  const q = getQueue();
-  if (!q) {
+  if (!REDIS_URL || !connection) {
     console.log('[Queue] Redis not configured - skipping repeat jobs');
     return;
   }
+  if (!(await probeRedisHost())) return;
+  const q = getQueue();
+  if (!q) return;
   try {
     const repeatable = await q.getRepeatableJobs();
     for (const job of repeatable) {
@@ -102,12 +119,18 @@ export async function setupRepeatJobs(): Promise<void> {
     await q.add(JOB_NAMES.CRON_DASHBOARD_METRICS, {}, { repeat: { pattern: '0 2 * * *' } });
     console.log('[Queue] Repeat jobs: generate-schedules (hourly), cron-notifications (every 15 min), dashboard-metrics (daily 2am)');
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ETIMEDOUT|getaddrinfo/i.test(message)) {
+      stopQueue(message);
+      return;
+    }
     console.error('[Queue] Failed to setup repeat jobs:', err);
   }
 }
 
-export function startWorker(): void {
+export async function startWorker(): Promise<void> {
   if (!REDIS_URL || !connection) return;
+  if (!(await probeRedisHost())) return;
 
   worker = new Worker(
     'cron',
@@ -142,12 +165,11 @@ export function startWorker(): void {
 
   worker.on('error', (err) => {
     const message = err?.message || String(err);
-    console.error('[Queue] Worker error:', message);
-    if (/redis version needs to be greater/i.test(message)) {
-      console.error('[Queue] Redis is older than BullMQ requires. Background jobs are disabled until REDIS_URL points at Redis 5 or newer.');
-      void worker?.close().catch(() => undefined);
-      worker = null;
+    if (/redis version needs to be greater|ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ETIMEDOUT|ENETUNREACH|getaddrinfo|Connection is closed/i.test(message)) {
+      stopQueue(message);
+      return;
     }
+    console.error('[Queue] Worker error:', message);
   });
 
   console.log('[Queue] Worker started');
